@@ -1,0 +1,2 @@
+FD-REPOv1	Build time: 1645361143	Applications	1
+fdimples	0.11.5	Programme d'installation de FreeDOS - Logiciel d'‚dition de la liste de mes paquets	592db6ed

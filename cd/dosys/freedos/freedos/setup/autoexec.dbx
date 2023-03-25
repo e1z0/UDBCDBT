@@ -1,0 +1,61 @@
+@ECHO OFF
+
+rem FreeDOS specific FDAUTO.BAT file for DOSBox. You may wish to have your
+rem Z:\FDAUTO.BAT file check for and automatically launch this batch file
+rem at DOSBox startup.
+
+if "%1" == "FreeDOS" goto ShellLoaded
+C:
+CD\
+if not exist $FTARGET$\bin\command.com goto END
+$FTARGET$\bin\command.com /e:2048 /k %0 FreeDOS
+goto END
+
+:ShellLoaded
+set DOSDRV=$FDRIVE$
+set DOSDIR=$FTARGET$
+set OLDPATH=%PATH%
+if "%LANG%" == "" set LANG=EN
+if "%TZ%" == "" set TZ=EDT
+set PATH=%dosdir%\BIN
+if EXIST %dosdir%\LINKS\NUL set PATH=%path%;%dosdir%\LINKS
+set PATH=%PATH%;Z:\
+if NOT "%OLDPATH%" == "" PATH=%PATH%;%OLDPATH%
+set OLDPATH=
+
+set NLSPATH=%dosdir%\NLS
+set HELPPATH=%dosdir%\HELP
+set TEMP=%dosdir%\TEMP
+set TMP=%TEMP%
+set BLASTER=A220 I5 D1 H5 P330
+set DIRCMD=/P /OGN /Y
+set COPYCMD=/-Y
+set OS_NAME=FreeDOS
+set OS_VERSION=1.3
+set autofile=C:\FDAUTO.BAT
+set cfgfile=C:\FDCONFIG.SYS
+alias cfg=edit %cfgfile%
+alias auto=edit %autofile%
+alias reboot=fdapm warmboot
+alias reset=fdisk /reboot
+alias halt=fdapm poweroff
+alias shutdown=fdapm poweroff
+
+$LANG_SET$
+
+MEM /C /N
+
+echo.
+
+:FINAL
+if not exist %dosdir%\bin\fdnet.bat goto NoNetwork
+call %dosdir%\bin\fdnet.bat start
+if errorlevel 1 goto NoNetwork
+
+REM Custom networking stuff
+:NoNetwork
+
+if exist %dosdir%\bin\fdassist.bat call %dosdir%\bin\fdassist.bat
+if exist %dosdir%\bin\welcome.bat call %dosdir%\bin\welcome.bat
+
+:END

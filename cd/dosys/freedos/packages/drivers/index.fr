@@ -1,0 +1,3 @@
+FD-REPOv1	Build time: 1645361143	Pilotes de p‚riph‚riques	2
+shsufdrv	1.02a	SHSUFDRV est un pilote pour les images de disque dur et de disquette. SHSURDRV copie l'image sur la m‚moire vive et/ou cr‚e des lecteurs RAM.	d62292b1
+udvd2	2015-03-05d	Pilote de lecteur CD/DVD UltraDMA	f17eefb5

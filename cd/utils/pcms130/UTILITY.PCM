@@ -1,0 +1,55 @@
+; UTILITY.PCM - sample utility menu for PCMENU demo
+;
+; Must explicitly set options for each menu, even if invoked with <filespec.
+;
+
+.t=UTILITIES MENU
+.e=0
+.c=47,31
+
+Return to Main Menu
+        <default.pcm
+Disk Optimize
+        type sample
+        mpause
+        /
+Full-Batch Optimize
+        type sample
+        mpause
+        /
+Quick-Batch Optimize
+        type sample
+        mpause
+        /
+Format Diskettes,password
+        type sample
+        mpause
+        /
+Disk Diagnostics
+        type sample
+        mpause
+        /
+Communications
+        type sample
+        mpause
+        /
+Save Recovery Data
+        type sample
+        mpause
+        /+0
+Sort Directories
+        type sample
+        mpause
+        /
+Backup '.C' files
+        type sample
+        mpause
+        /
+Backup '.ASM' files
+        type sample
+        mpause
+        /
+Backup '.PRG' files
+        type sample
+        mpause
+        /

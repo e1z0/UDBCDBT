@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       choice
+Description: Pr‚senter un choix … l'utilisateur et attendre l'appui d'une touche (utilise kitten au lieu de cats)
+Keywords:    freedos
+End

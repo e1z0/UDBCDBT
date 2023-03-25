@@ -1,0 +1,818 @@
+Docs for PCMENU - Personal Computer Menu System
+Copyright (c) 1989,1990  Bob Trevithick and Rick Kiss
+Sun  07-22-1990
+
+----------PERSONAL COMPUTER MENU SYSTEM----------
+
+                   VERSION 1.30
+
+
+OVERVIEW
+========
+PCMENU is for people who don't want lots of bells and whistles, and who need
+something small, fast, and very easy to use and modify.  PCMENU can run any
+and all applications on your computer, with or without password protection,
+and steals NO memory (and very little disk space) from your applications.  It
+requires a 'true' PC/AT/PS2 compatible system.
+
+Many (most) of the menus available these days attempt to be all-purpose DOS
+'shells' in addition to being menu systems.  PCMENU has no such aspirations.
+It is for people who want a menu, period.  It is specifically tailored for
+those who administer large numbers of PC's - but is so simple to use that even
+beginners seem to like it.
+
+To set up the system, you will create a simple ASCII text file which contains
+the menu choices to be displayed to the user, and all of the batch
+instructions needed to execute each choice.  Then you'll type "PCMENU" to
+start the menu system.  If the file you create (or want to use) is named
+something other than "DEFAULT.PCM", then you'll follow the "PCMENU" command
+with the name of the file.  That's all there is to it.
+
+One immediate advantage is that the systems under your control can now be
+purged of all those trivial little batch files that are such a nightmare to
+keep track of.  Each computer can have ONE easy to read and understand menu
+text file - or, optionally, a number of logically grouped functions in a
+handful of these text files (which will be loaded as sub-menus).  This can
+result in significant disk space savings, as well, given the large cluster
+size of many drives.
+
+
+
+INITIAL SETUP
+=============
+This is an extremely easy system to set up.  All you need to do is copy the
+distributed files to the directory of your choice, edit the DEFAULT.PCM file,
+and you're set to go.  If the directory you picked is in your path, and you
+use the MAKEMENU command described below, you will be able to start the menu
+from anywhere in the system.  I just install it in the \UTILS directory of the
+machines I work with, which is in the path and which includes all of the
+things I use routinely.
+
+If you are using a network, there are special notes which you should read
+under 'NETWORK SUPPORT and NOTES', below.
+
+If you're using an environment such as DESQVIEW or WINDOWS, or have a CGA
+which displays 'snow' with direct video access, see the notes below on forcing
+the system to 'USE ONLY LEGAL BIOS VIDEO CALLS'.
+
+NOTE that although the executable program file is PCMS.COM, you will start the
+menu by running the PCMENU.BAT batch file which calls PCMS and then processes
+it's errorlevel return code in the standard way for menus such as this.
+Starting the menu by executing PCMS directly will cause the menu to display
+normally, but none of your selections will actually be executed.  A basic
+PCMENU.BAT file is included, but you will want to run the MAKEMENU program (or
+edit the file yourself) to create one which is customized for your machine.
+There is a message in the supplied PCMENU.BAT to remind you to do this.
+
+MAKEMENU.COM is a small program which will create a slightly optimized version
+of PCMENU.BAT for you, checking the DOS version to see if the '@echo off'
+command is supported, and inserting the drive and directory change commands in
+the proper places.  Simply move to the drive and directory where you'll be
+installing the menu, then issue the command:
+
+        MAKEMENU
+
+
+Once the system is installed, the only files needed to run it will be
+PCMS.COM, PCMENU.BAT, and whatever menu text file(s) you created (presumably
+DEFAULT.PCM will be one of them.)  All other distributed files can be deleted,
+as they are not used by the menu system.  Optionally, you can also use
+PCMSPASS.COM to install administrator passwords into the PCMS.COM program in
+a lightly encrypted format.
+
+
+
+CREATING THE MENU FILE(S)
+=========================
+The text (menu) file containing the names and commands is easy to create. Any
+text editor capable of creating standard 7-bit ASCII text files can be used.
+Selecting the name "DEFAULT.PCM" for your main (or only) menu file will allow
+the menu, as noted above, to be started with just the "PCMENU" command.
+
+Any entry (with a few exceptions, below) which starts in the first column is
+an item NAME - that is, it's what the user will see as one of the selection
+choices.  A name can be up to 21 characters long.  Any text which begins in
+any other column (indented by a space or tab) is a COMMAND, and is associated
+with the last NAME above it.  These can be any valid batch file instruction,
+and each can be up to 127 characters long.  You can have as many commands as
+you want for any given item name.
+
+Here's an example of a couple of typical entries:
+
+--------------------------------
+Run WordStar
+        d:
+        cd\ws
+        ws
+
+dBase III Plus
+        cd\db
+        dbase
+--------------------------------
+
+There will be only two items displayed when the menu above is run.  The rest
+of the lines (the indented ones) will be written to a temporary batch file if
+their parent item name is chosen.  Neither of the items above will return to
+the menu when completed (see below for that).
+
+Note that you may separate items in your file with blank lines, or insert
+comments by preceeding them with a semicolon in column one, and that ANY valid
+batch file command can be used (including branching to labels).
+
+The program will look for the menu file DEFAULT.PCM unless you specify another
+name on the command line (note the %1 parameter in PCMENU.BAT, which allows
+the PCMENU command to load any text file you want).  A couple of sample menu
+files are included, but they don't do anything significant. The batch file
+which is created and executed when an item is selected is normally called
+PCM_EXEC.BAT, but can also be named via an environment variable for network
+users (see below under 'NETWORK SUPPORT and NOTES'.)
+
+While a menu is being displayed, the cursor keys move the highlite bar.
+Pressing <Enter> will execute the highlited selection.  Pressing <Esc> will
+exit the menu.
+
+
+ERROR MESSAGES
+==============
+The four types of errors most likely to occur are those reported by
+PCMENU.BAT, and include errors reading and writing files, having too many menu
+items in a given menu text file, and using invalid 'dot' commands.  The first
+problem is usually due to mis-spelling a menu file name on the command line,
+or having forgotten to run MAKEMENU to customize your PCMENU.BAT file.  The
+second is likely due to a disk-full condition, but will also occur if you set
+PCM_EXEC.BAT (or the file named in the environment variable PCM, described
+below) to read-only attribute. The invalid dot commands problem can be a typo,
+or an attempt to use a command no longer supported such as the .a= command.
+The last problem occurs when you attempt to list more than 66 items in a
+single menu text file.  By this we mean 66 NAMES which are displayed to the
+user.  You can have ANY number of COMMANDS listed under each NAME (I've tested
+it with files containing 1300 command lines for a single item.)  If you need
+more than 66 items, simply chain to another menu file (described below.)
+
+
+That's all you need to know to get started.  Read on when you're ready for
+some simple but handy options.
+
+
+
+---OPTIONS, BELLS, WHISTLES:
+
+AUTOMATIC RETURN TO MENU WHEN SELECTED ITEM CONCLUDES
+=====================================================
+The first bell (whistle?) will cause an automatic return to the menu after an
+item has finished executing.  Using just a '/' character as the last command
+for an item will cause the batch file to be created with the necessary return
+commands added at the end.  You can think of this as a way of telling PCMENU
+to "do whatever you have to do to get the menu running again after this item
+finishes executing."  For example, if you're currently logged to the E:\UTILS
+directory, you invoked the menu by typing "PCMENU MENU1" to use the MENU1 text
+file, and you selected the middle item on the top row which looks like this:
+
+----------------------------
+TEST ITEM
+        c:
+        cd\finance
+        dbase finmenu
+        /
+----------------------------
+
+The batch file which would be created would contain the following commands:
+
+----------------------------
+c:
+cd\finance
+dbase finmenu
+E:
+cd\UTILS
+pcmenu MENU1 +1
+----------------------------
+        
+NOTE that this option will only work if you start the system from a batch file
+named PCMENU.BAT, as the program has no knowledge of the command line prior to
+it's own invocation.
+
+The +1 in the above example shows one use of the '+' option described below.
+This option tells the menu to move to a specific menu item as soon as the menu
+is displayed on the screen. By doing this, the user is returned to the menu
+with the highlight bar and mouse cursor positioned as they were when the
+selection was made.  Note that if you prefer the old system of always
+returning to the menu with the first item highlighted, you can use '/+0'
+instead of just '/'.
+
+In addition to the default '+' value which returns to the same item, you can
+optionally include your own custom value immediately after the '/' character
+in your menu file.
+
+----------------------------
+TEST ITEM
+        c:
+        cd\finance
+        dbase finmenu
+        /+2
+----------------------------
+
+This will cause the menu to reappear, after executing the selected item, with
+the top right item (i.e., the 3rd one) highlighted.  Using /+0 will put the
+highlight on the first item.
+
+You can use this feature to guide a person through a series of menus or items,
+making a guess about which item they are likely to want next.  The first item
+is number zero, so the +2 means the third item.  Or, think of it as meaning
+'add 2 to the initial item'.  Also note that the menu counts items from left
+to right - just use the right arrow key to count them in the order the menu
+system does.
+
+The first two items in the distributed .PCM files use this approach to show
+how to do it.  Selecting 'Utilities Menu' places you on a certain item in that
+menu.  If you run that item, you return to the option which allows exit from
+the menu.  Similarly, selecting 'Aphrodisiac Research' will cause the next
+default item to be 'Incident Reporting', and if that is run the next item will
+be the 'Exit' from the menu.  If there are certain sequences that you use
+routinely, these '+' options can make them easier and smoother.
+
+
+LOAD ANOTHER MENU TEXT FILE
+===========================
+There is a way of loading another menu text file directly to the display,
+which provides a very fast method of chaining between multiple menus.  If a
+command consists of a '<' character immediately followed by a filespec, the
+file specified will be loaded just as if it's name had been specified on the
+command line.  For example:
+
+--------------------------------
+UTILITY MENU
+    <utility.pcm
+--------------------------------
+
+This will load the file "utility.pcm", and the items defined in that file will
+immediately be displayed for selection.  Full pathnames are supported.
+
+This command also supports the new '+' ability to index directly to a desired
+option (see discussion of '/' character above).  You can follow the filename
+with a plus sign and the number of the item you want.  For example,
+
+        <utility.pcm +2
+
+will put the highlight bar on the righthand top menu item.  Remember that the
+first item is item number 0, so +2 means the third item.  This is a handy
+option for constructing menu systems which anticipate the user's choices.  The
+demo menu goes to a specific item using this command.
+
+
+PASSWORDS
+=========
+You can include password protection with any item.  You do this by following
+the item name with a comma and the password.  For example:
+
+----------------------------
+Exit to DOS,password
+----------------------------
+
+Note that no space was included surrounding the comma.  If you wanted to get
+tricky, you might require the user to press the space bar twice before
+entering the password:
+
+----------------------------
+Exit to Dos,  password
+----------------------------
+
+Passwords can be up to 21 characters long (the same max length as an item
+name).  They can also be a phrase with embedded white space as long as the max
+length is not exceeded.  Case is not significant.
+
+
+DEFAULT PASSWORDS
+=================
+A related option allows setting one or more default passwords, which will
+protect the menu items subsequently defined in the text file.  This is done by
+placing a '.p=' in the far left column, immediately followed by the password.
+Items which have been entered with a comma and their own password will still
+be protected by that explicitly defined word, and items which are followed by
+only a comma will NOT be protected by any word (i.e., they are then exempt
+from the current default password).  A lone '.p=', with no word specified,
+will turn off default password protection for subsequent items.
+
+For example, examine the following text file fragment:
+
+--------------------------------------
+.p=aardvark
+Item One
+        d:
+        cd\item1
+        item1
+        /
+Item Two
+        cd\item2
+        item2
+        /
+Item Three,password3
+        cd\item3
+        item3
+        /
+Item Four
+        cd\item4
+        item4
+        /
+.p=hello world
+Item Five
+        cd\item5
+        item5
+        /
+Item Six,
+        cd\item6
+        item6
+        /
+Item Seven
+        cd\item7
+        item7
+        /
+.p=
+Item Eight
+        cd\item8
+        item8
+        /
+Item Nine
+        cd\item9
+        item9
+        /
+--------------------------------------
+
+The first two items above would be protected by the work "aardvark", but the
+third item would have it's own password set to "password3".  The fourth item
+would use the current default of "aardvark" again, but then a new default
+password is set with the ".p=hello world" statement.  Items number 5 and 7 are
+protected by this new phrase, but item number 6 is exempt because of the
+trailing comma.  The '.p=' all by itself prior to the eighth item turns off
+the default password feature, so the remaining items (8 and 9) have NO
+password protection at all.
+
+
+ADMINISTRATOR PASSWORD 
+====================== 
+Yet another password option allows setting an 'administrator' password, which
+can be used whenever the program requests a password.  This USED to be done by
+putting '.a=' in the far left column, and immediately followed by the
+password.  We decided this was not sufficiently secure, so wrote a utility
+program (PCMSPASS.COM) which inserts the admin password directly into the PCMS
+program in a lightly encrypted format.  With PCMS.COM in the current
+directory, just type PCMSPASS new_password old_password, where the
+new_password is any phrase up to 21 characters long and the old_password is
+the one which is currently set (none if PCMSPASS has never been used).  Case
+is not significant.  Enclose the password in quotes if you want embedded
+whitespace.  For example:
+
+        PCMSPASS bobt oldword
+            or
+        PCMSPASS "new password" oldword
+
+Assuming your current administrator password is 'oldword', this will cause the
+phrase 'bobt' (or 'new password' in the 2nd example) to be accepted in
+addition to any other password which might be defined for a given item.  It
+will allow access to ANY item which is password protected.  It's handy for
+people who have to maintain multiple machines - and who don't want to memorize
+eighty or ninety routinely changing passwords.
+
+This 'backdoor' password is null when PCMS.COM is first extracted from the
+.ZIP file.  Hence, to set it the first time you will not use the old_password.
+
+Obviously you want to keep PCMSPASS on floppy, and not give it out to your end
+users...
+
+
+DISABLE ESCAPE KEY
+==================
+Another security related option involves the ability to turn off the <Esc>ape
+key as a means of exit.  Including '.e=0' in the first column will accomplish
+this.  For example:
+
+--------------------------------
+.e=0
+
+Run WordStar,bob
+        d:
+        cd\ws
+        ws
+        /
+
+Exit to System,sys
+
+dBase III Plus,norm
+        cd\db
+        dbase
+        /
+--------------------------------
+
+Note that you should provide some other means of exit if you turn off the
+Escape key.  The 'Exit to System' option above does this by not defining any
+commands to be executed.  As long as the user knows the "sys" password, this
+item will allow exit to DOS.
+
+
+SETTING A MENU TITLE
+====================
+You can optionally have a short title (21 chars max, same as item name and
+password) displayed at the top of the screen, which can be handy if you're
+using multiple menus.  Here's how you would set the title of your utilities
+menu:
+
+--------------------------------
+.t=UTILITIES MENU
+--------------------------------
+
+
+TIMED SCREEN PROTECTION
+=======================
+Three minutes (by default) of no keyboard activity will result in a screen
+save routine being invoked.  The screen will clear, and a small message saying
+'Hit any key for menu' will move slowly down the screen.  Users report liking
+this kind of message, as they tend otherwise to assume the machine is dead or
+the monitor turned down.  The next keystroke or mouse activity will restore
+the menu display.
+
+You can set the Screen-protect delay by including '.s=' followed immediately
+by the number of seconds delay you want.  Using 0, or any value less than 5,
+will disable the screen protect feature entirely.  For example, the value 300
+will set the delay to 5 minutes (300 seconds), as shown below:
+
+--------------------------------
+.s=300
+--------------------------------
+
+As an aside, this screen protection is very important for the old monochrome
+monitors, which tended to 'burn in' a stationary image.  I'm not sure whether
+the newer color monitors need this, but it can't hurt...
+
+
+USE ONLY LEGAL BIOS VIDEO CALLS
+===============================
+By default, the system writes directly to video ram for all screen output. If
+your system doesn't permit this, or if you're running under an environment
+where this is inconvenient, you can force the system to use only legal BIOS
+calls by including '.b=1' in the menu text files.  This is an option you
+should only use if you have to, as it will slow down the display (most
+noteably on slower machines).  If would be worth using this option if, for
+example, you're running DesQview or Windows - which would have to routinely
+de-window the environment otherwise.  This will also solve 'snow' problems if
+you have any old CGA adaptors in use.
+
+
+SINGLE KEY SELECTION
+====================
+While the menu is being displayed, the highlite bar is normally moved with the
+cursor control keys.  You can also move directly to an item by pressing the
+character key which corresponds to the first letter of the item name. If there
+are multiples, pressing the same key will move to the next item beginning with
+that character.
+
+
+MOUSE SUPPORT
+=============
+If you have a mouse installed, PCMENU will activate a mouse cursor and will
+move the highlight bar to wherever the mouse cursor is when you press any
+mouse button. If the highlight bar is already on this item, the mouse button
+will act like the <ENTER> key and select the item.  NOTE that the mouse cursor
+will follow the highlight bar if the bar is moved via the keyboard.
+
+A small program called MPAUSE.COM is also included, and simulates the DOS
+'pause' command -- allowing mouse button hits as well as key hits.  It allows
+you to include a pause during the execution of a menu selection, while
+maintaining the mouse 'feel' of the menu.  This is optional, of course, and
+can be used independently of PCMENU if you wish. You use it by making sure
+it's in the path, then substituting the MPAUSE command anyplace you'd normally
+use a PAUSE command.
+
+
+NETWORK SUPPORT and NOTES
+=========================
+
+Unique output files for networks
+--------------------------------
+The batch file created when a selection is made is normally "PCM_EXEC.BAT". If
+you want multiple users to be able to each write to their own files, you can
+set the DOS environment to include a variable "PCM" which will control the
+primary name of this file (the '.bat' extent will be added for you - don't
+include this yourself.)  Each user's autoexec can set this variable on bootup.
+Note that all users on the system can share the "PCMENU.BAT" file, and the
+various menu text files in a read-only mode (see below for more on this).
+
+Unique menu files for network users
+-----------------------------------
+Since we already have the "PCM" environment variable defined (see above), we
+can also use this to specify the name of the menu file (normally we won't want
+to do this, as users can share the menu files without any conflicts.) When we
+_do_ need to give them distinct menus, however, we can use this "PCM"
+variable. Let's say for example that user Bob needs a unique menu.  Our
+autoexec file for Bob might include these lines:
+
+        ----------------
+        set PCM=BOB
+        pcmenu %PCM%.PCM
+        ----------------
+
+The pcmenu.bat file would then be handed the filename "BOB.PCM" as the menu
+file to be used.  The users on the network could share sub-menus, such as a
+'utilities menu', by having a 'Return to master menu' item defined in the
+shared sub-menu as follows:
+
+        ------------------------
+        Return to master menu
+                pcmenu %PCM%.PCM
+        ------------------------
+
+By using this approach, each user would return to his or her own master menu
+when they were through sharing the common utilities menu.
+
+
+File sharing modes for networks
+-------------------------------
+Menu users hold the menu text file they're currently using open in a shared
+read-only mode.  This avoids problems caused by making a selection from a menu
+whose file has changed since the menu was displayed, as any attempt to modify
+the file will (or should) result in a sharing violation error.
+
+
+Name changes for Novell (tm) networks
+-------------------------------------
+The original versions of PCMENU used to use the name "MENU.BAT" instead of
+"PCMENU.BAT", but this caused a conflict with Novell systems which have their
+own MENU command.  Hence, the "PCMENU.COM" file also had to be renamed, and is
+now "PCMS.COM".
+
+
+COLORS and KEYBOARD LOCK STATE
+==============================
+The system defaults to using the screen colors in effect when it's started,
+and creates a reverse video attribute by simply flipping the color bits. The
+screen is cleared to the original colors on exit and when an item is chosen.
+The program also saves the original keyboard lock state (caps, num, etc.),
+then holds all of these OFF while it is running.  This makes it certain that
+the cursor arrow keys will always work, and prevents users from rebooting or
+hotkeying into most TSR's from within the menu.  The original keyboard locks
+are restored on exit and when any item is selected.
+
+There are three options which will allow you to control the colors and
+keyboard state directly.  Including '.c=' immediately followed by a base 10
+numeric value will set the menu colors to that value.  If you include 2 values
+seperated by a comma, you can set both the base color and the color to be used
+for the hilite selection bar.  Using '.k=0' will prevent PCMENU from restoring
+the original keyboard lock state on exit.  This is handy for dealing with
+IBM's latest little joke, which takes the form of forcing numlock on when
+booting. The '.k=0' option will ensure that the locks will all be off after
+using the menu.  Using '.l=0' tells the program NOT to do anything to the
+keyboard lock state - i.e., the keys are not held in the off state while the
+program is running.  This means that control-alt-del reboots are possible, and
+invoking TSR's via 'Hot-Keys' is possible.
+
+For example, the following will set the screen colors to black on white
+reverse video, allow the keys to be held off while running, and prevent the
+original keyboard lock state from being restored:
+
+--------------------------------
+.c=112
+.k=0
+--------------------------------
+
+The next example will set the colors to dim white (gray?), and use bright
+white for the selection bar.  Note that it won't actually be a 'bar' this way,
+merely a different color text.
+
+--------------------------------
+.c=7,15
+--------------------------------
+
+The program "PCMCOLOR.COM" is now included to assist you in selecting values
+to use with these '.c=' commands.  Just type 'PCMCOLOR' at the DOS prompt to
+see the values and the associated screen colors.  The program will show you a
+menu and allow you to interactively set the colors with various of the cursor
+keys.  The PgUp and PgDn keys will cycle through the colors, allowing the
+system to choose the default hi-light bar color on it's own.  The Up and Down
+Arrow keys will change just the normal item colors, and the Right and Left
+Arrow keys will change just the hi-lighted item color.  The End key will set
+the hi-lighted color to the default based on the current normal item color,
+and the Home key will restore both colors to the startup value.
+
+The color setting 'dot command' which you would include in your menu text file
+to acheive the displayed colors is shown in exactly the format it should be
+entered (except, of course, that it would be in the far left column of the
+text file). Pressing the Escape key will abort the program. The easiest way to
+explore the color possibilities is to simply use the PgUp and PgDn keys to
+find a basic setting that looks ok, then use the Right and Left Arrow keys to
+fine-tune the hi-light bar to whatever looks best.
+
+
+
+*****NOTES, and points to remember:
+
+-You start the menu with the PCMENU command, and not by invoking PCMS.COM
+ directly.
+
+-The various 'dot' commands don't really need to be at the top of the file,
+ but putting them there will make the file much more legible.  The only one
+ which remains location dependent is the default password (.p=) command, for
+ obvious reasons.
+
+-Spaces are NOT stripped off the passwords, so make certain you set these to
+ exactly what you want them to be.
+
+-You can include an 'Exit' option, as I did in the example file, by simply not
+ following the item name with any commands.  This will cause an empty (0 byte)
+ batch file to be written, and control will go to DOS.  You could also put
+ something like "echo Use PCMENU command to re-start the menu" as the only
+ command for the item.  The normal exit is to simply press the <ESC> key,
+ unless this has been disabled with a '.e=0' command in your menu text file.
+
+-You should run the MAKEMENU.COM program (described above) to create a
+ customized PCMENU.BAT which will change to the proper drive and directory
+ prior to executing PCMS.COM.  Installing the menu system in a directory which
+ is in the path will allow users to restart the menu by simply typing "PCMENU"
+ from anywhere in the system.
+
+-I tried to make the movement of the highlite bar as intuitive as I could,
+ allowing the up, down, right and left arrow keys to wrap in a way that seems
+ logical.  Don't forget that pressing the first letter of the item name you
+ want will take you directly to it.
+
+-For people NOT on a Novell network and who have been using PCMENU for some
+ time, you might want to create a little batch file called MENU.BAT which
+ contains just the line
+
+                PCMENU %1 %2
+
+ This will allow you to convert to the new version without having to train all
+ of your users to type 'PCMENU' instead of 'MENU'!  Note that the %1 and %2
+ are so the optional filespec and '+' value can be passed to the system.
+
+
+
+SUMMARY OF SPECIAL OPTIONS:
+===========================
+
+*----------------------*
+| Command line options |
+*----------------------*
+-The name of a menu text file can follow the PCMENU command to override the
+automatic use of DEFAULT.PCM.
+
+-A plus sign + followed by a number can be used to tell the menu to put the
+highlight bar on a specific menu item on startup.
+
+-Both of the above options can be used together, and in any order.
+
+*-------------*
+| Environment |
+*-------------*
+-Environment variable "PCM" can be used to name the output batch file to be
+ created when selections are made (needed for network use), and can also be
+ used in other ways such as to specify a unique menu file for each user.
+
+*-----------------*
+| Command options |
+*-----------------*
+-A single '/' character as the last command for a given item will cause the
+ batch file to be written with commands for re-starting the menu and for
+ 'remembering' the item the cursor was on when the selection was made.
+
+-A '<' character immediately followed by a filespec can be used as a command.
+ It will load another menu text file directly into the menu system display.
+ This is the fastest method of chaining multiple menus together, and a good
+ way of bringing up quick sub-menus.
+
+-Both of the above options can also be followed by a '+' sign and a number to
+ allow moving directly to a specific item as soon as the menu is displayed.
+ See above for details.
+
+*----------------------*
+| Dot Command Settings |
+*----------------------*
+-Disable ESC key as exit key:   .e=0
+-Default Password:              .p=text
+-Screen protection delay:       .s=n
+-Use only legal BIOS video:     .b=1
+-Don't change keyboard Locks:   .l=0
+-Leave keyboard locks off:      .k=0
+-Title for menu:                .t=text
+-Colors to be used:             .c=n   OR   .c=n1,n2
+-Set item password:             item name,password
+
+NOTE that case is not significant:  '.P=' is the same as '.p=', so use
+whichever you find most legible.
+
+
+SUMMARY OF KEY MAPPING:
+=======================
+
+Action                          Key(s)
+======                          ======
+
+select highlited item           Enter
+---
+exit                            ESCape key (if not disabled)
+---
+move to specific item           first char of Item Name
+---
+move down list                  Down Arrow
+move up list                    Up Arrow
+move right                      Right Arrow
+move left                       Left Arrow
+---
+left of row                     Home
+right of row                    End
+top of column                   PgUp
+bottom of column                PgDn
+
+
+
+TECHNICAL NOTES & MISCELLANY
+============================
+You can skip this part if you aren't interested in the technical aspects of
+the system, but you may want to come back to it later - especially if you have
+any problems getting it running.
+
+-PCMS.COM writes directly to the video screen buffer for increased display
+ speed, uses many BIOS level calls, and directly manipulates data in the BIOS
+ data segment.  Hence the need for PC/AT/PS2 compatibility.  A new option (as
+ of the 2/19/89 release) allows forcing the system to write to the screen via
+ legal BIOS routines, however, so this constraint is now lifted somewhat.
+
+-The system normally holds all of the 'shift' keys (Shift, Ctrl, Alt, Scroll,
+ Caps, and NumLock) in an OFF state while displaying a menu, then restores
+ them to their previous setting on exit.  This has a number of advantages for
+ this application:
+
+    -most TSR's cannot be invoked from menu (more security).
+    -cannot reboot via Ctrl-Alt-Del (more security).
+    -arrow keys will always work (NumLock cannot accidently be set).
+
+
+-I'm not sure at what point DOS gained the ability to reference environment
+ variables in batch files by enclosing them in '%' signs.  If this is reported
+ by your version of DOS as an error, simply remove the offending line from the
+ PCMENU.BAT file.  It's only there for network support, and people using old
+ versions of DOS aren't likely to be on a network.  NOTE however that if you
+ do remove this line, you WON'T be able to set the name of the output file by
+ using the "PCM" environment variable.
+
+-MAKEMENU.COM is a simple little program which does the following.  1) It
+ checks the DOS version number to see if the "@echo off" command is supported.
+ If it's DOS version 3.30 or higher, it includes the '@' sign, otherwise it
+ suppresses it.  2) It checks the logged drive and directory, and inserts
+ commands to automatically change to these prior to running the menu. 3) It
+ dumps out the remainder of the text for the batch file, verbatim.
+
+-MPAUSE.COM is a routine to duplicate the DOS 'pause' command, but also allows
+mouse button hits.  If a mouse is detected, MPAUSE's prompt will change to
+include a reference to it.
+
+-PCMSPASS.COM is another simple little program which accepts a password on the
+command line, encrypts it, and writes it into the PCMS.COM file as the
+administrator password (which can be used whenever a password is required).
+
+-PCMCOLOR.COM is a trivial program which displays a phony menu and allows you
+ to experiment with different color combinations.  It will show you the ".c="
+ command needed to reproduce the combination shown.
+
+-PCMS.COM returns 'errorlevel' codes to DOS, which are used by the PCMENU.BAT
+ file to determine what action it should take upon regaining control.  The
+ normal return code is 255, which means that the user selected an item and
+ that the batch file needed to run the item was created successfully.  The
+ name of this batch file will be either the contents of the PCM environment
+ variable with ".BAT" added as an extent, or "PCM_EXEC.BAT", which is the
+ default. PCMENU.BAT issues both commands, starting with the environment
+ variable name. If this variable is set, then control will not return to
+ PCMENU.BAT and the other command will never be executed.  If it isn't set,
+ the PCM_EXEC.BAT file will be executed instead.
+
+-PCMS.COM returns a 0 value if the user hit the Escape key to exit the menu,
+ and this tells PCMENU.BAT that it shouldn't execute the batch file this time.
+ Any other value (besides the normal 255) indicates that an error occurred,
+ and PCMENU.BAT then branches to it's simplistic error reporting section.  I
+ kept this small, knowing how slow batch files are - and figuring that the
+ three errors covered would be enough to diagnose most any problem likely to
+ occur.
+
+-PCMS.COM opens the menu text files in read-only mode, and keeps the file
+ open. This has the virtue of preventing anyone else from accessing the file
+ in a 'write' mode while the system is in use.  Hence, the menu text files can
+ only be modified when no users are accessing them.
+
+-"NOVELL", "DESQVIEW" and "WINDOWS" are registered trademarks of their
+ respective vendors.
+
+-We suspended our 'Aphrodesiac Research' program years ago (as soon as we
+ found one that worked).
+
+*--------------------------*---------------------------------*
+| Bob Trevithick           | Voice.......315-331-1700 (2453) |
+| Information Services     | PC Data............315-331-4899 |
+| N.Y.S. OMR               | OMR Network....NEWARK::TREVITRF |
+| Newark Office            | GEnie..............R.TREVITHICK |
+| 703 East Maple Ave.      | CompuServe...........73567,2675 |
+| Newark, New York  14513  | MCI Mail...RTrevithick 394-8198 |
+*--------------------------*---------------------------------*
+
+*---------------------------------*
+| Rick Kiss                       |
+| O.D. Heck Developmental Center  |
+| Daytime Voice:  (518) 370-7529  |
+| GEnie address:  R.W.KISS        |
+*---------------------------------*

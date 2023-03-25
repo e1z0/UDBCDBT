@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       V8Power Tools
+Description: Un ensemble d'utilitaires d'am‚lioration de fichiers batch pour DOS pouvant fournir une interface utilisateur texte et d'autres fonctions de traitement
+Keywords:    dos 16 bits batch vask vchoice vecho vpause vframe vmath vline vprogres veach
+End

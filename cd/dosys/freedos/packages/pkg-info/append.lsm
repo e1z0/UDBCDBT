@@ -1,0 +1,23 @@
+Begin3
+Title:                 APPEND
+Version:               5.0-0.6a
+Entered-date:          2006-01-23
+Description:           Access files as if in the current dir
+Summary:               APPEND enables programs to open data files in specified directories as if the files were in the current directory.
+Keywords:              freedos, append, data, files, directories
+Author:                Eduardo Casino-Almao <mail@eduardocasino.es>
+Maintained-by:         Eduardo Casino-Almao <mail@eduardocasino.es>
+Defunct-Original-site: https://www.eduardocasino.es/code/append/
+Platforms:             DOS (nasm)
+Copying-policy:        GNU General Public License, Version 2
+Wiki-site:             http://wiki.freedos.org/wiki/index.php/Append
+CRC:                   882e3330
+MD5:                   9ae4f287ce0f7a892a1065c999551b25
+SHA:                   088a2352014650c8941f68aa56e44b09e88e1b39187df85e7342efd706a93c4c
+Bin-files:             15
+Bin-size:              46851
+Source-files:          10
+Source-size:           61246
+Total-files:           25
+Total-size:            108097
+End

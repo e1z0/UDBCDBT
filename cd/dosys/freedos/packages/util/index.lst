@@ -1,0 +1,6 @@
+FD-REPOv1	Build time: 1645361143	Utilities	5
+ambread	20201223	Reader for Ancient Machine Book files	3845698b
+callver	2007-08-19a	Sets DOS version  for a program	b1fd312f
+cwsdpmi	7a	32-bit DPMI DOS extender designed	68000114
+fdnpkg	0.99.7a	Network-enabled package manager	852ca0c0
+v8power	22.02.07	Batch file enhancement utilities	50f478fc

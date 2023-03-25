@@ -1,0 +1,24 @@
+Begin3
+Title:          Move
+Version:        3.3b
+Entered-date:   2006-08-30
+Description:    Move files from one location to another
+Summary:        Move files from one location to another.
+Keywords:       freedos, move
+Author:         Joe Cosentino <hardmarine@comcast.net>
+Maintained-by:  Diego Rodriguez <dieymir@yahoo.es>
+Primary-site:   https://github.com/FDOS/move
+Alternate-site: http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/move/
+defunct-site:   http://www.geocities.com/xsaintx69/freedos
+Platforms:      DOS
+Copying-policy: GNU General Public License, Version 2
+CRC:            2adecd5f
+MD5:            61c58203bac2167b664c3748eb66d0f7
+SHA:            e63d934e4dde0c3366710649cdee9cdebad9b5b58cc38916dc0f6197ece7f6aa
+Bin-files:      20
+Bin-size:       66982
+Source-files:   9
+Source-size:    73588
+Total-files:    29
+Total-size:     140570
+End

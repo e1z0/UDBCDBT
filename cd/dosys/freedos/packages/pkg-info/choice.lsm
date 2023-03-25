@@ -1,0 +1,24 @@
+Begin3
+Title:          choice
+Version:        4.4a
+Entered-date:   2003-07-15
+Description:    Present a choice and wait
+Summary:        Present a choice to the user and wait for the keyboard input.
+Keywords:       freedos
+Author:         Jim Hall <jhall@freedos.org>
+Maintained-by:  Tom Ehlert <te@drivesnapshot.de>
+defunct-site:   http://www.isd.net/jhall1/freedos/utils.html
+Platforms:      DOS **requires KITTEN
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Choice
+Defunct-Site:   http://www.freedos.org/jhall/utils/
+CRC:            dccfb443
+MD5:            90db8449131f2a5255ba1d4103218e0e
+SHA:            b6aaa6db98a8913d7c88a743e5e932053349845c2e727df84f95d597ea44f22c
+Bin-files:      34
+Bin-size:       34822
+Source-files:   12
+Source-size:    40657
+Total-files:    46
+Total-size:     75479
+End

@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       FreeDOS Help
+Description: Les fichiers d'aide de FreeDOS au format AMB
+Keywords:    freedos, aide, doc, texte, amb
+End

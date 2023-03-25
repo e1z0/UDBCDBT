@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       MKEYB
+Description: Pilote de clavier trŠs l‚ger, 500 … 700 octets en r‚sident
+Keywords:    freedos clavier
+End

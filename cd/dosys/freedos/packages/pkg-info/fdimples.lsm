@@ -1,0 +1,25 @@
+Begin3
+Title:          FDIMPLES
+Version:        0.11.5
+Entered-date:   2022-02-15
+Description:    Easily install and remove packages
+Summary:        FreeDOS Installer - My Package List Editor Software|(FDIMPLES) is the package list editor for the advanced mode of the FreeDOS Installer (FDI). It also can run as a stand-alone program for a more user friendly interface to the FDINST command line package management utility.
+Changes:        General improvements and bug fixes.
+Keywords:       dos 16 bit, asm, pascal
+Author:         Jerome Shidel <jerome _AT_ shidel.net>
+Maintained-by:  Jerome Shidel <jerome _AT_ shidel.net>
+Primary-site:   https://fd.lod.bz/repos/current/pkg-html/fdimples.html
+Alternate-site: https://github.com/shidel/FDIMPLES
+Original-site:  http://up.lod.bz/FDIMPLES/
+Platforms:      DOS
+Copying-policy: GNU General Public License, Version 2
+CRC:            592db6ed
+MD5:            8aeab0d2cffc86c0c76bbaf0cc3a36b3
+SHA:            c43966219c473e599d755239c5e6c4f0208de2860f21c122b2762c9cc8debad3
+Bin-files:      17
+Bin-size:       71638
+Source-files:   43
+Source-size:    331528
+Total-files:    60
+Total-size:     403166
+End

@@ -1,0 +1,23 @@
+Begin3
+Title:                 NLSFunc
+Version:               0.4a
+Entered-date:          2006-08-22
+Description:           Add NLS for some supported programs
+Summary:               NLSFUNC adds NLS (National Language Support) functionality to programs that support it.
+Keywords:              freedos, nls, country, display, mode
+Author:                Eduardo Casino-Almao <mail@eduardocasino.es>
+Maintained-by:         Eduardo Casino-Almao <mail@eduardocasino.es>
+Platforms:             DOS (nasm)
+Copying-policy:        GNU General Public License, Version 2
+Defunct-Original-Site: https://www.eduardocasino.es/code/nlsfunc/
+Defunct-Wiki-Site:     http://wiki.freedos.org/wiki/index.php/NlsFunc
+CRC:                   d0c3d660
+MD5:                   142a608d5cbfa817df355fb65bc68242
+SHA:                   7d97ce3a6fc49321a36c0502d4312594a6f55881b2458194158aa5c678ed67f1
+Bin-files:             12
+Bin-size:              26133
+Source-files:          4
+Source-size:           47617
+Total-files:           16
+Total-size:            73750
+End

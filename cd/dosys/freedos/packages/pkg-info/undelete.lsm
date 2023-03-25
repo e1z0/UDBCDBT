@@ -1,0 +1,22 @@
+Begin3
+Title:          Undelete
+Version:        2008a
+Entered-date:   2009-04-05
+Description:    Undelete erased files on FAT16/32 file systems
+Summary:        Undelete erased (but recoverable) files from a FAT16/FAT32 filesystem.
+Keywords:       undelete, unerase, recovery
+Author:         Eric Auer
+Maintained-by:  Eric Auer
+Platforms:      DOS, FreeDOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Undelete
+CRC:            0230392b
+MD5:            d8e13c3197ff3c21669c79ea8c0053a8
+SHA:            2a7b6239ded7a8a29748828f2ab8c81aed540d5e55b8240598291873d313ac57
+Bin-files:      11
+Bin-size:       56356
+Source-files:   19
+Source-size:    105341
+Total-files:    30
+Total-size:     161697
+End

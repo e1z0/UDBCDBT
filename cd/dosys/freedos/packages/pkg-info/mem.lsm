@@ -1,0 +1,24 @@
+Begin3
+Title:          MEM
+Version:        1.11a
+Entered-date:   2007-11-30
+Description:    Display used and free memory in your system
+Summary:        Displays the amount of used and free memory in your system
+Keywords:       Memory, mem, xms, ems, umb, hma
+Author:         Joe Cosentino <jayc17@mediaone.net>
+Maintained-by:  Bart Oldeman <bartoldeman@users.sourceforge.net>
+Primary-site:   https://gitlab.com/FDOS/base/mem
+Original-site:  http://www.dosemu.org/~bart
+Platforms:      FreeDOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Mem
+CRC:            e0a37ac5
+MD5:            0648c11c4b1145e8c1ea0895a96b63ad
+SHA:            a0d352ebc00de15b0e26d83fffff1e1143b465ac90dbe673c8a2dec5234b8eae
+Bin-files:      20
+Bin-size:       105580
+Source-files:   29
+Source-size:    155699
+Total-files:    49
+Total-size:     261279
+End

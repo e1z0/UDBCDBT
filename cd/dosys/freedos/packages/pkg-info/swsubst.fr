@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       swsubst
+Description: SUBST et JOIN
+Keywords:    freedos, subst, join
+End

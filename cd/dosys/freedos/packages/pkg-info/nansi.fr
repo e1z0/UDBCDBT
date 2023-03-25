@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       Nansi
+Description: Un pilote ANSI pour DOS
+Keywords:    freedos, nansi, ansi
+End

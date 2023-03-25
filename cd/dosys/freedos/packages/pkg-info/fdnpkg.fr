@@ -1,0 +1,7 @@
+Begin3
+Language:    FR, 850
+Title:       FDNPKG
+Description: un gestionnaire de paquets compatible r‚seau pour FreeDOS
+Summary:     FDNPKG est un gestionnaire de paquets avec une fonctionnalit‚ r‚seau pour DOS. FDNPKG est publi‚ sous licence MIT. Il permet d'installer/supprimer/mettre … jour des logiciels sur un systŠme DOS en utilisant des d‚p“ts en ligne (http) ou locaux. Il est ‚crit principalement par Mateusz Viste pour le projet FreeDOS, mais peut ‚galement ˆtre utilis‚ avec d'autres systŠmes DOS. FDNPKG signifie 'FreeDOS Network Package manager'.
+Keywords:    fdnpkg, mise … jour, paquets
+End

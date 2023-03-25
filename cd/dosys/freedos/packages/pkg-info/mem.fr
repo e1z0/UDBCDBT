@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       MEM
+Description: Affiche la quantit‚ de m‚moire utilis‚e et libre sur votre systŠme
+Keywords:    Memoire, mem, xms, ems, umb, hma
+End

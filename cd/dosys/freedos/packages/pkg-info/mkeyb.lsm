@@ -1,0 +1,22 @@
+Begin3
+Title:         MKEYB
+Version:       0.46
+Entered-date:  2021-10-09
+Description:   A very small keyboard driver
+Summary:       A very small keyboard driver. Uses 500-700 Bytes of resident memory
+Keywords:      freedos keyboard
+Author:        Tom Ehlert, Email found at website
+Maintained-by: Tom Ehlert
+Primary-site:  http://www.drivesnapshot.de/freedos/mkeyb.htm
+Original-site: http://www.drivesnapshot.de/freedos/mkeyb.htm
+Platforms:     DOS
+CRC:           0e64ed5f
+MD5:           6ea7c220a700a3301b59fd9256157858
+SHA:           17506326928b09b9a847ca67442758fc9e0561b576b1804dd92b1651362b1db2
+Bin-files:     10
+Bin-size:      23130
+Source-files:  37
+Source-size:   173239
+Total-files:   47
+Total-size:    196369
+End

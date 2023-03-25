@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       The FreeDOS Kernel
+Description: Le noyau FreeDOS (prend en charge FAT12/FAT16/FAT32)
+Keywords:    noyau, FreeDOS, DOS, MSDOS
+End

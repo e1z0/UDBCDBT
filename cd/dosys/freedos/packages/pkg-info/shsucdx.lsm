@@ -1,0 +1,25 @@
+Begin3
+Title:                 SHSUCDX
+Version:               3.08a
+Entered-date:          2021-02-17
+Description:           CD-ROM and DVD-ROM extender
+Summary:               CD-ROM and DVD-ROM extender
+Keywords:              mscdex, shsucdex, fdcdex, cdrom, atapicdd, xcdrom
+Author:                John H. McCoy
+Maintained-by:         Jason Hood <jadoxa -at- yahoo.com.au>
+Primary-site:          http://adoxa.altervista.org/shsucdx/index.html
+Alternate-site:        https://github.com/adoxa/shsucd
+Mirror-Site:           http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/shsucdx/
+Platforms:             DOS (NASM), FreeDOS
+Defunct-Previous-site: http://www.geocities.com/jadoxa/shsucdx/index.html
+Defunct-Original-site: http://www.shsu.edu/~csc_jhm/ http://www.pfu.net/fedtech/fcdex/ (no longer online)
+CRC:                   18d2f4f6
+MD5:                   bbe0e60e1c2546880706bbdcfa40ac7c
+SHA:                   286350b8dc87f1e6f68bb76ac41a1d1f9accb79bd49590261eca0eb12fb06884
+Bin-files:             8
+Bin-size:              29740
+Source-files:          6
+Source-size:           144521
+Total-files:           14
+Total-size:            174261
+End

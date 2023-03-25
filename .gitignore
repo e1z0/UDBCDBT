@@ -1,0 +1,8 @@
+.DS_Store
+.LATEST
+OUTPUT/*
+freedos.img
+share/*
+stuff
+/bak
+/test

@@ -1,0 +1,6 @@
+FD-REPOv1	Build time: 1645361143	Dienstprogramme	5
+ambread	20201223	Der Reader fr das AMB (Ancient Machine Book) Format.	3845698b
+callver	2007-08-19a	Setzt die DOS Version fr das Ausfhren eines Programms.	b1fd312f
+cwsdpmi	7a	32-bit DPMI DOS Extender fr DJGPP.	68000114
+fdnpkg	0.99.7a	Ein Netzwerk-Paketmanager fr FreeDOS.	852ca0c0
+v8power	22.02.07	Eine Sammlung von Tools, die bei DOS-Batchdateien Verbesserungen fr die Textbenutzeroberfl„che und andere Verarbeitungsfunktionen bereitstellen k”nnen (UPX komprimiert).	50f478fc

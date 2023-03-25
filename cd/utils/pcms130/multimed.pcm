@@ -1,0 +1,12 @@
+
+.t=Multimedia
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+MPXP166D
+        %cdrom%\apps\mpxp166d\mpxplay.exe
+        mpause
+        /

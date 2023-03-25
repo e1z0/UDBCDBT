@@ -1,0 +1,74 @@
+#!/bin/bash
+# (c) 2023 e1z0. Vintage2000.org
+
+LATEST=.LATEST
+VER=`cat .VERSION` # get the version information
+ISOTOOL=`which mkisofs` # where mkisofs is?
+BDATE=`date +%Y.%m.%d_%H-%M-%S` # build date
+SYS="cd" # system/cd folder (dos system)
+BLOADER=grub
+
+if [ "$1" != "" ]; then
+  echo "Custom boot loader selected: $1"
+  BLOADER=$1
+fi
+
+
+package_missing() {
+  echo ""
+  echo "$1 tool was not found on your system! You have to install $2 package using your operating system's package manager."
+  echo "On macOS use brew install $2"
+  echo "On linux use (debian/ubuntu: apt-get install $2, archlinux: pacman -S $2, fedora/redhat: yum install $2)"
+  echo "Or contact support for more information info@vintage2000.org"
+  echo ""
+}
+
+checks() {
+  if [ "$ISOTOOL" == "" ]; then
+    package_missing mkisofs dvdrtools
+    exit 1
+  fi
+}
+
+runtime() {
+  echo "Welcome to Ultimate DOS Boot CD creation tool v$VER. Copyright (c) 2023 e1z0."
+  echo "This script will generate the final .ISO file to the directory ./OUTPUT with all the applications and data inside"
+  echo "You can add your own applications in apps/ folder in the following format that is described in app.md file"
+  echo "There are also possible to bootstrap operating systems to the hdd using bootstr/ folder and the format that is described in bootstrap.md file"
+}
+
+mkiso() {
+  if ! [ -d ./OUTPUT ]; then
+    mkdir OUTPUT
+  fi
+  if [ -e boot.img ]; then
+    mv boot.img $SYS/images/freedos.img
+  fi
+  if [ "$BLOADER" == "freedos" ]; then
+    # 1.44M floppy emulation (old method) works with 2mb of ram boots directly to freedos
+    echo "freedos boot mode enabled!"
+    $ISOTOOL -V UDBCD -o ./OUTPUT/${BDATE}_bootable.iso -b images/freedos.img ${SYS}
+  elif [ "$BLOADER" == "isolinux" ]; then
+    # This method uses syslinux to boot requires 4-8mb of ram
+    echo "isolinux boot mode enabled!"
+    $ISOTOOL -V UDBCD -R -o ./OUTPUT/${BDATE}_bootable.iso \
+       -b isolinux/isolinux.bin -c isolinux/boot.cat \
+       -no-emul-boot -boot-load-size 4 -boot-info-table \
+       ${SYS}
+  else
+    # grldr (grub4dos) as no-emulation bootsector on CD/DVD this method requires at least 4mb of ram
+    $ISOTOOL -V UDBCD -R -b grub/grldr -no-emul-boot -boot-load-size 4 -o ./OUTPUT/${BDATE}_bootable.iso ${SYS}
+  fi
+  retVal=$?
+  if [ $retVal -ne 0 ]; then
+    echo "Failed to build cdrom image!
+    exit 1"
+  fi
+  echo "Build successfull!"
+  echo "New image is located: ${BDATE}_bootable.iso"
+  echo "${BDATE}_bootable.iso" > ${LATEST}
+}
+
+checks
+#runtime
+mkiso

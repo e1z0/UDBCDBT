@@ -1,0 +1,7 @@
+;MS-DOS 7.10 Installation Disk
+;
+[Options]
+DblSpace=0
+DrvSpace=0
+DoubleBuffer=0
+SystemReg=0

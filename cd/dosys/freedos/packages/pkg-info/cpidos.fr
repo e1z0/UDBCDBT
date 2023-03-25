@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       CPI (Code Page Information) Package
+Description: Paquet du type DISPLAY, fichiers CPI compress‚s avec UPX avec diverses pages de codes DOS.
+Keywords:    display, codepage, page de code, cp, page de code dos, dos cp, jeu de caractŠres
+End

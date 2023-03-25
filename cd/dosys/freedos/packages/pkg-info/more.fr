@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       more
+Description: Affiche le contenu d'un fichier texte une page … la fois
+Keywords:    freedos, more
+End

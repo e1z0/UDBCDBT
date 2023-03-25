@@ -1,0 +1,24 @@
+Begin3
+Title:          Callver
+Version:        2007-08-19a
+Entered-date:   2007-08-19
+Description:    Sets DOS version  for a program
+Keywords:       Dos FreeDOS setver dosver callver version
+Author:         Eric Auer
+Maintained-by:  Eric Auer
+Primary-site:   http://www.auersoft.eu/soft/specials/
+Alternate-site: http://www.auersoft.eu/soft/specials/
+Original-site:  http://www.auersoft.eu/soft/specials/
+Platforms:      DOS (nasm)
+Copying-policy: Public Domain
+Summary:        Sets DOS version while executing one program.
+CRC:            b1fd312f
+MD5:            eb990c09e8f637748f19746b7f660b09
+SHA:            e8f6a5ac270e2557c5f9e2868a495f938fe855f9c10d5e5ef1f7a77b3a56a632
+Bin-files:      6
+Bin-size:       2301
+Source-files:   1
+Source-size:    7784
+Total-files:    7
+Total-size:     10085
+End

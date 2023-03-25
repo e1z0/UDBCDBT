@@ -1,0 +1,1 @@
+@if exist r:\xmsdsk.exe r:\xmsdsk.exe /u /y > nul

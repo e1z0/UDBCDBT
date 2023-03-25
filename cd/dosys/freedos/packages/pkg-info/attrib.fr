@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       attrib
+Description: Afficher et d‚finir les attributs de fichiers
+Keywords:    freedos, attrib
+End

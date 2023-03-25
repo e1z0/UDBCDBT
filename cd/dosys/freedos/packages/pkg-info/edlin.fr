@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       EDLIN
+Description: Le programme edlin est l'‚diteur de lignes standard de FreeDOS.
+Keywords:    ‚diter, ‚diteur, ‚diteur de lignes
+End

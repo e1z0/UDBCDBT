@@ -1,0 +1,24 @@
+Begin3
+Title:          FreeCom
+Version:        0.85a
+Entered-date:   2021-07-10
+Description:    The FreeDOS Command Shell
+Keywords:       freecom freedos command shell
+Author:         freedos-devel@lists.sourceforge.net (developers)
+Maintained-by:  freedos-devel@lists.sourceforge.net (maintainers)
+Primary-site:   https://github.com/FDOS/freecom
+Alternate-site: http://freedos.sourceforge.net/
+Alternate-site: http://www.freedos.org/
+Platforms:      dos dosemu
+Copying-policy: GNU General Public License, Version 2 (GPL)
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Command
+CRC:            f826a7c3
+MD5:            c5ec932a600ccb2f4411aa817f7d8e8a
+SHA:            fa796f0519c8e5c5591d0a927920d07f1605a860d0c4f4c301a9c05581269679
+Bin-files:      48
+Bin-size:       2886259
+Source-files:   800
+Source-size:    2666353
+Total-files:    848
+Total-size:     5552612
+End

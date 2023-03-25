@@ -1,0 +1,23 @@
+Begin3
+Title:          DISKCOMP
+Version:        06jun2003 (rev A)
+Entered-date:   2003-06-06
+Description:    Disk comparing utility
+Keywords:       diskcomp, compare, disks
+Author:         Michal Meller <maceman -at- priv4.onet.pl>
+Maintained-by:  Steve Nickolas <steve -at- dosius.zzn.com> Eric Auer <e.auer -at- jpberlin.de>
+Alternate-site: http://www.auersoft.eu/soft/by-others/
+Platforms:      DOS, FreeDOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Diskcomp
+Defunct-Site:   http://republika.onet.pl/maceman
+CRC:            37609f47
+MD5:            d39e421f41ff12eda9d80852deb42010
+SHA:            0a650b20a853daee329a8fae4d9e3c1b415a23f47c295c8b17bfe28aaae9f5fb
+Bin-files:      7
+Bin-size:       10258
+Source-files:   10
+Source-size:    42097
+Total-files:    17
+Total-size:     52355
+End

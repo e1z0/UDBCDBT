@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       exe2bin
+Description: Convertir un fichier exe au format bin
+Keywords:    freedos
+End

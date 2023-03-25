@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       SHSUCDX
+Description: Extension CDROM libre pour DOS
+Keywords:    mscdex, shsucdex, fdcdex, cdrom, atapicdd, xcdrom
+End

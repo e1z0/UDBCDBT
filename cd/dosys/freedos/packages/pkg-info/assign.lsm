@@ -1,0 +1,23 @@
+Begin3
+Title:          assign
+Version:        1.4a
+Entered-date:   1999-12-12
+Description:    Assign a new letter to a drive
+Summary:        Assign a drive letter to a different drive.
+Keywords:       freedos, assign
+Author:         Steffen.Kaiser@fh-rhein-sieg.de
+Maintained-by:  Steffen.Kaiser@fh-rhein-sieg.de
+defunct-site:   http://www2.inf.fh-rhein-sieg.de/~skaise2a/ska/sources.html
+Platforms:      dos
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Assign
+CRC:            ba3ce6a3
+MD5:            74983ff998b432d0e5e9a203598a5d7e
+SHA:            806c9cad1c38ecfe509639aadfcbb52c772385535c8f1ee6db68ec66f4cabe12
+Bin-files:      18
+Bin-size:       51256
+Source-files:   17
+Source-size:    69862
+Total-files:    35
+Total-size:     121118
+End

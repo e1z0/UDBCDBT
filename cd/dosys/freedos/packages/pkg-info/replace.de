@@ -1,0 +1,6 @@
+Begin3
+Language:    DE, 858
+Title:       REPLACE
+Description: Ersetzt Dateien gleichen Namens im Zielverzeichnis durch die Dateien des Quellverzeichnisses.
+Keywords:    copy, replace
+End

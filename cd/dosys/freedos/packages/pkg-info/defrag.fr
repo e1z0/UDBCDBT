@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       Defrag
+Description: Utilitaire de d‚fragmentation.
+Keywords:    d‚fragmenteur
+End

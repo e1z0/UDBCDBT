@@ -1,0 +1,6 @@
+FD-REPOv1	Build time: 1645361143	Utilitaires	5
+ambread	20201223	Le lecteur du format Ancient Machine Book	3845698b
+callver	2007-08-19a	D‚finir la version de DOS pour l'ex‚cution d'un programme.	b1fd312f
+cwsdpmi	7a	Extension DOS DPMI 32 bits con‡ue pour DJGPP.	68000114
+fdnpkg	0.99.7a	un gestionnaire de paquets compatible r‚seau pour FreeDOS	852ca0c0
+v8power	22.02.07	Un ensemble d'utilitaires d'am‚lioration de fichiers batch pour DOS pouvant fournir une interface utilisateur texte et d'autres fonctions de traitement	50f478fc

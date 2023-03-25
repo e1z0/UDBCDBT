@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       CTMouse
+Description: Le pilote de souris pour FreeDOS
+Keywords:    Souris, roulette
+End

@@ -1,0 +1,24 @@
+Begin3
+Title:          AMB Reader
+Version:        20201223
+Entered-date:   2021-02-22
+Description:    Reader for Ancient Machine Book files
+Summary:        AMBREAD is a reader of AMB (Ancient Machine Book) files. AMB is an extremely lightweight file format meant to store any kind of hypertext documentation that may be comfortably viewed even on the most ancient PCs: technical manuals, books, etc.
+Keywords:       text, doc, reader
+Author:         Mateusz Viste
+Maintained-by:  Mateusz Viste
+Primary-site:   http://amb.osdn.io
+Alternate-site: https://sourceforge.net/projects/ambook/
+Original-site:  http://amb.osdn.io
+Platforms:      DOS
+Copying-policy: MIT
+CRC:            3845698b
+MD5:            d69714cfa25eaa5444719ff321704541
+SHA:            d160b8299a214c8927b4a9353322d4a5bf185b82c04af68f0e0a7f9988f209a3
+Bin-files:      7
+Bin-size:       16242
+Source-files:   11
+Source-size:    62571
+Total-files:    18
+Total-size:     78813
+End

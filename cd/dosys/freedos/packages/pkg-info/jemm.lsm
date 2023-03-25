@@ -1,0 +1,21 @@
+Begin3
+Title:          JEMM386
+Version:        5.79d
+Entered-date:   2020-05-18
+Description:    Jemm386 is an Expanded Memory Manager
+Summary:        Jemm386 is an Expanded Memory Manager, based on the source of FreeDOS EMM386. * needs only 192 bytes DOS memory * needs very little extended memory * is faster * works with MS-DOS, FreeDOS and EDR-DOS * will use features implemented on later CPUs to further increase speed * unlike FreeDOS Emm386 Jemm386 has full VDS support * can be loaded from the command line
+Keywords:       HIMEM + EMM386, STABLE, COMPATIBILITY, memory manager, jemmex, himemx
+Author:         Japheth, Tom Ehlert, Michael Devore (FreeDosStuff -at- devoresoftware.com)
+Primary-site:   https://github.com/Baron-von-Riedesel/Jemm
+Platforms:      DOS, FreeDOS
+Copying-policy: Artistic License
+CRC:            5e6c77c9
+MD5:            04f7d90d8a2331a9f8d020164bb4493c
+SHA:            ff79112ea2139aefc6b413800334f4160577c7dc93447ebe9af03b21950d51c9
+Bin-files:      24
+Bin-size:       178203
+Source-files:   51
+Source-size:    648370
+Total-files:    75
+Total-size:     826573
+End

@@ -1,0 +1,6 @@
+Begin3
+Language:    DE, 858
+Title:       Format
+Description: Programm zum Formatieren von Disketten und Festplatten (FAT32, LowLevel).
+Keywords:    freedos, format, fat12, fat16, fat32, floppy, harddisk, mirror, unformat
+End

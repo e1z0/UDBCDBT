@@ -1,0 +1,6 @@
+Begin3
+Language:    DE, 858
+Title:       find
+Description: Zeige alle Zeilen in einer oder mehreren Dateien, die einen bestimmten String enthalten. Umgekehrte und case-insensitive Suche sind ebenfalls m”glich.
+Keywords:    freedos, find, grep
+End

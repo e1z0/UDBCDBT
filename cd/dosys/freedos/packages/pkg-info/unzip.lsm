@@ -1,0 +1,24 @@
+Begin3
+Title:                 UnZip
+Version:               6.00a
+Entered-date:          2012-09-23
+Description:           A file decompression tool, like PKUNZIP
+Keywords:              freedos, unzip, infozip, pkunzip
+Author:                info-zip@wkuvx1.wku.edu
+Maintained-by:         info-zip@wkuvx1.wku.edu
+Primary-site:          http://infozip.sourceforge.net
+Platforms:             dos, unix, mac
+Copying-policy:        Open Source, see license
+Defunct-Original-Site: ftp://ftp.cdrom.com/pub/infozip/
+Defunct-Primary-Site:  ftp://ftp.freesoftware.com/pub/infozip/
+Summary:               A file decompression tool, like PKUNZIP.
+CRC:                   0a8a4d72
+MD5:                   3fa0de52b3b01ee4532b743be55b4fd4
+SHA:                   331ef3c80f4fda22eeb99b68c1b83aa642ed73a71ebe526a63866e8e0736b7de
+Bin-files:             11
+Bin-size:              295839
+Source-files:          421
+Source-size:           6206398
+Total-files:           432
+Total-size:            6502237
+End

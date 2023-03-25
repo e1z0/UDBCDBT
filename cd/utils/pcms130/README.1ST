@@ -1,0 +1,39 @@
+PCMENU - Copyright (c) 1989,1990 Bob Trevithick and Rick Kiss
+Sun  07-22-1990
+
+This is version 1.30 of PCMENU.  I've come to the obvious conclusion that
+nobody wants to pay for yet another menu system - so the program is now
+completely free as it used to be.  Live and learn.  Of course letters
+containing glowing reviews and $ will not be unwelcome.  :)
+
+The distributed demo menus (*.pcm files) take advantage of a new feature of
+PCMENU, and sometimes seek directly to a specific menu item rather than
+behaving as you would expect them to.  This is described in the docs - I'm
+only mentioning it here so you won't immediately conclude that this is a weird
+new bug of some kind.
+
+Read PCMENU.DOC for details.  You'll have your own custom menus up and running
+in no time - despite my lack of explanatory skill.
+
+The password for the 'Secret Item' is "password", and upper versus lower case
+isn't significant.
+
+The Escape key will allow you to exit from the main menu, but NOT from the
+utility menu.  Also, the utility menu will default to a specific item - this
+is a new feature in version 1.30.
+
+NOTE THAT THIS IS DISTRIBUTED IN A ZIP FILE WITH AUTHENTICATION VERIFICATION
+ENABLED.  IF YOU RECEIVE IT IN ANY OTHER FORM, BEWARE!
+
+Have fun!  We believe all the bugs have been worked out of this, but of course
+this may not be the case.  If you discover any, we'd be greatful if you'd
+advise us of them.
+
+*--------------------------*---------------------------------*
+| Bob Trevithick           | Voice.......315-331-1700 (2453) |
+| Information Services     | PC Data............315-331-4899 |
+| N.Y.S. OMR               | OMR Network....NEWARK::TREVITRF |
+| Newark Office            | GEnie..............R.TREVITHICK |
+| 703 East Maple Ave.      | CompuServe...........73567,2675 |
+| Newark, New York  14513  | MCI Mail...RTrevithick 394-8198 |
+*--------------------------*---------------------------------*

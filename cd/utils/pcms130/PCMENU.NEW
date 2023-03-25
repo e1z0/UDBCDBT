@@ -1,0 +1,36 @@
+*-----------------------------------*
+| New in revision 7/22/90 of PCMENU |
+|           VERSION 1.30            |
+*-----------------------------------*
+
+-Added a new '+' option which allows the menu to appear with a selected item
+ already highlighted automatically.  There are three places where this can be
+ used: on the command line (PCMENU +6), after the '<' command (<utility.pcm
+ +6), and after the '/' character (/+6).  See docs for more detailed
+ explanation.  This option allows you to set up easy to use systems which
+ anticipate the choices for the user.
+
+-Employed the above '+' option to allow the '/' auto menu restart feature to
+ 'remember' the item which was previously selected and return to it after the
+ item has been run.  This is the default behavior, but if you prefer the old
+ system of always returning with the first item highlighted, just use '/+0'
+ instead of '/' alone.
+
+-Improved the mouse routines a bit.  The mouse cursor will initially be
+ displayed on the first character of the item which is currently highlighted.
+ If the highlight bar is moved via the keyboard, the mouse cursor will follow.
+ Also, hitting a mouse button will now restore the screen when the screen
+ protection routine is running.
+
+-Took out the .a= administrator password option, as it was too insecure.
+ Instead, added new encrypted administrator password option, which is
+ installed directly into the PCMS.COM file with a special PCMSPASS program.
+
+-Added error message if any invalid .dot commands are found in menu file. This
+ was necessary to remind us to change all of those old .a= commands...
+
+-Dropped the multi-tasking version, as no interest was displayed in this.
+
+-Dropped the .doc files for MPAUSE and PCMCOLOR, as they weren't really needed
+and only served to intimidate the new user by increasing the number of files
+seen on .zip extraction.  :-)

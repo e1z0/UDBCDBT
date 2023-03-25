@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       assign
+Description: Attribuer une lettre de lecteur … un autre lecteur
+Keywords:    freedos, attribuer
+End

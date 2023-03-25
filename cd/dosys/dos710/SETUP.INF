@@ -1,0 +1,821 @@
+;MS-DOS 7.10 Installation Information
+;====================================
+
+:w_welcome "MS-DOS 7.10 Setup" [x]
+
+ Welcome to MS-DOS 7.10 Setup.
+
+ This wizard will help you to install
+ MS-DOS 7.10 onto your system.
+
+ Please click ~Next~ to continue, or click
+ ~Cancel~ to close this wizard.
+
+ (C)Copyright Microsoft Corp 1981-1999.
+
+          [ Next ]  [ Cancel ]
+::
+
+:w_intr "MS-DOS 7.10 Setup" [x]
+
+ MS-DOS is the most widely-used and useful DOS today.
+ It fully supports large hard disks, FAT12/16/32 drives,
+ Long File Names (LFN), large memory, Windows GUI, etc.
+
+ MS-DOS 7.10 will provide you with a lot of new features,
+ and you will gain a lot of new experiences.
+
+ Note: Don't install it if the primary partition of your
+       hard drive is an NTFS/HPFS or Ext? partition.
+
+                  [ Next ]  [ Cancel ]
+::
+
+:w_agree "MS-DOS 7.10 Setup" [x]
+
+ Before you continue, you must obey the following licence:
+
+ This program is Free Software under GNU GPL.
+
+ This program may be used freely, and you are welcome to
+ redistribute it under certain conditions.
+
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE. See the MS-DOS License Agreement for more details.
+
+ You should have received a copy of the MS-DOS 7.10 License
+ Agreement along with this program; see the file LICENSE.TXT
+ for more info. If not, please contact Support Center.
+
+               [.] I agree.  [.] I don't agree
+
+                    [ Next ]  [ Cancel ]
+::
+
+:w_path "MS-DOS 7.10 Setup" [x]
+
+ Setup will install MS-DOS 7.10 in the following path:
+
+ To install to a different path, please change it.
+
+ Destination (full path): [$ ins_path,25]
+ 
+                [ Next ]  [ Cancel ]
+::
+
+:w_underwin "Warning" [x]
+
+ You are probabaly running Windows 3.x/9x/NT/2K/XP+!
+ If you continue, MS-DOS 7.10 may not be installed properly.
+
+ Please start your computer with pure DOS to install it,
+ Or restart your system from MS-DOS 7.10 Installation Disk.
+
+                    Continue anyway?
+
+                    [ Yes ]  [ No ]
+::
+
+:w_novar "Fatal Error" [x]
+
+ There is no enough space for the
+ environment variables.
+
+ Please increase the environment
+ space for MS-DOS 7.10 Setup, or
+ restart your system from
+ MS-DOS 7.10 Installation Disk,
+ and then try again.
+
+ MS-DOS 7.10 Setup cannot continue.
+
+             [ Quit ]
+::
+
+:w_notmpdir "Fatal Error" [x]
+
+ Setup is unable to create a RAM
+ drive or a temporary folder for
+ the MS-DOS 7.10 Installation.
+
+ Please restart your system from
+ MS-DOS 7.10 Installation Disk,
+ and then try again.
+
+ MS-DOS 7.10 Setup cannot continue.
+
+             [ Quit ]
+::
+
+:w_nofile "Fatal Error" [x]
+
+ MS-DOS 7.10 Setup cannot find
+ the following necessary file:
+
+ ~%missfile%~
+
+ Please make sure this file
+ is on the Installation Disk.
+
+ Setup is unable to continue.
+
+           [ Quit ]
+::
+
+:w_insdir "MS-DOS 7.10 Setup" [x]
+
+ MS-DOS 7.10 Setup cannot locate the source
+ files to copy in the following path.
+
+ Please enter the path where it locates.
+
+              [$ ins_dir,25]
+
+          [ Continue ]  [ Quit ]
+::
+
+:w_detdc "MS-DOS 7.10 Setup" [x]
+
+ MS-DOS 7.10 will now check the partitions on your hard drives.
+ This can help you to set up your hard drives and so forth
+ automatically if not done properly yet. Thus it's strongly
+ recommanded NOT to skip this step. Please click ~Continue~ to
+ continue. However, if you encounter some problem while it's
+ checking your partitions, please click ~Skip~.
+
+                     [ Continue ]  [ Skip ]
+::
+
+:w_nohd "Warning" [x]
+
+ There is no visible Hard Drive C: on your system now!
+
+ If you have hard drives without formatted partitions, you should
+ use FDISK and FORMAT first, and then reboot your system.
+
+ Also, make sure you start your system from MS-DOS 7.10 Installation
+ Disk. If not, please restart your system from it and try again.
+
+                          Continue anyway?
+
+                          [ Yes ]  [ No ]
+::
+
+:w_nodc "Warning" [x]
+
+ Setup is unable to find Hard Drive C: on your system!
+
+ Setup will probably be unable to copy system files or write the boot
+ sector. Therefore, MS-DOS 7.10 will not be bootable if you continue.
+
+ Restart your system from MS-DOS 7.10 Installation Disk and try again.
+
+                          Continue anyway?
+
+                          [ Yes ]  [ No ]
+::
+
+:w_invdc "Warning"
+
+ There is no partition found on your hard drives!
+
+ MS-DOS 7.10 cannot be installed without any FAT partitions.
+
+ Would you like MS-DOS 7.10 Setup to create one automatically?
+
+      [ Create a FAT32/16/12 Primary Partition ]  [ Quit ]
+::
+
+:w_hfatdc "Warning" [x]
+
+ At least one Primary FAT Partition is probably hidden!
+
+ Hidden Primary FAT Partition may not be seen by MS-DOS 7.10,
+ so it may or may not cause some problems if you continue.
+
+ If it does cause problems soon or later, please unhide the
+ Primary FAT Partition manually first, and then try again.
+
+                            [ OK ]
+::
+
+:w_nofatdc "Fatal Error" [x]
+
+ There is no Primary FAT File System on your hard drives,
+ or there are no hard drives found on your system at all!
+
+ MS-DOS 7.10 cannot be installed without FAT12/16/32 drives.
+
+       Please ensure that you have created a
+      ~Primary FAT File System~ on your Hard Drive.
+
+            MS-DOS 7.10 Setup cannot continue.
+
+                          [ Quit ]
+::
+
+:w_nofmtdc "Warning" [x]
+
+ The Primary FAT Partition is not formatted!
+ MS-DOS 7.10 cannot be installed on unformatted FAT drives.
+
+ MS-DOS 7.10 Setup can format the partition automatically,
+ or you need to use FORMAT in prior to install MS-DOS 7.10.
+
+           [ Format the Partition ]  [ Quit ]
+::
+
+:w_noformat "Fatal Error" [x]
+
+ FORMAT.COM is missing or doesn't match the
+ current DOS version. Therefore, Setup cannot
+ format the partition automatically.
+
+ Please FORMAT the partition manually in
+ prior to install MS-DOS 7.10.
+
+                  [ Quit ]
+::
+
+:w_noactdc "Warning" [x]
+
+ The DOS FAT File System is not active! Therefore, if you
+ skip this, MS-DOS 7.10 will probabily not be bootable.
+
+ MS-DOS 7.10 Setup can make it as "Active" for you.
+
+          [ Make it "Active" ]  [ Skip anyway ]
+::
+
+:w_reboot "MS-DOS 7.10 Setup"
+
+ It must reboot in order to continue the installation.
+
+ Please make sure this installation disk is in the drive.
+
+                     [ Reboot now ]
+::
+
+:w_mbr "MS-DOS 7.10 Setup" [x]
+
+ Rewriting Master Boot Record (MBR) of your hard drive
+ will ensure that the MBR code is correct. However, if
+ you have already installed a special boot loader(such
+ as GNU GRUB) in MBR, it will be overwritten.
+
+ Do you want to rewrite the MBR code?
+
+                    [ Yes ]  [ No ]
+::
+
+:w_incom "Fatal Error" [x]
+
+ MS-DOS 7.10 Setup cannot copy
+ the necessary files to the target
+ path. Setup cannot continue.
+
+ Possible reasons:
+
+ * Missing files.
+ * No enough free space.
+ * Errors on your drives.
+
+             [ Quit ]
+::
+
+:w_inpath "Warning" [x]
+
+ Cannot install MS-DOS 7.10 to
+ the path ~%ins_path%~
+ Please enter a correct path.
+
+ Note: No trailing backslash!
+ And don't enter LFN for now.
+
+           [ OK ]
+::
+
+:w_pathyes "Warning" [x]
+
+ The directory ~%ins_path%~ already exists,
+ Do you want to overwrite it?
+
+          [ Yes ]  [ No ]
+::
+
+:w_pathno "Warning" [x]
+
+ The directory ~%ins_path%~ doesn't exist,
+ Do you want to create it?
+
+          [ Yes ]  [ No ]
+::
+
+:w_chins "MS-DOS 7.10 Setup" [x]
+
+ There are three installation types
+ to install MS-DOS 7.10:
+
+   [.] ~Full installation~ (2 Disks)
+   [.] ~DOS commands only~ (1 Disk)
+   [.] ~Minimal DOS system~ (1 Disk)
+
+         [!] Install Add-Ons
+
+ Note: If you don't want to install
+ Add-Ons for MS-DOS 7.10 now, please
+ uncheck the "Install Add-Ons" box.
+
+        [ Next ]  [ Cancel ]
+::
+
+:w_ados "MS-DOS 7.10 Setup" [x]
+
+ You have chosen Full Installation in the previous menu. Some
+ useful tools and utilities, such as ScanDisk, CVT, DOSShell,
+ MemMaker, and MS-DOS Help, will be installed on your system.
+
+ AccessDOS is a DOS extension included in MS-DOS 7.10 Setup Disk
+ which provides additional flexibility in the user-interface for
+ DOS, and which are useful to individuals both with and without
+ disabilities. This extension allows the user to control the key
+ repeat, to adjust the way the keys on the keyboard respond when
+ pressed, to make all modifier keys into locking keys (something
+ like the caps lock key), to control the mouse cursor with
+ precision from the keyboard, and to obtain a visual indication
+ of beeps or other sounds made by the computer.
+
+ After you install AccessDOS, type ~ADOS~ to start it from DOS.
+
+              Would you like to install AccessDOS?
+
+                         [ Yes ]  [ No ]
+::
+
+:w_ready "MS-DOS 7.10 Setup" [x]
+
+ Setup will install MS-DOS 7.10 to the following path:
+
+ ~%ins_path%~
+
+ Installation type: ~%chins%~
+
+ Install AccessDOS: ~%iad%~
+
+ Install Add-Ons: ~%iao%~
+
+ Click ~OK~ to start the installation.
+
+ If you want to make some changes, please click ~Change~.
+
+            [ OK ]  [ Change ]  [ Quit ]
+::
+
+:w_sysnt "MS-DOS 7.10 Setup" [x]
+
+ Setup has found that Windows NT/2K/XP+ might be already installed
+ on your system. MS-DOS 7.10 can deal with this situation.
+
+ You have three choices:
+
+ [Make Dual-boot] [Rewrite Boot Sector] [Don't write Boot Sector]
+::
+
+:w_sysdos "MS-DOS 7.10 Setup" [x]
+
+ Setup has found that some older version of MS-DOS might be already
+ installed on your system. MS-DOS 7.10 can deal with this situation.
+ It's highly recommanded to upgrade your DOS to MS-DOS 7.10.
+
+ You have three choices:
+
+ [Upgrade to MS-DOS 7.10] [Make Dual-boot] [Don't copy system files]
+::
+
+:w_rendos "MS-DOS 7.10 Setup" [x]
+
+ Setup has made dual-boot between MS-DOS 7.10 and your older version
+ of MS-DOS. You may press the F4 key to enter your older version of
+ MS-DOS when MS-DOS 7.10 starts if you want to do so.
+
+                               [ OK ]
+::
+
+:w_nobs "Warning" [x]
+
+ You have chosen not to write the Boot Sector or make dual-boot
+ for MS-DOS 7.10. Therefore, MS-DOS 7.10 will not be bootable,
+ unless it has been enabled in the BOOT.INI.
+
+ If you want to avoid this, you must write it later manually.
+
+                   Is this what you want?
+
+                       [ Yes ]  [ No ]
+::
+
+:w_nosys "Warning" [x]
+
+ You have chosen not to copy system files of MS-DOS 7.10.
+ Therefore, MS-DOS 7.10 will probably not be bootable.
+
+ If you want to avoid this, you must copy them later manually.
+
+                   Is this what you want?
+
+                       [ Yes ]  [ No ]
+::
+
+:w_w9xpath "MS-DOS 7.10 Setup" [x]
+
+ Setup has found that Windows 9x(95-98SE) might be already
+ installed on your system. Setup can set up the Win9x path
+ automatically for you so that you can enter Win9x GUI
+ easier by typing WIN directly from the MS-DOS 7.10 command
+ line. Or else you should enter Win9x GUI by going to the
+ Win9x path first and then type WIN from DOS.
+
+ Do you want Setup to set up the Win9x path automatically?
+
+                     [ Yes ]  [ No ]
+::
+
+:w_wmewarn "Warning" [x]
+
+ MS-DOS 8.0 and Windows ME might be already installed on
+ your system. If you continue, MS-DOS 7.10 Setup will
+ probabaly make them unbootable.
+
+ Note: Unlike Windows 3.x and Windows 9x GUI, you cannot
+       start Windows ME GUI from MS-DOS 7.10 directly.
+
+                 [ Continue ]  [ Quit ]
+::
+
+:w_sysboot "Warning" [x]
+
+ To start MS-DOS 7.10 Installation, it's recommanded that you
+ boot your system from the MS-DOS 7.10 Installation Disk, then
+ the installation will begin automatically.
+
+ If you encounter any problem when you continue, please do so,
+ as you will obtain the best environment for MS-DOS 7.10 Setup.
+
+                     [ Continue ]  [ Quit ]
+::
+
+:w_no386 "Warning" [x]
+
+ Setup cannot detect a 386 or higher CPU in your system.
+ MS-DOS 7.10 requires a 386 or better processor.
+
+ If you continue, some problems may occur.
+
+                    Continue anyway?
+
+                    [ Yes ]  [ No ]
+::
+
+:w_copypak "MS-DOS 7.10 Setup" [x]
+
+ You probably started SETUP from another installation path
+ than Drive A:. Would you like MS-DOS 7.10 Setup to copy
+ and use the installation source files to the temporary
+ path as well ? If you click ~No~, you may need to specify
+ your installation path manually later.
+
+                      [ Yes ]  [ No ]
+::
+
+:w_notdisk2 "MS-DOS 7.10 Setup" [x]
+
+ The disk inside the drive is not MS-DOS 7.10 Setup Disk 2.
+ Please ensure that you insert the correct disk in the drive.
+
+ If you want to skip Setup Disk 2, please click ~Skip~.
+
+                     [ Retry ]  [ Skip ]
+::
+
+:w_disknotready "MS-DOS 7.10 Setup" [x]
+
+ The specified drive is not ready or invalid!
+ Please ensure that a disk is inside the specified drive.
+
+ If you want to skip this disk, please click ~Skip~.
+
+                  [ Retry ]  [ Skip ]
+::
+
+:w_changedisk2 "MS-DOS 7.10 Setup" [x]
+
+ MS-DOS 7.10 Full installation requires Setup Disk 2.
+
+ Please change the disk in the drive to MS-DOS 7.10
+ Installation Disk 2.
+
+ If you want to skip Setup Disk 2, please click ~Skip~.
+
+              [ Continue ]  [ Skip ]
+::
+
+:w_skipdisk2 "Warning" [x]
+
+ You are about to skip Setup Disk 2. Therefore, some tools
+ and utilities, such as DOSSHELL and AccessDOS (if you have
+ chosen) will not be installed on your system.
+
+                  Is it what you want?
+
+                    [ Yes ]  [ No ]
+::
+
+:w_makebak "MS-DOS 7.10 Setup" [x]
+
+ Your previous CONFIG.SYS/AUTOEXEC.BAT have been renamed
+ to CONFIG.--- and AUTOEXEC.--- respectively.
+
+                         [ OK ]
+::
+
+:w_addons "MS-DOS 7.10 Add-On Setup" [x]
+
+ Welcome to MS-DOS 7.10 Add-On Setup.
+
+ With this feature, you can install Add-Ons
+ or plug-ins for MS-DOS 7.10 easily.
+
+ Add-Ons or plug-ins can make MS-DOS 7.10
+ much more powerful and easier to use.
+
+ If you don't want to install Add-Ons now,
+ please click ~Cancel~.
+
+          [ Continue ]  [ Cancel ]
+::
+
+:w_addisk "MS-DOS 7.10 Add-On Setup" [x]
+
+ Please insert the MS-DOS 7.10 Add-On Disk
+ to the following path, and click ~Continue~.
+
+ If you want to cancel and don't install
+ Add-On for Setup, please click ~Cancel~.
+
+               [$ add_dir,25]
+
+          [ Continue ]  [ Cancel ]
+::
+
+:w_notaddisk "MS-DOS 7.10 Add-On Setup" [x]
+
+ The specified disk is not MS-DOS 7.10 Add-On Disk.
+ Please ensure that you insert the correct disk in the drive.
+
+ If you want to skip Add-On Disk, please click ~Skip~.
+
+                     [ Retry ]  [ Skip ]
+::
+
+:w_invaddisk "MS-DOS 7.10 Add-On Setup" [x]
+
+ The specified MS-DOS 7.10 Add-On Disk is invalid
+ or disabled. Please replace it with another one.
+
+ If you want to skip Add-On Disk, please click ~Skip~.
+
+                [ Retry ]  [ Skip ]
+::
+
+:w_readd "Warning" [x]
+
+ This Add-On might be already installed.
+
+ Do you want to reinstall or update it?
+
+            [ Yes ]  [ No ]
+::
+
+:w_useaddon "MS-DOS 7.10 Add-On Setup" [x]
+
+ MS-DOS 7.10 Setup will install the following Add-On:
+
+ Name: ~%addname%~  Version: ~%addvers%~
+
+ Description: ~%addtext%~
+
+ Using the following ZIP package as the source:
+
+ ~%add_dir%\%destzip%~
+
+        Do you want to install this Add-On now?
+
+                    [ Yes ]  [ No ]
+::
+
+:w_addfail "MS-DOS 7.10 Add-On Setup" [x]
+
+ Failed to process and install this Add-On.
+
+ Please check your system configuration.
+
+                   [ OK ]
+::
+
+:w_setagain "MS-DOS 7.10 Add-On Setup" [x]
+
+ Do you want to install another Add-On for
+ MS-DOS 7.10 now?
+
+              [ Yes ]  [ No ]
+::
+
+:w_skipaddon "MS-DOS 7.10 Add-On Setup" [x]
+
+ If you want to start MS-DOS 7.10 Add-On Setup
+ next time, you must run MS-DOS 7.10 Setup again.
+
+ Do you really want to quit from MS-DOS 7.10
+ Add-On Setup now?
+
+                 [ Yes ]  [ No ]
+::
+
+:w_logo "MS-DOS 7.10 Setup" [x]
+
+ By default, the system will show MS-DOS 7.10 Startup Logo when
+ MS-DOS 7.10 starts. But you can disable it now.
+
+ If you answer ~Yes~, you can always press the ESC key to disable
+ it temporarily when it appears during DOS startup.
+
+        Would you like the DOS Startup Logo to be shown?
+
+                       [ Yes ]  [ No ]
+::
+
+:w_bootlog "MS-DOS 7.10 Setup" [x]
+
+ MS-DOS 7.10 could create a DOS startup log file BOOTLOG.TXT,
+ which can sometimes provide some useful information for
+ troubleshooting or so. On the other hand, however, it may
+ slow down the boot up procedure. Do you want to enable this
+ DOS startup log function?
+
+                       [ Yes ]  [ No ]
+::
+
+:w_dlock "MS-DOS 7.10 Setup" [x]
+
+ Some older DOS programs which don't support Long File Names (LFN)
+ may destroy LFN and cause data loss while making write access to
+ drives directly. Thus by default, MS-DOS 7.10 disables direct
+ disk write access by unlocking all drives in order to protect LFNs
+ and data on your system. However, certain special programs sometimes
+ may need to write to the drives directly without causing LFN loss
+ (for example, when Windows 3.x is attempting to create a *permanent*
+ swap file). Do you want MS-DOS 7.10 to enable direct disk write
+ access for these programs by locking the drives automatically?
+
+ Note: you can get more information about this and the usage of the
+ LOCK command by typing "LOCK /?" on the DOS command line.
+ 
+                           [ Yes ]  [ No ]
+::
+
+:w_emm386 "MS-DOS 7.10 Setup" [x]
+
+ EMM386 can provide access to Upper Memory Block (UMB) and use
+ extended memory (XMS) to simulate expanded memory (EMS). If
+ UMB memory is enabled, the DOS kernel, DOS programs and device
+ drivers can be loaded high to save the 640KB low memory. EMS
+ memory is needed by certain programs, such as some older games.
+ However, if you enable both UMB and EMS memory, then the total
+ available UMB memory will be reduced by 64KB, so it's not
+ recommended to enable EMS memory unless it's required.
+
+ Also, EMM386 will provide VCPI memory and switch DOS into the
+ protected and V86 mode automatically. However, certain DOS
+ programs may not be compatible with EMM386. If this is the case,
+ please don't load EMM386.
+
+ Do you want to enable UMB and/or EMS memory by loading EMM386?
+
+ [ Enable UMB memory ] [ Enable both UMB and EMS ] [ Don't load ]
+::
+
+:w_doscd "MS-DOS 7.10 Setup" [x]
+
+ Most people have at least one IDE CD-ROM/RW or DVD-ROM/RW drive
+ on their systems. To access a CD/DVD drive, the corresponding
+ CD/DVD driver and the CD/DVD extension (i.e. MSCDEX.EXE) must be
+ loaded. If you wish, MS-DOS 7.10 will load a generic IDE/ATAPI
+ CD/DVD driver for CD/DVD drives and MSCDEX.EXE when DOS starts.
+ If you have another type of CD/DVD drive (e.g. SCSI or USB CD),
+ then you may need to load a different CD/DVD driver in CONFIG.SYS
+ and/or AUTOEXEC.BAT to make that CD/DVD drive work correctly.
+
+ Do you want MS-DOS 7.10 to load the IDE CD/DVD .SYS driver and
+ the CD/DVD extension (MSCDEX.EXE) automatically when DOS starts?
+
+ Note: If you are not sure about this, please click ~Load both~.
+
+     [ Load both ]  [ Load .SYS driver only ]  [ Don't load ]
+::
+
+:w_doscfg "MS-DOS 7.10 Setup" [x]
+
+ With this, you can configure MS-DOS 7.10 easily.
+
+ Please check the programs you want to load when MS-DOS 7.10 starts.
+
+ [!] SHARE (File-sharing and locking capabilities)
+ [!] POWER (Advanced power management)
+ [!] DOSLFN (Long File Names support)
+ [!] CTMOUSE (PS/2 & serial mouse support)
+ [!] NLSFUNC (For CHCP to switch code page)
+ [!] SMARTDRV (Disk cache to speed the drives up)
+
+ Note: If you want to change these settings later, please modify
+       the file CONFIG.SYS and/or AUTOEXEC.BAT manually.
+
+                    [ Continue ]  [ Use default ]
+::
+
+:w_doscp "MS-DOS 7.10 Setup" [x]
+
+      MS-DOS 7.10 needs to know what code page you are using in
+      order to provide LFN, display and keyboard support, and other
+      country-specific information for itself and some programs.
+
+        [.] Code Page ~437~ (US International)
+        [.] Code Page ~850~ (Multilingual/Latin I, with Euro sign)
+        [.] Code Page ~852~ (Slavic/Latin II)
+        [.] Code Page ~863~ (Candian-French)
+        [.] Code Page ~866~ (Russian/Cyrillic)
+        [.] Code Page ~869~ (Greek)
+        [.] Code Page ~936~ (Simplified Chinese)
+        [.] Code Page ~950~ (Traditional Chinese)
+
+      Note: For multilingual countries, please select Code Page ~850~
+            in order to support different keyboard layouts (such as
+            US/UK English, French and German) with Euro sign.
+
+                     [ Continue ]  [ Use default ]
+::
+
+:w_keylay "MS-DOS 7.10 Setup" [x]
+
+  You have chosen Code Page ~850~ (Multilingual with Euro sign),
+  please select the keyboard layout you want to use in DOS.
+  If you want to change this later, please use KEYB command.
+
+  MS-DOS 7.10 provides support for the Euro symbol. The key in
+  brackets is the Euro key sequence for each keyboard layout.
+
+               [.] US English     (Right Alt + 5)
+               [.] UK English     (Right Alt + 4)
+               [.] French         (Right Alt + e)
+               [.] German         (Right Alt + e)
+               [.] Danish         (Right Alt + 5)
+               [.] Dutch          (Right Alt + e)
+               [.] Italian        (Right Alt + 5)
+               [.] Spanish        (Right Alt + 5)
+               [.] Portuguese     (Right Alt + 5)
+
+                 [ Continue ]  [ Use default ]
+::
+
+:w_success "MS-DOS 7.10 Setup" [x]
+
+ ~Congrulations! You have completed MS-DOS 7.10 installation.~
+
+ This distribution is in the hope that it will be useful.
+ Enjoy it !!! (C)Copyright Microsoft Corp 1981-1999.
+
+ This program is Free Software under GNU GPL.
+ Any questions or problems, please contact Support Center.
+
+                          [ OK ]
+::
+
+:w_reqboot "MS-DOS 7.10 Setup" [x]
+
+ To use MS-DOS 7.10, you must restart your system.
+ Please remove this disk in the drive before reboot.
+
+          Would you like to reboot now?
+
+                 [ Yes ]  [ No ]
+::
+
+:w_quit "MS-DOS 7.10 Setup"
+
+ MS-DOS 7.10 Setup process is not complete. If you
+ quit Setup now, MS-DOS 7.10 will not be properly
+ installed. Are you sure you want to quit Setup?
+
+                  [ Yes ]  [ No ]
+::

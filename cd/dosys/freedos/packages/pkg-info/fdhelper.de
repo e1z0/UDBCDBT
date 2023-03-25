@@ -1,0 +1,7 @@
+Begin3
+Language:    DE, 858
+Title:       FreeDOS Helpers
+Description: Batch-Dateien zum AusfÅhren diverser Aufgaben in FreeDOS.
+Summary:     Batch-Programme zum AusfÅhren von Aufgaben. Wie z.B. die 'Willkommen bei FreeDOS'-Nachricht, CD/DVD-ROM-Initialisierung und andere.
+Keywords:    boot cd dvd language message autoexec config system driver extension
+End

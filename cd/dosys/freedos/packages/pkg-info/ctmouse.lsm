@@ -1,0 +1,23 @@
+Begin3
+Title:          CTMouse
+Version:        2.1b4
+Entered-date:   2008-07-22
+Description:    The FreeDOS mouse driver
+Keywords:       Mouse, mice, wheel
+Author:         Nagy Daniel
+Maintained-by:  Eric Auer
+Primary-site:   http://cutemouse.sourceforge.net
+Alternate-site: http://sourceforge.net/projects/cutemouse
+Platforms:      FreeDOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Mouse
+CRC:            835c58f7
+MD5:            ff57ad38cb22261d1b3a89cc4ee3c563
+SHA:            a0ff1731914cc900ec7ff20a13311435d115d95f58e4eafb259376f680e61305
+Bin-files:      34
+Bin-size:       190447
+Source-files:   46
+Source-size:    507912
+Total-files:    80
+Total-size:     698359
+End

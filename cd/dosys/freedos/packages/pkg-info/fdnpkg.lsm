@@ -1,0 +1,22 @@
+Begin3
+Title:          FDNPKG
+Version:        0.99.7a
+Entered-date:   2021-01-04
+Description:    Network-enabled package manager
+Keywords:       fdnpkg,update,packages
+Author:         Mateusz Viste
+Maintained-by:  Mateusz Viste
+Alternate-site: https://sourceforge.net/projects/fdnpkg/
+Original-site:  http://fdnpkg.sourceforge.net/
+Platforms:      DOS
+Copying-policy: MIT
+CRC:            852ca0c0
+MD5:            c5f92833de3e39f10f15414106b31f7e
+SHA:            610722dd09fd23ae262108fe526642360a9224fc6b75c4f655964577e5c1e684
+Bin-files:      21
+Bin-size:       599767
+Source-files:   76
+Source-size:    770348
+Total-files:    97
+Total-size:     1370115
+End

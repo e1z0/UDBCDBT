@@ -1,0 +1,22 @@
+Begin3
+Title:          find
+Version:        3.0b LFN (rev A)
+Entered-date:   2019-07-03
+Description:    Search for files that contain a string
+Summary:        Display all lines in one or more files that contain a given string. Inverse and case-insensitive search possible as well.
+Keywords:       freedos, find, grep
+Author:         Jim Hall <jhall -at- freedos.org>
+Mirror-site:    http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/
+Platforms:      DOS (e.g. Borland C, Turbo C), includes own KITTEN library version
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Find
+CRC:            f5f878b4
+MD5:            68f930fed9ae60ccb1b573bd297e86cc
+SHA:            9ebb294fce1dfa385eaf274c5acb67cdb1011905c1049302fa28e3585bcdb419
+Bin-files:      27
+Bin-size:       38014
+Source-files:   43
+Source-size:    191716
+Total-files:    70
+Total-size:     229730
+End

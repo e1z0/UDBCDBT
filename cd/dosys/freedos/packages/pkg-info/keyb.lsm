@@ -1,0 +1,23 @@
+Begin3
+Title:          keyb
+Version:        2.01a
+Entered-date:   2013-12-14
+Description:    A BIOS level international keyboard driver
+Summary:        A BIOS level keyboard driver for international keyboard support.
+Keywords:       keyb, keyboard, driver
+Author:         Aitor SANTAMARIA MERINO
+Maintained-by:  freedos-devel@lists.sourceforge.net
+Primary-site:   https://github.com/FDOS/keyb
+Platforms:      DOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Keyb
+CRC:            f9cb5546
+MD5:            4cacbe528de74c2afae13d14d1f9f08d
+SHA:            49255df6f4080f08044f413f338d53f3465e0326dc30b16aaaf6f01e5026c2d5
+Bin-files:      10
+Bin-size:       59092
+Source-files:   2
+Source-size:    102876
+Total-files:    12
+Total-size:     161968
+End

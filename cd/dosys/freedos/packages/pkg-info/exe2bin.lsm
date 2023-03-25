@@ -1,0 +1,22 @@
+Begin3
+Title:          exe2bin
+Version:        1.5a
+Entered-date:   2006-07-24
+Description:    Convert an exe file to bin format
+Keywords:       freedos
+Author:         ramax@maks.bhg.ru
+Maintained-by:  ramax@maks.bhg.ru
+Platforms:      dos
+Copying-policy: Sybase Open Watcom Public License, Version 1.0
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Exe2bin
+Defunct-Site:   http://www.freedos.org/files/dos/exe2bin/
+CRC:            85755cd8
+MD5:            64d1786a3838cccb39709ce6753130db
+SHA:            e4254bca66062ec50138ab90ed31cb46ed11c12e19129d25c5913154a8c7c3cd
+Bin-files:      14
+Bin-size:       33133
+Source-files:   7
+Source-size:    36273
+Total-files:    21
+Total-size:     69406
+End

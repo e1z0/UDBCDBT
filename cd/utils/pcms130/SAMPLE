@@ -1,0 +1,17 @@
+      This is simply a little text file being 'typed' to the screen.
+
+-Examine the DEFAULT.PCM text file to see how you set up a menu.  If you're
+ curious, examine the file PCM_EXEC.BAT to see the sort of file the program
+ generates based on the commands in the text file.
+
+-While in the menu system, you move the highlite bar by using the arrow keys or
+ pressing the first letter of the item name you want to move to.
+
+-Pressing the <Esc> key will allow you to exit from the main menu screen, but
+ NOT from the utility menu.  The utility menu file UTILITY.PCM has the command
+ ".e=0" at the top, which signals the menu program to disable the escape key.
+
+-The password for the 'Secret Item' is "password".  You will later be able to
+define an 'administrator' password using the PCMSPASS utility.
+
+

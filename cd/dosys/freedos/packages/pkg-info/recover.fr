@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       RECOVER
+Description: R‚cup‚rer des disques ou des fichiers perdus.
+Keywords:    r‚cup‚rer, disques, fichiers
+End

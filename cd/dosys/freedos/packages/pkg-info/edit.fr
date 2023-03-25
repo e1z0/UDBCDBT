@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       FreeDOS Edit
+Description: Clone FreeDOS amÇliorÇ d'Edit de MS-DOS
+Keywords:    êditer êditeur
+End

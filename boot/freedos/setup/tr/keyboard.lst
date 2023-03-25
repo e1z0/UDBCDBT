@@ -1,0 +1,91 @@
+; The first 7 keyboard mapping settings are defaults and built into installer.
+
+TITLE.1=ABD òngilizcesi (varsayçlan)
+VALUE.1=
+TITLE.2=òngiltere òngilizcesi
+VALUE.2=mkeyb UK
+TITLE.3=òspanyolca
+VALUE.3=mkeyb SP
+TITLE.4=Fransçzca
+VALUE.4=mkeyb FR
+TITLE.5=Almanca
+VALUE.5=mkeyb GR
+TITLE.6=Hollandaca
+VALUE.6=mkeyb NE
+TITLE.7=TÅrkáe
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=Rusáa
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+TITLE.100=Brezilya
+VALUE.100=mkeyb BR
+
+TITLE.101=Brezilya geniületilmiü
+VALUE.101=mkeyb BX
+
+TITLE.102=Danimarka
+VALUE.102=mkeyb DK
+
+TITLE.103=Hollanda
+VALUE.103=mkeyb NE
+
+TITLE.104=Birleüik Krallçk òngilizcesi
+VALUE.104=mkeyb UK
+
+TITLE.105=ABD òngilizcesi
+VALUE.105=
+
+TITLE.106=Fransçzca
+VALUE.106=keyb FR,858
+
+TITLE.107=Fransçzca (alternatif)
+VALUE.107=mkeyb FR
+
+TITLE.108=Almanca
+VALUE.108=mkeyb GR
+
+TITLE.109=Almanca (Alternatif DÅzen)
+VALUE.109=mkeyb GR2
+
+TITLE.110=òbranice
+VALUE.110=mkeyb HE
+
+TITLE.111=Macarca
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=òtalyanca
+VALUE.112=mkeyb IT
+
+TITLE.113=Japonca
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=Latin Amerika
+VALUE.114=mkeyb LA
+
+TITLE.115=Leháe
+VALUE.115=mkeyb PL
+
+TITLE.116=Portekiz
+VALUE.116=mkeyb PO
+
+TITLE.117=Rusáa
+VALUE.117=mkeyb RU
+
+TITLE.118=òspanyolca
+VALUE.118=mkeyb SP
+
+TITLE.119=òsveááe
+VALUE.119=mkeyb SV
+
+TITLE.120=òsviáre Fransçzcasç
+VALUE.120=mkeyb SF
+
+TITLE.121=òsviáre Almancasç
+VALUE.121=mkeyb SG
+
+TITLE.122=TÅrkáe (F klavye)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=TÅrkáe (Q klavye)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

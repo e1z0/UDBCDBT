@@ -1,0 +1,22 @@
+Begin3
+Title:          DISPLAY
+Version:        0.13d
+Entered-date:   2018-01-02
+Description:    Driver for codepage management
+Summary:        Driver for codepage management (screen or printer)
+Keywords:       display, ega, vga, nls, cpi, cpx
+Author:         Aitor Santamaria Merino
+Maintained-by:  Aitor Santamaria Merino
+Original-site:  http://www.freedos.org
+Platforms:      DOS, FreeDOS
+Copying-policy: GNU General Public License, Version 2
+CRC:            3775e005
+MD5:            2da3bc9910e20534c860d9e5d5915d20
+SHA:            20ed075d36c49955b16bb5031493e924762817f93031bc6aab14536639165638
+Bin-files:      10
+Bin-size:       52981
+Source-files:   22
+Source-size:    173614
+Total-files:    32
+Total-size:     226595
+End

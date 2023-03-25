@@ -1,0 +1,92 @@
+; The first 7 keyboard mapping settings are defaults and built into installer.
+
+TITLE.1=US Anglais (par dÇfaut)
+VALUE.1=
+TITLE.2=UK Anglais
+VALUE.2=mkeyb UK
+TITLE.3=Espagnol
+VALUE.3=mkeyb SP
+TITLE.4=Franáais
+VALUE.4=mkeyb FR
+TITLE.5=Allemand
+VALUE.5=mkeyb GR
+TITLE.6=Hollandais
+VALUE.6=mkeyb NE
+TITLE.7=Turc
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=Russe
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+
+TITLE.100=BrÇsil
+VALUE.100=mkeyb BR
+
+TITLE.101=BrÇsil Çtendu
+VALUE.101=mkeyb BX
+
+TITLE.102=Danemark
+VALUE.102=mkeyb DK
+
+TITLE.103=Hollandais
+VALUE.103=mkeyb NE
+
+TITLE.104=Anglais du Royaume-Uni
+VALUE.104=mkeyb UK
+
+TITLE.105=Anglais des êtats-Unis
+VALUE.105=
+
+TITLE.106=Franáais
+VALUE.106=keyb FR,858
+
+TITLE.107=Franáais (disposition alternative)
+VALUE.107=mkeyb FR
+
+TITLE.108=Allemand
+VALUE.108=mkeyb GR
+
+TITLE.109=Allemand (disposition alternative)
+VALUE.109=mkeyb GR2
+
+TITLE.110=HÇbreu
+VALUE.110=mkeyb HE
+
+TITLE.111=Hongrois
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=Italien
+VALUE.112=mkeyb IT
+
+TITLE.113=Japonais
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=Latino-AmÇricain
+VALUE.114=mkeyb LA
+
+TITLE.115=Polonais
+VALUE.115=mkeyb PL
+
+TITLE.116=Portugal
+VALUE.116=mkeyb PO
+
+TITLE.117=Russie
+VALUE.117=mkeyb RU
+
+TITLE.118=Espagnol
+VALUE.118=mkeyb SP
+
+TITLE.119=SuÇdois
+VALUE.119=mkeyb SV
+
+TITLE.120=Suisse franáais
+VALUE.120=mkeyb SF
+
+TITLE.121=Allemand de Suisse
+VALUE.121=mkeyb SG
+
+TITLE.122=Turc (clavier F)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=Turc (clavier Q)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

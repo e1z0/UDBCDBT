@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       Tree
+Description: Affiche graphiquement la structure de r‚pertoires d'un lecteur ou d'un chemin.
+Keywords:    tree, FreeDOS, DOS, Win32
+End

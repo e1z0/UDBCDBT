@@ -1,0 +1,169 @@
+Microsoft MS-DOS 6.22
+=====================
+
+Packing List for 1.44 MB floppy disks
+-------------------------------------
+
+This file lists the contents of each of the three Setup disks.
+
+Many of the files on the three Setup disks are compressed.  The left column
+lists the file name as it appears on the disk.  The right column lists the
+file name after it has been expanded.  In some cases, the names are the same
+because some files are not compressed on the Setup disks. (For example this
+file, PACKING.LST, is not compressed).
+
+Any file which is compressed needs to be expanded before it can be used.
+All compressed files have a name in the left column which ends with the
+underscore ("_") character.  To expand a file, you can use the EXPAND
+utility.  This utility is on Setup Disk #1 (in an uncompressed form so you
+can use it), and is also copied by Setup to the MS-DOS directory on your
+hard disk. (Note: To expand files before running Setup, you must first copy
+EXPAND.EXE from Setup Disk #1 to the DOS directory on your hard disk.)
+
+For example, to expand the file MEM.EX_ from Setup Disk #1 in drive A,
+to the DOS directory on drive C, follow these steps:
+
+  - Make sure Setup Disk #1 is in drive A
+  - Type the following command at the MS-DOS command prompt:
+    EXPAND A:\MEM.EX_ C:\DOS\MEM.EXE
+
+The MS-DOS documentation has more information about using the EXPAND utility.
+
+Setup Disk #1
+-------------
+ATTRIB.EXE              ATTRIB.EXE
+AUTOEXEC.BAT            AUTOEXEC.BAT
+CHKDSK.EXE              CHKDSK.EXE
+COMMAND.COM             COMMAND.COM
+CONFIG.SYS              CONFIG.SYS
+COUNTRY.SYS             COUNTRY.SYS
+COUNTRY.TX_             COUNTRY.TXT
+DEBUG.EXE               DEBUG.EXE
+DEFRAG.EXE              DEFRAG.EXE
+DEFRAG.HL_              DEFRAG.HLP
+DOSSETUP.INI            DOSSETUP.INI
+DRVSPACE.BIN            DRVSPACE.BIN
+EDIT.COM                EDIT.COM
+EGA.CP_                 EGA.CPI
+EGA2.CP_                EGA2.CPI
+EGA3.CP_                EGA3.CPI
+EMM386.EX_              EMM386.EXE
+EXPAND.EXE              EXPAND.EXE
+FDISK.EXE               FDISK.EXE
+FORMAT.COM              FORMAT.COM
+IO.SYS                  IO.SYS
+ISO.CP_                 ISO.CPI
+KEYB.COM                KEYB.COM
+KEYBOARD.SYS            KEYBOARD.SYS
+KEYBRD2.SY_             KEYBRD2.SYS
+MEM.EX_                 MEM.EXE
+MSCDEX.EXE              MSCDEX.EXE
+MSDOS.SYS               MSDOS.SYS
+NETWORKS.TXT            NETWORKS.TXT
+NLSFUNC.EXE             NLSFUNC.EXE
+PACKING.LST             PACKING.LST
+QBASIC.EXE              QBASIC.EXE
+README.TXT              README.TXT
+REPLACE.EX_             REPLACE.EXE
+RESTORE.EX_             RESTORE.EXE
+SCANDISK.EXE            SCANDISK.EXE
+SCANDISK.INI            SCANDISK.INI
+SETUP.EXE               SETUP.EXE
+SETUP.MSG               SETUP.MSG
+SYS.COM                 SYS.COM
+XCOPY.EX_               XCOPY.EXE
+
+Setup Disk #2
+-------------
+ANSI.SY_                ANSI.SYS
+APPEND.EX_              APPEND.EXE
+CHKSTATE.SY_            CHKSTATE.SYS
+CHOICE.COM              CHOICE.COM
+DBLWIN.HL_              DBLWIN.HLP
+DELTREE.EX_             DELTREE.EXE
+DISKCOMP.CO_            DISKCOMP.COM
+DISKCOPY.CO_            DISKCOPY.COM
+DISPLAY.SY_             DISPLAY.SYS
+DOSHELP.HL_             DOSHELP.HLP
+DOSKEY.CO_              DOSKEY.COM
+DRIVER.SY_              DRIVER.SYS
+DRVSPACE.EXE            DRVSPACE.EXE
+DRVSPACE.HL_            DRVSPACE.HLP
+DRVSPACE.IN_            DRVSPACE.INF
+DRVSPACE.SY_            DRVSPACE.SYS
+DRVSPACE.TX_            DRVSPACE.TXT
+EDIT.HL_                EDIT.HLP
+FASTHELP.EX_            FASTHELP.EXE
+FASTOPEN.EX_            FASTOPEN.EXE
+FC.EX_                  FC.EXE
+FIND.EX_                FIND.EXE
+GRAPHICS.CO_            GRAPHICS.COM
+GRAPHICS.PR_            GRAPHICS.PRO
+HELP.COM                HELP.COM
+HELP.HL_                HELP.HLP
+HIMEM.SY_               HIMEM.SYS
+INTERLNK.EX_            INTERLNK.EXE
+INTERSVR.EX_            INTERSVR.EXE
+LABEL.EX_               LABEL.EXE
+LOADFIX.CO_             LOADFIX.COM
+MEMMAKER.EXE            MEMMAKER.EXE
+MEMMAKER.HL_            MEMMAKER.HLP
+MEMMAKER.IN_            MEMMAKER.INF
+MODE.CO_                MODE.COM
+MONOUMB.38_             MONOUMB.386
+MORE.COM                MORE.COM
+MOVE.EX_                MOVE.EXE
+MSBACKUP.EX_            MSBACKUP.EXE
+MSBCONFG.HL_            MSBCONFG.HLP
+MSBCONFG.OVL            MSBCONFG.OVL
+MSD.EXE                 MSD.EXE
+MSTOOLS.DL_             MSTOOLS.DLL
+MWBACKR.DL_             MWBACKR.DLL
+POWER.EX_               POWER.EXE
+PRINT.EX_               PRINT.EXE
+QBASIC.HL_              QBASIC.HLP
+RAMDRIVE.SY_            RAMDRIVE.SYS
+SETVER.EX_              SETVER.EXE
+SHARE.EX_               SHARE.EXE
+SIZER.EX_               SIZER.EXE
+SMARTDRV.EX_            SMARTDRV.EXE
+SMARTMON.EX_            SMARTMON.EXE
+SMARTMON.HL_            SMARTMON.HLP
+SORT.EX_                SORT.EXE
+SUBST.EX_               SUBST.EXE
+TREE.CO_                TREE.COM
+UNFORMAT.COM            UNFORMAT.COM
+VFINTD.38_              VFINTD.386
+WINA20.38_              WINA20.386
+
+Setup Disk #3
+-------------
+MSAV.EXE                MSAV.EXE
+MSAV.HL_                MSAV.HLP
+MSAVHELP.OV_            MSAVHELP.OVL
+MSAVIRUS.LS_            MSAVIRUS.LST
+MSBACKDB.OVL            MSBACKDB.OVL
+MSBACKDR.OVL            MSBACKDR.OVL
+MSBACKFB.OVL            MSBACKFB.OVL
+MSBACKFR.OVL            MSBACKFR.OVL
+MSBACKUP.HL_            MSBACKUP.HLP
+MSBACKUP.OVL            MSBACKUP.OVL
+MWAV.EX_                MWAV.EXE
+MWAV.HL_                MWAV.HLP
+MWAVABSI.DL_            MWAVABSI.DLL
+MWAVDLG.DL_             MWAVDLG.DLL
+MWAVDOSL.DL_            MWAVDOSL.DLL
+MWAVDRVL.DL_            MWAVDRVL.DLL
+MWAVMGR.DL_             MWAVMGR.DLL
+MWAVSCAN.DL_            MWAVSCAN.DLL
+MWAVSOS.DL_             MWAVSOS.DLL
+MWAVTSR.EX_             MWAVTSR.EXE
+MWBACKF.DL_             MWBACKF.DLL
+MWBACKUP.EX_            MWBACKUP.EXE
+MWBACKUP.HL_            MWBACKUP.HLP
+MWGRAFIC.DL_            MWGRAFIC.DLL
+MWUNDEL.EX_             MWUNDEL.EXE
+MWUNDEL.HL_             MWUNDEL.HLP
+UNDELETE.EXE            UNDELETE.EXE
+VSAFE.CO_               VSAFE.COM
+WNTOOLS.GR_             WNTOOLS.GRB

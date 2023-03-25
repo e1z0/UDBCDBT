@@ -1,0 +1,92 @@
+#!/bin/bash
+# Work of this script was derived from the project https://github.com/codercowboy/freedosbootdisks
+# Copyright (c) Jason Baker (jason@onejasonforsale.com)
+# Adapted by e1z0 (c) 2023 e1z0@vintage2000.org
+
+
+SCRIPT_HOME="`dirname ${BASH_SOURCE[0]}`"
+BUILD_HOME="${SCRIPT_HOME}/tmp"
+SOURCE_BOOT_DISK="${SCRIPT_HOME}/tools/lib/v86.freedos.boot.disk.img"
+FILE=${SCRIPT_HOME}/boot.img
+VOLUME_LABEL=FDOSBSTRP
+FILE_SIZE="1.4MB"
+FORMAT=1440
+SECTOR_SIZE="512"
+SECTOR_COUNT=$((FORMAT * 2))
+TMP_BOOT_SECTOR="${BUILD_HOME}/bootsector.tmp"
+
+
+if [ ! -f "${SCRIPT_HOME}/tools/lib/hexlib.sh" ]; then
+  echo "Cannot find hexlib.sh, should be in path: ${SCRIPT_HOME}/tools/lib/hexlib.sh"
+  exit 1
+fi
+
+source "${SCRIPT_HOME}/tools/lib/hexlib.sh"
+
+# changes a boot sector property
+# arg 1: mode: SECTOR_SIZE or SECTOR_COUNT
+# arg 2: value to write
+# arg 3: boot sector file
+change_boot_sector_property() {
+	# from: https://thestarman.pcministry.com/asm/mbr/DOS50FDB.htm
+	# sector size: 0x0B-0x0C (2 bytes)
+	# sector count: 0x13-0x14 (2 bytes)
+	echo "change_boot_sector_property mode: ${1}, value: ${2}, file: ${3}"
+	HEX_BYTES=$(convert_number_to_hex "${2}")
+	echo "change_boot_sector_property value hex bytes: ${HEX_BYTES}"
+	# if only one byte is in number ie 0x01, change it to 0x0001
+	if [ ${#HEX_BYTES} -eq 4 ]; then
+		HEX_BYTES=`echo -n ${HEX_BYTES} | sed 's/0x/0x00/'`
+		echo "change_boot_sector_property value hex bytes after padding: ${HEX_BYTES}"
+	fi
+	HEX_BYTES_REVERSED=$(reverse_hex_order "${HEX_BYTES}")	
+	echo "change_boot_sector_property value hex bytes reversed: ${HEX_BYTES_REVERSED}"
+	DECIMAL_ADDRESS=""
+	if [ "SECTOR_SIZE" = "${1}" ]; then
+		DECIMAL_ADDRESS=$(convert_hex_to_number "0x0B")
+		echo "change_boot_sector_property sector size write address '${DECIMAL_ADDRESS} (converted from '0x0B')"
+	elif [ "SECTOR_COUNT" = "${1}" ]; then
+		DECIMAL_ADDRESS=$(convert_hex_to_number "0x13")
+		echo "change_boot_sector_property sector count write address '${DECIMAL_ADDRESS} (converted from '0x13')"
+	else
+		print_usage "Unsupported 'CHANGE' mode: ${ACTION}"
+	fi
+	echo "change_boot_sector_property writing value: ${HEX_BYTES_REVERSED} to address: ${DECIMAL_ADDRESS} in file: ${3}"
+	replace_bytes "${DECIMAL_ADDRESS}" "${HEX_BYTES_REVERSED}" "${3}"
+}
+
+if ! [ -d "$BUILD_HOME" ]; then
+  mkdir "$BUILD_HOME"
+fi
+echo "Creating temp boot sector: ${TMP_BOOT_SECTOR}"
+dd if="${SOURCE_BOOT_DISK}" of="${TMP_BOOT_SECTOR}" bs=512 count=1
+#fix the sector size and count in the boot sector
+echo "Fixing sector size and count in the boot sector..."
+change_boot_sector_property SECTOR_SIZE "${SECTOR_SIZE}" "${TMP_BOOT_SECTOR}"
+change_boot_sector_property SECTOR_COUNT "${SECTOR_COUNT}" "${TMP_BOOT_SECTOR}"
+echo "Creating ${FILE_SIZE} FreeDOS boot disk with ${SECTOR_COUNT} sectors, sector size is ${SECTOR_SIZE}, file: ${FILE}"
+dd if=/dev/zero of="${FILE}" bs=${SECTOR_SIZE} count=${SECTOR_COUNT}
+newfs_msdos -B "${TMP_BOOT_SECTOR}" -v "${VOLUME_LABEL}" -f ${FORMAT} -b 1024 -S ${SECTOR_SIZE} -r 1 -F 12 "${FILE}"
+echo "Copying boot disk contents from ${SCRIPT_HOME}/boot"
+hdiutil attach "${FILE}"
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error attaching volume, try later.."
+    exit 1
+fi
+cp -r "${SCRIPT_HOME}/boot/" "/Volumes/${VOLUME_LABEL}"
+# remove dot files
+echo "Removing dot files..."
+find "/Volumes/${VOLUME_LABEL}" -name "._*" -delete
+rm -Rf "/Volumes/${VOLUME_LABEL}/.fseventsd/"
+echo "Ejecting disk..."
+hdiutil eject "/Volumes/${VOLUME_LABEL}/"
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Unable to de-attach volume, continuing..."
+fi
+echo "Finished creating boot diskette image: ${FILE}"
+echo "Cleaning..."
+if [ -d "$BUILD_HOME" ]; then
+  rm -r "$BUILD_HOME"    
+fi 

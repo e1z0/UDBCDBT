@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       Move
+Description: D‚place les fichiers d'ici … l…
+Keywords:    freedos, d‚placer
+End

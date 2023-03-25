@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       find
+Description: Afficher toutes les lignes d'un ou plusieurs fichiers contenant une chaŒne donn‚e. Recherche inverse et insensible … la casse ‚galement possible.
+Keywords:    freedos, find, grep
+End

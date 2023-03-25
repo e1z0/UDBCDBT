@@ -1,0 +1,91 @@
+; The first 7 keyboard mapping settings are defaults and built into installer.
+
+TITLE.1=Engels (standaard)
+VALUE.1=
+TITLE.2=Verenigd Koninkrijk Engels
+VALUE.2=mkeyb UK
+TITLE.3=Spaans
+VALUE.3=mkeyb SP
+TITLE.4=Frans
+VALUE.4=mkeyb FR
+TITLE.5=Duits
+VALUE.5=mkeyb GR
+TITLE.6=Nederlands
+VALUE.6=mkeyb NE
+TITLE.7=Turks
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=Russisch
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+TITLE.100=Brazili‰
+VALUE.100=mkeyb BR
+
+TITLE.101=Brazili‰ verlengd
+VALUE.101=mkeyb BX
+
+TITLE.102=Denemarken
+VALUE.102=mkeyb DK
+
+TITLE.103=Nederlands
+VALUE.103=mkeyb NE
+
+TITLE.104=Verenigd Koninkrijk Engels
+VALUE.104=mkeyb UK
+
+TITLE.105=Engels
+VALUE.105=
+
+TITLE.106=Frans
+VALUE.106=keyb FR,858
+
+TITLE.107=Frans (alternatief)
+VALUE.107=mkeyb FR
+
+TITLE.108=Duits
+VALUE.108=mkeyb GR
+
+TITLE.109=Duits (alternatieve versie)
+VALUE.109=mkeyb GR2
+
+TITLE.110=Hebreeuws
+VALUE.110=mkeyb HE
+
+TITLE.111=Hongaars
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=Italiaans
+VALUE.112=mkeyb IT
+
+TITLE.113=Japans
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=Latijns-Amerikaans
+VALUE.114=mkeyb LA
+
+TITLE.115=Pools
+VALUE.115=mkeyb PL
+
+TITLE.116=Portugal
+VALUE.116=mkeyb PO
+
+TITLE.117=Rusland
+VALUE.117=mkeyb RU
+
+TITLE.118=Spaans
+VALUE.118=mkeyb SP
+
+TITLE.119=Zweeds
+VALUE.119=mkeyb SV
+
+TITLE.120=Zwitserland Frans
+VALUE.120=mkeyb SF
+
+TITLE.121=Zwitserduits
+VALUE.121=mkeyb SG
+
+TITLE.122=Turks (F Toetsenbord)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=Turks (Q Toetsenbord)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

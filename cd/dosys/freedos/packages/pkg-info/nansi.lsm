@@ -1,0 +1,24 @@
+Begin3
+Title:                Nansi
+Version:              4.0d (2007may26) (rev A)
+Entered-date:         2007-05-26
+Description:          An ANSI driver for DOS
+Keywords:             freedos, nansi, ansi
+Author:               Dan Kegel <dank@kegel.com>
+Maintained-by:        Eric Auer <eric@CoLi.Uni-SB.DE>
+defunct-Primary-site: http://ibiblio.org/pub/micro/pc-stuff/freedos/files/distributions/1.2/repos/pkg-html/nansi.html
+Alternate-site:       http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/nansi/
+Original-site:        http://www.kegel.com/
+Platforms:            dos
+Copying-policy:       GNU General Public License, Version 2
+Defunct-Primary-Site: http://www.coli.uni-sb.de/~eric/stuff/soft/by-others/ nansi40c.zip
+CRC:                  8359ea54
+MD5:                  c063e8edefffdbeb8c5ad469f08627b0
+SHA:                  140bfd176739f8b5978ddc2aede6b3267a2c086d5950a8d8a70159218d20bdd9
+Bin-files:            8
+Bin-size:             53685
+Source-files:         10
+Source-size:          106037
+Total-files:          18
+Total-size:           159722
+End

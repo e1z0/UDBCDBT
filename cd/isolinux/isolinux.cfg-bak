@@ -1,0 +1,53 @@
+DEFAULT UDBCD
+  SAY Now booting in the Boot MENU...
+
+LABEL UDBCD
+ MENU LABEL FreeDOS Ultimate DOS Boot
+ kernel memdisk
+ append initrd=/boot.img floppy
+
+LABEL MSDOS622
+ MENU LABEL MS-DOS 6.22
+ kernel memdisk
+ append initrd=/dosimg/dos622.img floppy
+
+LABEL MSDOS710
+ MENU LABEL MS-DOS 7.10
+ kernel memdisk
+ append initrd=/dosimg/dos710.img floppy
+
+LABEL GRUB4DOS
+ MENU LABEL Bootstrap Grub boot loader (gives more options)
+ COM32 /isolinux/chain.c32
+ append ntldr=/grub/grldr
+
+#LABEL REACTOS
+# MENU LABEL ReactOS
+# kernel mboot.c32
+# append /freeldr.sys root=cd
+
+
+MENU CMDLINEROW 15
+MENU COLOR title 1;34;49 #eea0a0ff #cc333355 std
+MENU COLOR sel 7;37;40 #ff000000 #bb9999aa all
+MENU COLOR border 30;44 #ffffffff #00000000 std
+MENU COLOR pwdheader 31;47 #eeff1010 #20ffffff std
+MENU COLOR hotkey 35;40 #90ffff00 #00000000 std
+MENU COLOR hotsel 35;40 #90000000 #bb9999aa all
+MENU COLOR timeout_msg 35;40 #90ffffff #00000000 none
+MENU COLOR timeout 31;47 #eeff1010 #00000000 none
+MENU ENDROW 24
+MENU MARGIN 10
+MENU PASSWORDMARGIN 3
+MENU PASSWORDROW 11
+MENU ROWS 10
+MENU TABMSGROW 15
+MENU TIMEOUTROW 16
+MENU TITLE Ultimate DOS Boot CD  MENU
+MENU WIDTH 80
+
+PROMPT 1
+TIMEOUT 150
+UI menu.c32
+#UI vesamenu.c32
+

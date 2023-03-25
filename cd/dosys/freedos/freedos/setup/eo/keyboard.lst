@@ -1,0 +1,95 @@
+; The first 7 keyboard mapping settings are defaults and built into installer.
+
+KBO.1=" Usona angla (Defaulta)" /p " Britio angla" /p " hispana" /p " franca" /p " germanaj" /p
+KBO.2=" Germana (Alterna Arango)" /p " Nederlando"
+
+TITLE.1=Usona angla (Defaulta)
+VALUE.1=
+TITLE.2=Britio angla
+VALUE.2=mkeyb UK
+TITLE.3=hispana
+VALUE.3=mkeyb SP
+TITLE.4=franca
+VALUE.4=mkeyb FR
+TITLE.5=germana
+VALUE.5=mkeyb GR
+TITLE.6=nederlando
+VALUE.6=mkeyb NE
+TITLE.7=turkish
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=rusa
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+
+TITLE.100=brazilo
+VALUE.100=mkeyb BR
+
+TITLE.101=brazilo etendis
+VALUE.101=mkeyb BX
+
+TITLE.102=danio
+VALUE.102=mkeyb DK
+
+TITLE.103=nederlando
+VALUE.103=mkeyb NE
+
+TITLE.104=Britio angla
+VALUE.104=mkeyb UK
+
+TITLE.105=Usona angla
+VALUE.105=
+
+TITLE.106=franca
+VALUE.106=keyb FR,858
+
+TITLE.107=franca (alternativo)
+VALUE.107=mkeyb FR
+
+TITLE.108=germana
+VALUE.108=mkeyb GR
+
+TITLE.109=germana (Alterna Arango)
+VALUE.109=mkeyb GR2
+
+TITLE.110=hebrea
+VALUE.110=mkeyb HE
+
+TITLE.111=hungara
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=itala
+VALUE.112=mkeyb IT
+
+TITLE.113=Japana
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=latinamerikaj
+VALUE.114=mkeyb LA
+
+TITLE.115=pola
+VALUE.115=mkeyb PL
+
+TITLE.116=portugal
+VALUE.116=mkeyb PO
+
+TITLE.117=russia
+VALUE.117=mkeyb RU
+
+TITLE.118=hispana
+VALUE.118=mkeyb SP
+
+TITLE.119=sveda
+VALUE.119=mkeyb SV
+
+TITLE.120=svislando franca
+VALUE.120=mkeyb SF
+
+TITLE.121=svislando germana
+VALUE.121=mkeyb SG
+
+TITLE.122=turkish (F klavaro)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=turkish (Q klavaro)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       APPEND
+Description: APPEND permet aux programmes d'ouvrir les fichiers de donn‚es dans les r‚pertoires sp‚cifi‚s comme si les fichiers se trouvaient dans le r‚pertoire courant.
+Keywords:    freedos, joindre, donn‚es, fichiers, r‚pertoires
+End

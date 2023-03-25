@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       UnZip
+Description: Un outil de d‚compression de fichiers, similaire … PKUNZIP.
+Keywords:    freedos, unzip, infozip, pkunzip
+End

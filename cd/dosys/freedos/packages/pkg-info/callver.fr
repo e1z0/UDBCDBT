@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       Callver
+Description: D‚finir la version de DOS pour l'ex‚cution d'un programme.
+Keywords:    Dos FreeDOS setver dosver callver version
+End

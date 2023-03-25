@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       mode
+Description: D‚finir le mode de vos appareils
+Keywords:    freedos, mode, affichage
+End

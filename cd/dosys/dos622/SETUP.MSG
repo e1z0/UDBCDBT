@@ -1,0 +1,51 @@
+[CopyWait]
+Now is a great time to fill out your registration card. When
+you send it in, Microsoft will:
+
+   þ Keep you up to date on the latest product improvements.
+   þ Let you know about related Microsoft products.
+
+[CopyWait]
+Increase your hard disk space with DriveSpace. MS-DOS 6.22
+gives you a safe, easy way to increase disk capacity by
+integrating data compression into the operating system.
+
+If you are not already using disk compression, you can 
+increase your disk space by typing DRVSPACE at the command 
+prompt as soon as you complete this setup program.
+
+[CopyWait]
+MS-DOS 6.22 delivers advanced memory management features, 
+including an easy-to-use memory optimizer named MemMaker.
+
+If you have a 386 or higher processor, optimize your PC
+memory by typing MEMMAKER at the command prompt.
+
+[CopyWait]
+Protect your data!
+
+   þ Anti-Virus detects and removes computer viruses.
+   þ Backup safeguards your files.
+   þ Improved Undelete provides three levels of undelete security.
+
+MS-DOS 6.22 includes both MS-DOS and Windows versions of these
+three data-protecting features.
+
+[CopyWait]
+Have a disk problem? Fix it with ScanDisk, MS-DOS 6.22's advanced
+disk-repair tool. ScanDisk can diagnose and correct a wide range 
+of disk problems on both compressed and uncompressed drives.
+
+Even if your disk is working smoothly, running ScanDisk regularly
+is a good way to keep your disk in top shape.
+
+[CopyWait]
+MS-DOS 6.22 gives you control over how your computer starts.
+You can:
+
+   þ Choose from different startup configurations by creating
+       menu items in your CONFIG.SYS file.
+   þ Completely bypass your startup files by pressing F5 when
+       your computer starts.
+   þ Bypass individual startup file commands by pressing F8 when
+       your computer starts.

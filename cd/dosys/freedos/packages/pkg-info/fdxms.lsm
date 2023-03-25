@@ -1,0 +1,23 @@
+Begin3
+Title:          fdxms
+Version:        0.94.Bananas (rev A)
+Entered-date:   2005-05-28
+Description:    Replacement XMS driver for '386 systems or better
+Summary:        Replacement XMS driver for '386 systems or better
+Keywords:       freedos, xms, himem
+Author:         Till Gerken <till@tantalo.net>, Martin Strimberg <ams@ludd.ltu.se>
+Maintained-by:  Martin Strimberg <ams@ludd.ltu.se>
+Primary-site:   http://www.ludd.ltu.se/~ams/freedos/
+Original-site:  http://www.ludd.ltu.se/~ams/freedos/
+Platforms:      dos (ASM)
+Copying-policy: GNU General Public License, Version 2
+CRC:            aecab5d7
+MD5:            cc4d2a0068086d43372989f3337cf8a6
+SHA:            71f21d1f8b720160478c3b4e77f6dc1fa9053f56f70fc54f07183332fca2ab01
+Bin-files:      13
+Bin-size:       56658
+Source-files:   9
+Source-size:    90382
+Total-files:    22
+Total-size:     147040
+End

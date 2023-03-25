@@ -1,0 +1,22 @@
+Begin3
+Title:          fc
+Version:        3.03a
+Entered-date:   2005-01-10
+Description:    File compare utility
+Keywords:       freedos, file, compare, fc
+Author:         coldfusion1@geocities.com
+Maintained-by:  Maurizio Spagni <flurmy@freemail.it>
+Platforms:      dos (C) *** uses FreeDOS kitten
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Fc
+Defunct-Site:   http://irevolution.ncsdi.net/data/freedos.html
+CRC:            2c92bcc7
+MD5:            8eb9c94cf2775c6567d2bdec78dac08f
+SHA:            d8fec0665bcf72675ad6798e0c1a69f41ae49595211714c557c1894fbc480a94
+Bin-files:      26
+Bin-size:       89656
+Source-files:   7
+Source-size:    73864
+Total-files:    33
+Total-size:     163520
+End

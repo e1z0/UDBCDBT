@@ -1,0 +1,23 @@
+Begin3
+Title:          devload
+Version:        3.25a
+Entered-date:   2011-08-05
+Description:    Load device drivers from the command line
+Summary:        Command line device driver loading program, supports  Upper Memory Blocks.
+Keywords:       command-line, device, driver, load, ctload, devload
+Author:         David Woodhouse <Dave _AT_ infradead.org>
+Maintained-by:  Eric Auer <e.auer _AT_ jpberlin.de>
+Alternate-site: http://www.auersoft.eu/soft/
+Original-site:  http://www.infradead.org/devload
+Platforms:      DOS, NASM, FreeDOS
+Copying-policy: GNU General Public License, Version 2
+CRC:            6380b1c1
+MD5:            025ce5a187fe342a596d86e299b146e7
+SHA:            a8cea5fb47f5534143e765c3cbe882e0baed64dbad93080278e3e7f0f25c5edc
+Bin-files:      9
+Bin-size:       85355
+Source-files:   5
+Source-size:    159840
+Total-files:    14
+Total-size:     245195
+End

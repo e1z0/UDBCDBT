@@ -1,0 +1,23 @@
+Begin3
+Title:          zip
+Version:        3.0
+Entered-date:   2008-07-05
+Description:    A file archiver tool, like PKZIP
+Keywords:       freedos, zip, infozip, pkzip
+Author:         info-zip@wkuvx1.wku.edu
+Maintained-by:  info-zip@wkuvx1.wku.edu
+Primary-site:   http://infozip.sourceforge.net/
+Platforms:      dos, unix, mac
+Copying-policy: Open Source, see license.
+ftp:            ftp://ftp.info-zip.org/pub/infozip/license.html
+Summary:        A file archiver tool, like PKZIP.
+CRC:            7efefc96
+MD5:            d55aac803cb208813d017ddd8251cfd3
+SHA:            d7d89b27318550cfa24cda934766826b04bcbe971d56b9ff1be17900d65b0c38
+Bin-files:      24
+Bin-size:       679012
+Source-files:   363
+Source-size:    3981352
+Total-files:    387
+Total-size:     4660364
+End

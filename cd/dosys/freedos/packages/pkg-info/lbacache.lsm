@@ -1,0 +1,25 @@
+Begin3
+Title:                 LBAcache
+Version:               2009feb06
+Entered-date:          2022-01-12
+Description:           Disk cache for drives and floppies
+Summary:               Disk cache for drives and floppies. Caches reads for max 8 CHS / LBA hard disks and floppies, XMS, 386 or better - tickle comes with lbacache!
+Keywords:              cache, smartdrv, nwcache
+Author:                Eric Auer
+Maintained-by:         Eric Auer
+Original-site:         http://auersoft.eu/
+Mirror-site:           http://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/dos/lbacache
+Platforms:             DOS 386+ (nasm assembler), FreeDOS
+Copying-policy:        GNU General Public License, Version 2
+Defunct-Original-Site: http://www.coli.uni-saarland.de/~eric/stuff/soft/
+Defunct-Primary-Site:  http://www.coli.uni-saarland.de/~eric/stuff/soft/
+CRC:                   623b2399
+MD5:                   add0fc1eeef34b5cbc0a4d38f5545f96
+SHA:                   7109f3e044355c05c437320e6242a2f162cf429c88bc17296e97b6f468d3be37
+Bin-files:             13
+Bin-size:              106489
+Source-files:          21
+Source-size:           228251
+Total-files:           34
+Total-size:            334740
+End

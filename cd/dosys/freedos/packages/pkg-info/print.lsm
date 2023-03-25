@@ -1,0 +1,22 @@
+Begin3
+Title:                  PRINT
+Version:                1.02.ea (rev A)
+Entered-date:           2008-12-12
+Description:            Print files in the background
+Summary:                Print files in the background while you do other things.
+Keywords:               print, spool, lpr
+Author:                 James Tabor <jimtabor -AT- infohwy.com>
+Platforms:              DOS, FreeDOS
+Copying-policy:         GNU General Public License, Version 2
+Wiki-site:              http://wiki.freedos.org/wiki/index.php/Print
+Defunct-Alternate-Site: http://adsl-64-217-116-74.dsl.hstntx.swbell.net/ftp/pub/FreeDos/print/
+CRC:                    4304f677
+MD5:                    5a6894553ee9615511efa37d275121df
+SHA:                    16336dd9ed7969de6d184aad53566432e20b39e0fbd47de8eb80d14b474e7ca9
+Bin-files:              7
+Bin-size:               21430
+Source-files:           3
+Source-size:            37505
+Total-files:            10
+Total-size:             58935
+End

@@ -1,0 +1,22 @@
+Begin3
+Title:          FreeDOS Helpers
+Version:        1.3.5
+Entered-date:   2022-02-18
+Description:    Batch files to perform various tasks
+Summary:        Batch programs to perform various tasks like the "Welcome to FreeDOS" message, CD/DVD-ROM initialization and more
+Keywords:       boot cd dvd language message autoexec config system driver extension
+Author:         Jerome Shidel <jerome _AT_ shidel.net>
+Maintained-by:  Jerome Shidel <jerome _AT_ shidel.net>
+Primary-site:   https://gitlab.com/FDOS/base/fdhelper
+Platforms:      DOS
+Copying-policy: GNU General Public License, Version 2 or later
+CRC:            4443ed62
+MD5:            29ba691b3780e1a0fdc6981e2a5b7be5
+SHA:            5ade524ec5d122af625a24ad235ee9d60128c2e5186e704b8452b5c40d682927
+Bin-files:      34
+Bin-size:       26642
+Source-files:   2
+Source-size:    18302
+Total-files:    36
+Total-size:     44944
+End

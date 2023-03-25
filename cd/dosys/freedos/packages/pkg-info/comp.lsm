@@ -1,0 +1,24 @@
+Begin3
+Title:                 COMP
+Version:               1.04a
+Entered-date:          2006-10-21
+Description:           Compare files and display differences
+Summary:               Compare files and display their differences
+Keywords:              compare, comp, file compare
+Author:                Paul Vojta <vojta -at- math.berkeley.edu>
+Maintained-by:         Paul Vojta <vojta -at- math.berkeley.edu>
+defunct-site:          http://math.berkeley.edu/~vojta/
+defunct-Original-file: comp0104.zip
+Platforms:             DOS, FreeDOS
+Copying-policy:        MIT license
+Wiki-site:             http://wiki.freedos.org/wiki/index.php/Comp
+CRC:                   11355af9
+MD5:                   d99b6ab47b9565b8447822701cb97436
+SHA:                   12aa011f5c2f2f75cafa5de2a37db560d49c0eee6629722f4fac3be09fecdf51
+Bin-files:             7
+Bin-size:              3922
+Source-files:          3
+Source-size:           27813
+Total-files:           10
+Total-size:            31735
+End

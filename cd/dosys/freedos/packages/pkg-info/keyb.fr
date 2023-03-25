@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       keyb
+Description: Pilote de clavier (niveau BIOS) pour un support international
+Keywords:    keyb, clavier, pilote
+End

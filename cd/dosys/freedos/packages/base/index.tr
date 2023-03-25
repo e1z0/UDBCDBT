@@ -1,0 +1,56 @@
+FD-REPOv1	Build time: 1645361143	FreeDOS Temel	55
+ambhelp	0.1d	AMB bi‡iminde FreeDOS yardm dosyalar	d9c00480
+append	5.0-0.6a	APPEND, programlarn belirtilen dizinlerdeki veri dosyalarn gncel dizindeymiŸ gibi a‡malarna imkƒn verir.	882e3330
+assign	1.4a	Farkl bir srcye src harfi ata	ba3ce6a3
+attrib	2.1a	Dosya ”zelliklerini g”rntle ve ayarla	ae4c81af
+chkdsk	beta 0.9.2 (rev A)	Diskte hata olup olmad§n denetleyin.	06ae0e52
+choice	4.4a	Kullancya bir se‡im sun ve bir tuŸa baslmasn bekle (cats yerine kitten kullanr)	dccfb443
+comp	1.04a	Dosyalar mukayese et ve farkllklarn g”rntle	11355af9
+cpidos	3.0a	DISPLAY tr, UPX ile skŸtrlmŸ, ‡eŸitli DOS kod sayfas ile CPI dosyalar paketi.	403e3184
+ctmouse	2.1b4	FreeDOS fare srcs	835c58f7
+debug	1.28pre1	Bir program deneme ve dzenleme arac	53f0f08d
+defrag	1.3.2a	BirleŸtirme (defragmentation) program.	326adc6a
+deltree	1.02g.mrlg (rev A)	Dosya ve dizinleri i‡erdikleri tm dosyalar ve alt dizinler ile sil!	740f2021
+devload	3.25a	Komut satr cihaz src ykleyici program, UMB'leri destekler	6380b1c1
+diskcomp	06jun2003 (rev A)	Disk karŸlaŸtrma program	37609f47
+diskcopy	beta 0.95 (rev A)	Bir diski ya da kalp dosyasn baŸka bir diske kopyala	abba59db
+display	0.13d	Kod sayfas y”netimi i‡in FreeDOS srcs (ekran veya yazc)	3775e005
+edit	0.9b	FreeDOS'un geliŸmiŸ MS-DOS Edit klonu	88e24f30
+edlin	2.19	edlin program, standart FreeDOS satr dzenleyicisidir.	bdcba7a1
+exe2bin	1.5a	Bir exe dosyasn bin bi‡imine d”nŸtr	85755cd8
+fc	3.03a	Dosya karŸlaŸtrma arac	2c92bcc7
+fdapm	2009sep11 (rev A)	APM / ACPI kontrol/bilgisi, enerji tasarrufu sa§layan TSR/kontrol, arabellek boŸaltc, tekrar baŸlatc... {MS-DOS POWER i‡in bir alternatif}	ea7b5973
+fdhelper	1.3.5	FreeDOS zerinde ‡eŸitli g”revleri yerine getirmek i‡in toplu iŸ dosyalar	4443ed62
+fdisk	1.3.4a	Sabit disk arac - b”lmler oluŸturun.	fb8da4c6
+fdxms286	0.03.Temperaments (rev A)	'286 sistemleri veya daha iyisi i‡in alternatif XMS srcs.	66b09d32
+fdxms	0.94.Bananas (rev A)	'386 sistemleri veya daha iyisi i‡in yedek XMS srcs	aecab5d7
+find	3.0b LFN (rev A)	Bir ya da daha fazla dosyada belirli bir zinciri i‡eren tm satrlar g”rntle. Ters ve byk-k‡k harfe duyarsz arama da mmkndr.	f5f878b4
+format	0.91x	Disk bi‡imlendirme program -- FAT dosya sistemleri oluŸturur ve disketleri dŸk seviyeli bir Ÿekilde bi‡imlendirir.	5deb28c4
+freecom	0.85a	FreeDOS Komut Kabu§u	f826a7c3
+graphics	2008-07-14a	Prtscr tuŸunun grafik ekranlar basmasna izin ver. (CGA/EGA/VGA/MCGA, PostScript zerinde, ESC/P Epson 8/24 i§ne ve HP PCL yazclar)	acd9ab1f
+himemx	3.36	HimemX, FreeDOS Himem'den tretilmiŸ XMS bellek y”neticisidir	931e9d67
+jemm	5.79d	Jemm386, FreeDOS EMM386'nn kayna§na ba§l olarak DOS i‡in GeniŸletilmiŸ Bellek Y”neticisidir. FreeDOS ve/veya MS-DOS EMM386'ya kyasla birka‡ avantaj vardr. * Sadece 192 bayt DOS belle§e ihtiya‡ duyar. * €ok az geniŸletilmiŸ belle§e ihtiya‡ duyar. * Daha hzldr. * MS-DOS, FreeDOS ve EDR-DOS ile ‡alŸr. * Daha yeni yongalardaki iŸlevleri hz daha da arttrmak i‡in kullanr. * FreeDOS Emm386'nn tersine Jemm386'da tam VDS deste§i bulunur. * Komut satrndan yklenebilir.	5e6c77c9
+kernel	2043	FreeDOS €ekirde§i (FAT12/FAT16/FAT32 deste§i mevcuttur)	128a5a03
+keyb_lay	3.1a	KEYB i‡in klavye dzenleri	f2863a2a
+keyb	2.01a	BIOS dzeyinde uluslararas destek i‡in klavye srcs	f9cb5546
+label	1.5	Disk birimi etiketini ayarlar veya de§iŸtirir	360f8d35
+lbacache	2009feb06	Disk arabelle§i, 8 CHS / LBA sabit diskler ve disketler i‡in okumalar arabelle§e alr, XMS, 386 veya daha iyisi - tickle, lbacache ile gelir!	623b2399
+mem	1.11a	Sisteminizdeki kullanlan ve boŸ bellek miktarn g”rntler	e0a37ac5
+mirror	0.2a	Olas veri kurtarma i‡in diskle ilgili bilgileri kaydeder.	53ebe07f
+mkeyb	0.46	€ok k‡k bir klavye srcs, yerleŸik olarak 500 ila 700 bayt.	0e64ed5f
+mode	2015-11-25a	Cihazlarnzn kipini ayarlayn	a1378dbb
+more	4.3a	Herhangi bir metin dosyasnn i‡eri§ini sayfa sayfa g”rntler	23c9b00d
+move	3.3b	Dosyalar taŸr	2adecd5f
+nansi	4.0d (2007may26) (rev A)	DOS i‡in bir ANSI srcs	8359ea54
+nlsfunc	0.4a	NLSFUNC, NLS (Milli Dil Deste§i) iŸlevini ekler	d0c3d660
+print	1.02.ea (rev A)	BaŸka Ÿeyler yaparken dosyalar arka planda yazdrn.	4304f677
+recover	0.1 (BETA) (rev A)	Diskleri veya kayp dosyalar kurtarn.	4690837c
+replace	1.2a	Hedef dizindeki dosyalar, ayn ada sahip kaynak dizinindeki dosyalarla de§iŸtirir.	fad75d24
+share	08/2006a	Sabit diskinizde dosya paylaŸm ve kilitleme yeteneklerini ykler - sadece FreeDOS ‡ekirde§i i‡in	a548904b
+shsucdx	3.08a	DOS i‡in ”zgr CD-ROM geniŸleticisi	18d2f4f6
+sort	1.5.1a	˜ste§e ba§l olarak NLS harmanlama tablosunu kullanarak bir metin dosyasnn i‡eri§ini sralayn	143218e9
+swsubst	3.2a	SUBST ve JOIN	5a2ead3b
+tree	3.7.2a	Bir srcnn veya yolun dizin yapsn grafik olarak g”rntler.	73317948
+undelete	2008a	Undelete bir FAT16/FAT32 dosya sisteminden silinmiŸ (ancak kurtarlabilir) dosyalarn geri alnmasna imkƒn sa§lar.	0230392b
+unformat	0.8a	Kazaen bi‡imlendirdi§iniz bir diskin bi‡imlendirmesini geri aln.	4112be1d
+xcopy	1.4a	Dosyalar ve dizin a§a‡larn kopyalar.	bf4ae60a

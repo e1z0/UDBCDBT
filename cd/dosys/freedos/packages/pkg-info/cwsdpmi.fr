@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       CWSDPMI
+Description: Extension DOS DPMI 32 bits con‡ue pour DJGPP.
+Keywords:    extenseur, DPMI, DJGPP
+End

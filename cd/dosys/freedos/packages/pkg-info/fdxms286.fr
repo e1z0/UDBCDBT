@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       fdxms286
+Description: Pilote XMS de remplacement pour les systŠmes '286 ou sup‚rieurs.
+Keywords:    freedos, xms, himem
+End

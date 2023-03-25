@@ -1,0 +1,22 @@
+Begin3
+Title:          swsubst
+Version:        3.2a
+Entered-date:   2002-11-27
+Description:    SUBST and JOIN
+Keywords:       freedos, subst, join
+Author:         Steffen.Kaiser@fh-rhein-sieg.de
+Maintained-by:  Steffen.Kaiser@fh-rhein-sieg.de
+defunct-site:   http://www2.inf.fh-rhein-sieg.de/~skaise2a/ska/sources.html#swsubst
+Platforms:      dos
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Subst
+CRC:            5a2ead3b
+MD5:            a676a38ff990750d44c16b9d4495502e
+SHA:            ae2bddfdb930d9e80dd0fe07b50b49d7138e47bc601a9a09c38c352fbdb1fef1
+Bin-files:      7
+Bin-size:       59549
+Source-files:   39
+Source-size:    200690
+Total-files:    46
+Total-size:     260239
+End

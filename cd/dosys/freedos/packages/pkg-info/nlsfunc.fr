@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       NLSFunc
+Description: NLSFUNC ajoute la fonctionnalit‚ NLS (National Language Support, support de la langue nationale)
+Keywords:    freedos, nls,pays, affichage, mode
+End

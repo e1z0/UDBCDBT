@@ -1,0 +1,92 @@
+; The first 7 keyboard mapping settings are defaults and built into installer.
+; modified Title.5 from Deutsche to Deutsch by W. Spiegl
+TITLE.1=US-Englisch (Standard)
+VALUE.1=
+TITLE.2=UK Englisch
+VALUE.2=mkeyb UK
+TITLE.3=Spanisch
+VALUE.3=mkeyb SP
+TITLE.4=Franzîsisch
+VALUE.4=mkeyb FR
+TITLE.5=Deutsch
+VALUE.5=mkeyb GR
+TITLE.6=Niederlande
+VALUE.6=mkeyb NE
+TITLE.7=TÅrkisch
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=Russisch
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+
+TITLE.100=Brasilien
+VALUE.100=mkeyb BR
+
+TITLE.101=Brasilien verlÑngert
+VALUE.101=mkeyb BX
+
+TITLE.102=DÑnemark
+VALUE.102=mkeyb DK
+
+TITLE.103=Niederlande
+VALUE.103=mkeyb NE
+
+TITLE.104=UK Englisch
+VALUE.104=mkeyb UK
+
+TITLE.105=US-Englisch
+VALUE.105=
+
+TITLE.106=Franzîsisch
+VALUE.106=keyb FR,858
+
+TITLE.107=Franzîsisch (alternativ)
+VALUE.107=mkeyb FR
+
+TITLE.108=Deutsch
+VALUE.108=mkeyb GR
+
+TITLE.109=Deutsch (Alternative Version)
+VALUE.109=mkeyb GR2
+
+TITLE.110=HebrÑisch
+VALUE.110=mkeyb HE
+
+TITLE.111=Ungarisch
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=Italienisch
+VALUE.112=mkeyb IT
+
+TITLE.113=Japanisch
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=Lateinamerikanisch
+VALUE.114=mkeyb LA
+
+TITLE.115=Polnisch
+VALUE.115=mkeyb PL
+
+TITLE.116=Portugal
+VALUE.116=mkeyb PO
+
+TITLE.117=Russland
+VALUE.117=mkeyb RU
+
+TITLE.118=Spanisch
+VALUE.118=mkeyb SP
+
+TITLE.119=Schwedisch
+VALUE.119=mkeyb SV
+
+TITLE.120=Schweizer Franzîsisch
+VALUE.120=mkeyb SF
+
+TITLE.121=Schweizerdeutsch
+VALUE.121=mkeyb SG
+
+TITLE.122=TÅrkisch (F Tastatur)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=TÅrkisch (Q Tastatur)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

@@ -1,0 +1,23 @@
+Begin3
+Title:          KEYB layouts
+Version:        3.1a
+Entered-date:   2013-12-14
+Description:    Keyboard layouts for KEYB
+Keywords:       keyb,layouts
+Author:         Henrique Peron (hperon@terra.com.br)
+Primary-site:   http://gitlab.com/FDOS/base/keyb_lay
+Platforms:      DOS
+Copying-policy: GNU General Public License, Version 2
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Keyb
+Modified-date:  2021-03-18.0
+Changes:        Update to package LSM metadata
+CRC:            f2863a2a
+MD5:            5f4571b0d0383b93802e3519ccbe69bd
+SHA:            5bbfa35fbdf205a2e9def6403f76de19b75a2eb293b8be95eb13d4723d4d80c1
+Bin-files:      25
+Bin-size:       270967
+Source-files:   103
+Source-size:    388030
+Total-files:    128
+Total-size:     658997
+End

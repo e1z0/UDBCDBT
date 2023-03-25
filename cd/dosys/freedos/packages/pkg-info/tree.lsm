@@ -1,0 +1,25 @@
+Begin3
+Title:          Tree
+Version:        3.7.2a
+Entered-date:   2002-09-03
+Summary:        Graphically displays the folder structure of a drive or path. Support for message catalogs (different languages) using cats, and can be compiled for both Windows NT/9x and DOS.
+Description:    Displays the folder structure of a drive or path
+Keywords:       tree, FreeDOS, DOS, Win32
+Author:         Dave Dunfield <dave@dunfield.com>
+Maintained-by:  Kenneth J. Davis <jeremyd@computer.org>
+Primary-Site:   https://github.com/FDOS/tree
+defunt-site:    http://www.darklogic.org/fdos/projects/tree/
+defunct-site:   http://www.dunfield.com
+Platforms:      DOS (TC2, TC++1, TC30, BC31, BC45, MicroC v3*, Pacific C*, Digital Mars), Win32 (VC5*, BC45, BCC55, Digital Mars) * MicroC and Pacific C do not support Cats, VC5 requires minor Cats change.
+Copying-policy: GNU General Public License, Version 2 (using public domain findfile by Jeremy Davis and optional use of LGPL catgets by Jim Hall)
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Tree
+CRC:            73317948
+MD5:            8f01ebfa21bd572ebdf8ddab1cc5b45f
+SHA:            66d7912fa705ce86004083e07e12ec14dcfddb3f1cfb7131caaa222ed03c6abb
+Bin-files:      24
+Bin-size:       51024
+Source-files:   22
+Source-size:    111542
+Total-files:    46
+Total-size:     162566
+End

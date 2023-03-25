@@ -1,0 +1,23 @@
+Begin3
+Title:          UNFORMAT
+Version:        0.8a
+Entered-date:   1999-03-24
+Description:    Unformat an accidentally formatted disk
+Summary:        Unformat a disk that you accidentally formatted.
+Keywords:       format, unformat, harddrive,
+Author:         Brian Reifsnyder <breifsnyde -at- state.pa.us>
+Maintained-by:  Brian Reifsnyder <breifsnyde -at- state.pa.us>
+Primary-site:   https://github.com/FDOS/unformat
+Platforms:      DOS, FreeDOS
+Copying-policy: GNU General Public License
+Wiki-site:      http://wiki.freedos.org/wiki/index.php/Unformat
+CRC:            4112be1d
+MD5:            90a76d138ba0cb071439443763e8881b
+SHA:            bbd1bbeba4d52b5243ca237b3950b820f8c5c860d6fb7ea98cff952698e9ae6b
+Bin-files:      12
+Bin-size:       43510
+Source-files:   1
+Source-size:    32909
+Total-files:    13
+Total-size:     76419
+End

@@ -1,0 +1,92 @@
+; Первые 8 раскладок клавиатуры идут по-умолчанию и встроены в программу установки.
+
+TITLE.1=Английская (US)
+VALUE.1=
+TITLE.2=Английская (UK)
+VALUE.2=mkeyb UK
+TITLE.3=Испанская
+VALUE.3=mkeyb SP
+TITLE.4=Французская
+VALUE.4=mkeyb FR
+TITLE.5=Немецкая
+VALUE.5=mkeyb GR
+TITLE.6=Голландская
+VALUE.6=mkeyb NE
+TITLE.7=Турецкая
+VALUE.7=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+TITLE.8=Русская
+VALUE.8=keyb RU,,%DOSDIR%\BIN\KEYBRD2.SYS
+
+
+TITLE.100=Браэилия
+VALUE.100=mkeyb BR
+
+TITLE.101=Браэилия пpодлила
+VALUE.101=mkeyb BX
+
+TITLE.102=Дания
+VALUE.102=mkeyb DK
+
+TITLE.103=НидерландЫ
+VALUE.103=mkeyb NE
+
+TITLE.104=Aнглийский английский
+VALUE.104=mkeyb UK
+
+TITLE.105=Aмерикаский английский
+VALUE.105=
+
+TITLE.106=Француэский
+VALUE.106=keyb FR,858
+
+TITLE.107=Француэский (альтернативнЫй)
+VALUE.107=mkeyb FR
+
+TITLE.108=Немецкий
+VALUE.108=mkeyb GR
+
+TITLE.109=Немецкий (альтернативнЫй)
+VALUE.109=mkeyb GR2
+
+TITLE.110=иврит
+VALUE.110=mkeyb HE
+
+TITLE.111=Венгрия
+VALUE.111=keyb hu,852 /ID:208
+
+TITLE.112=Италия
+VALUE.112=mkeyb IT
+
+TITLE.113=Японский
+VALUE.113=keyb JP,932,%DOSDIR%\BIN\KEYBOARD.SYS
+
+TITLE.114=ЛатЫнЬ
+VALUE.114=mkeyb LA
+
+TITLE.115=ПолЬский
+VALUE.115=mkeyb PL
+
+TITLE.116=Португалия
+VALUE.116=mkeyb PO
+
+TITLE.117=Русский
+VALUE.117=mkeyb RU
+
+TITLE.118=Испания
+VALUE.118=mkeyb SP
+
+TITLE.119=Шведский
+VALUE.119=mkeyb SV
+
+TITLE.120=Швейцарский (фракцуэский)
+VALUE.120=mkeyb SF
+
+TITLE.121=Швейцарский (немецкий)
+VALUE.121=mkeyb SG
+
+TITLE.122=Турецкий (F макет)
+VALUE.122=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS /ID:440
+
+TITLE.123=Турецкий (Q макет)
+VALUE.123=keyb TR,857,%DOSDIR%\BIN\KEYBRD2.SYS
+

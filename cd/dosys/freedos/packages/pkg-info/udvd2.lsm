@@ -1,0 +1,20 @@
+Begin3
+Title:          UDVD2
+Version:        2015-03-05d
+Entered-date:   2020-05-19
+Description:    CD/DVD UltraDMA device driver
+Keywords:       cd, disk, dma, driver, dvd, ultra
+Author:         Jack R. Ellis
+Maintained-by:  Mercury Thirteen (mercury0x0d@protonmail.com)
+Platforms:      DOS
+Copying-policy: Free w/sources
+CRC:            f17eefb5
+MD5:            aa888b3e9b3b0abd937bbf01b58d3e57
+SHA:            dbc905deab2fab78a8437a1a972d485a549894093f305f9bc688ffe1435245d0
+Bin-files:      7
+Bin-size:       20801
+Source-files:   1
+Source-size:    72498
+Total-files:    8
+Total-size:     93299
+End

@@ -1,0 +1,6 @@
+Begin3
+Language:    FR, 850
+Title:       CHKDSK
+Description: V‚rifier le disque pour des erreurs.
+Keywords:    V‚rifier les disques pour des erreurs
+End

@@ -1,0 +1,23 @@
+Begin3
+Title:          DEBUG
+Version:        1.28pre1
+Entered-date:   2021-02-16
+Description:    Program testing and editing tool
+Keywords:       32bit debugger, debug, debugger, DPMI debugger, kernel debugger
+Author:         Paul Vojta <vojta@math.berkeley.edu>
+Maintained-by:  Andreas "Japheth" Grech <mail -at- japheth.de>
+Primary-site:   https://github.com/Baron-von-Riedesel/DOS-debug
+Original-site:  http://www.japheth.de/Download/
+Platforms:      DOS (assemble with NASM), FreeDOS
+Copying-policy: MIT License
+Summary:        A program testing and editing tool
+CRC:            53f0f08d
+MD5:            d11a1f25bbe90458420b95792b738460
+SHA:            cd1fed039cbf6d3e4179c57044e5eadcc7ff1fcbe82b689900efa62e3dcb0c01
+Bin-files:      17
+Bin-size:       116810
+Source-files:   20
+Source-size:    414538
+Total-files:    37
+Total-size:     531348
+End
