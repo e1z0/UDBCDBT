@@ -1,4 +1,4 @@
-# Ultimate DOS Boot CD built tools (UDBCDBT) for Ultimate DOS Boot CD project (UDBCD)
+# Ultimate DOS Boot CD build tools (UDBCDBT) for Ultimate DOS Boot CD project (UDBCD)
 
 https://user-images.githubusercontent.com/7213361/227746140-6f2ee743-00c1-4323-9a71-4e33247ed8cb.mov
 
