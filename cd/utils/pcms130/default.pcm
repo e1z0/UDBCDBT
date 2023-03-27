@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 .t=Ultimate DOS Boot CD
 .c=27,113
@@ -11,3 +12,32 @@ Multimedia >>
 <-- QUIT
         exit
 
+||||||| Stash base
+
+.t=Ultimate DOS Boot CD
+.c=27,113
+
+File Managers >>
+        <filemana.pcm
+
+Multimedia >>
+        <multimed.pcm
+
+<-- QUIT
+        exit
+
+=======
+
+.t=Ultimate DOS Boot CD
+.c=27,113
+
+Multimedia >>
+        <multimed.pcm
+
+File Managers >>
+        <filemana.pcm
+
+<-- QUIT
+        exit
+
+>>>>>>> Stashed changes
