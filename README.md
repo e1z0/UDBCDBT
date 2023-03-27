@@ -2,7 +2,7 @@
 
 https://user-images.githubusercontent.com/7213361/227746140-6f2ee743-00c1-4323-9a71-4e33247ed8cb.mov
 
-## What is UDBCD (Ultimate DOS Boot CD ? 
+## What is UDBCD (Ultimate DOS Boot CD) ? 
 
 It's wonderful thing you may use on your old vintage systems, maybe newer ones too. The included software is almost up to date
 
@@ -17,15 +17,16 @@ It's wonderful thing you may use on your old vintage systems, maybe newer ones t
 
 * mkisofs (brew install dvdrtools)
 
-**Currently only MacOS >=10.15 is supported as the host build system**
+**Windows as a build host is supported via WSL2 only**
 
 Clone this repository and build it!
 
 ```
 git clone https://github.com/e1z0/UDBCDBT.git
-make               # will use grub boot loader
-make isolinux      # will use syslinux boot loader
-make freedos       # if you want to run CD on computers with 2mb of ram
+make bootstrap     # Crafts the freedos bootable floppy image
+make               # Makes iso with grub boot loader
+make isolinux      # Makes iso with syslinux boot loader
+make freedos       # Makes iso with boot straight to freedos (if you want to run CD on computers with 2mb of ram)
 make test          # Will test live cd on qemu (without hdd). You must have qemu already installed on your system
 make testhdd       # Will test live cd on qemu (with hdd). You must have qemu already installed on your system
 ```
