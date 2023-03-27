@@ -7,4 +7,6 @@ stuff
 /bak
 /test
 .hg
+!/cd/apps/apps.ini
+/cd/apps/*
 experiment
