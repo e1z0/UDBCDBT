@@ -8,6 +8,15 @@ It's wonderful thing you may use on your old vintage systems, maybe newer ones t
 
 # How to craft a new ISO for UDBCD ?
 
+## System requirements (Linux)
+
+* mkisofs (apt-get install genisoimage, pacman -S cdrtools)
+* nasm (apt-get install nasm, pacman -S nasm)
+
+## System requirements (macOS)
+
+* mkisofs (brew install dvdrtools)
+
 **Currently only MacOS >=10.15 is supported as the host build system**
 
 Clone this repository and build it!

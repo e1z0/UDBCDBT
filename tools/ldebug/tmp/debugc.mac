@@ -1,0 +1,6 @@
+; File auto-generated, do not edit.
+strdef INILOAD_SIGNATURE, "eb"
+%assign _DEVICE 1
+%assign _DEVICE_ZERO_ENTRYPOINT 1
+%assign _DEVICE_ATTRIBUTE 8000h
+%define _DEVICE_NAME "LDEBUG$$"

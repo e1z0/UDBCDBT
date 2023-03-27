@@ -1,0 +1,53 @@
+lDebug release, FreeDOS package build instructions
+
+For detailed build instructions refer to the manual.
+
+
+Quick start:
+
+1. All sources are included in the FreeDOS package
+
+2. mktables C source is included in SOURCE/LDEBUG/ldebug/source/
+
+3. tellsize C source is included in SOURCE/LDEBUG/tellsize/
+
+4. Compile the C tools, put tellsize where it will be found
+
+5. Install remaining toolchain (refer to manual)
+
+6. If needed, copy cfg.sh to ovr.sh and adjust configuration
+
+7. Run "./mktables" from SOURCE/LDEBUG/ldebug/source/
+
+8. Run "./mak.sh reproduce" from SOURCE/LDEBUG/ldebug/source/
+
+9. Run "use_build_revision_id=0 ./mak.sh" instead to use current time
+
+10. Run "./makinst.sh" to create instsect.com
+
+12. Run "./mak.sh" from SOURCE/LDEBUG/ldebug/doc/
+
+
+How to create the FreeDOS package:
+
+1. Unpack the generic release archive (zipfile or tarball)
+
+2. mkdir SOURCE/LDEBUG/ldebug, APPINFO, BIN, DOC/LDEBUG
+
+3. Move all other files and directories to SOURCE/LDEBUG/ldebug/
+
+4. Copy *.com from .../bin/ to BIN/
+
+5. Copy *.txt, *.pdf, *.htm from .../doc/ to DOC/LDEBUG/
+
+6. Run unix2dos on the file DOC/LDEBUG/ldebug.txt
+
+7. Copy license.txt from .../ to DOC/LDEBUG/
+
+8. Update .../doc/LDEBUG.LSM and copy it to APPINFO/
+
+9. Update fdbuild.txt (this file) in DOC/LDEBUG/
+
+10. Add additional repos to SOURCE/LDEBUG/, check out, delete .hg*
+
+11. Create a zipfile from the directories APPINFO, BIN, DOC, SOURCE

@@ -1,0 +1,398 @@
+
+- NASM Map file ---------------------------------------------------------------
+
+Source file:  ../../ldosboot/iniload.asm
+Output file:  ../tmp/sa2/ldebug.com
+
+-- Program origin -------------------------------------------------------------
+
+00000000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart            Start             Stop              Length    Class     Name
+               0                 0             12C00  00012C00  progbits  .text
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:               12C00
+start:                    0
+align:                  200
+follows:   not defined
+vstart:                   0
+valign:    not defined
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+00000000  BS
+00000000  bsJump
+00000003  bsOEM
+0000000B  bsBPB
+0000000B  BS_size
+00000000  EBPB
+00000000  bpbBytesPerSector
+00000002  bpbSectorsPerCluster
+00000003  bpbReservedSectors
+00000005  bpbNumFATs
+00000006  bpbNumRootDirEnts
+00000008  bpbTotalSectors
+0000000A  bpbMediaID
+0000000B  bpbSectorsPerFAT
+0000000D  bpbCHSSectors
+0000000F  bpbCHSHeads
+00000011  bpbHiddenSectors
+00000015  bpbTotalSectorsLarge
+00000019  bpbNew
+00000019  ebpbSectorsPerFATLarge
+0000001D  ebpbFSFlags
+0000001F  ebpbFSVersion
+00000021  ebpbRootCluster
+00000025  ebpbFSINFOSector
+00000027  ebpbBackupSector
+00000029  ebpbReserved
+00000035  ebpbNew
+00000035  EBPB_size
+00000000  BPBN
+00000000  bpbnBootUnit
+00000002  bpbnExtBPBSignature
+00000003  bpbnSerialNumber
+00000007  bpbnVolumeLabel
+00000012  bpbnFilesystemID
+0000001A  BPBN_size
+FFFFFFFFFFFFFFF0  LOADSTACKVARS
+FFFFFFFFFFFFFFF0  lsvFirstCluster
+FFFFFFFFFFFFFFF4  lsvFATSector
+FFFFFFFFFFFFFFF8  lsvFATSeg
+FFFFFFFFFFFFFFFA  lsvLoadSeg
+FFFFFFFFFFFFFFFC  lsvDataStart
+00000010  LOADSTACKVARS_size
+00004C43  lsvclSignature
+00000100  lsvclBufferLength
+FFFFFFFFFFFFFFE0  LOADDATA
+FFFFFFFFFFFFFFE0  ldMemoryTop
+FFFFFFFFFFFFFFE2  ldLoadTop
+FFFFFFFFFFFFFFE4  ldSectorSeg
+FFFFFFFFFFFFFFE6  ldFATType
+FFFFFFFFFFFFFFE7  ldHasLBA
+FFFFFFFFFFFFFFE8  ldClusterSize
+FFFFFFFFFFFFFFEA  ldParaPerSector
+FFFFFFFFFFFFFFEC  ldLoadingSeg
+FFFFFFFFFFFFFFEC  ldQueryPatchValue
+FFFFFFFFFFFFFFEC  lsvCommandLine
+FFFFFFFFFFFFFEEC  lsvCommandLine.start
+FFFFFFFFFFFFFFEC  lsvCommandLine.signature
+FFFFFFFFFFFFFFEE  ldLoadUntilSeg
+FFFFFFFFFFFFFFEE  lsvExtra
+FFFFFFFFFFFFFFEE  lsvExtra.partition
+FFFFFFFFFFFFFFEF  lsvExtra.flags
+00000010  LOADDATA_size
+00000001  lsvefNoDataStart
+00000002  lsvefPartitionNumber
+FFFFFFFFFFFFFEE0  LOADCMDLINE
+FFFFFFFFFFFFFEE0  ldCommandLine
+FFFFFFFFFFFFFEE0  ldCommandLine.start
+00000100  LOADCMDLINE_size
+00000000  LBAPACKET
+00000000  lpSize
+00000002  lpCount
+00000004  lpBuffer
+00000008  lpSector
+00000010  LBAPACKET_size
+00000000  PARTINFO
+00000000  piBoot
+00000001  piStartCHS
+00000004  piType
+00000005  piEndCHS
+00000008  piStart
+0000000C  piLength
+00000010  PARTINFO_size
+00000000  ptEmpty
+00000001  ptFAT12
+00000004  ptFAT16_16BIT_CHS
+00000005  ptExtendedCHS
+00000006  ptFAT16_CHS
+0000000B  ptFAT32_CHS
+0000000C  ptFAT32
+0000000E  ptFAT16
+0000000F  ptExtended
+00000083  ptLinux
+00000085  ptExtendedLinux
+00000004  query_no_geometry
+00000002  query_no_chs
+00000001  query_no_lba
+00000001  query_fd_multiplier
+00000100  query_hd_multiplier
+00000101  query_all_multiplier
+00000004  relocator_size
+00000024  scanparttab_variables_length_w
+00000100  MULTIBOOT_CMDLINE_LENGTH
+00110000  MULTIBOOT_BASE
+00122880  MULTIBOOT_END
+00122980  MULTIBOOT_BSS_END
+00000200  MULTIBOOT_TARGET_SEGMENT
+00002000  MULTIBOOT_TARGET
+00001DF0  MULTIBOOT_BPB
+00001CDC  MULTIBOOT_CMDLINE_START
+00001CDC  MULTIBOOT_STACK_TOP
+00000000  MBI
+00000000  mbiFlags
+0000000C  mbiBootDevice
+00000010  mbiCmdLine
+00000014  mbiModuleCount
+00000018  mbiModuleTable
+0000001C  MBI_size
+00122880  MULTIBOOT_ESI_AFTER
+00000018  mbootgdt_size
+00000018  mbootgdt_size_b
+0000000C  mbootgdt_size_w
+00000006  mbootgdt_size_d
+00000003  mbootgdt_size_q
+00000002  mbootgdt_size_p
+00000001  mbootgdt_size_pg
+00000001  mbootgdt_size_ki
+
+
+---- Section .text ------------------------------------------------------------
+
+Real              Virtual           Name
+               0                 0  start
+              1A                1A  ms6_entry
+              25                25  ms6_entry.freedos_or_msdos1_com_entry
+              28                28  ..@.@@.1.0
+              2B                2B  ..@.@@.1.1
+              32                32  ..@.@@.1.2
+              44                44  ms6_entry.dssi
+              47                47  error
+              59                59  disp_error.loop
+              60                60  disp_error
+              66                66  query_geometry
+              6A                6A  ..@query_patch_site
+              72                72  ..@.@@.1.3
+              8F                8F  ..@.@@.1.4
+              A1                A1  ..@.@@.1.5
+              B0                B0  query_geometry.no_lba
+              B0                B0  query_geometry.done_lba
+              B4                B4  read_sector
+              F4                F4  read_sector.err_CY_2
+              FC                FC  read_sector.lba_done
+             14C               14C  read_sector.lba_error
+             101               101  read_sector.no_lba_checked
+             131               131  read_sector.err_NZ_2
+             13E               13E  read_sector.err_NZ_1
+             14A               14A  read_sector.err_CY_1
+             14C               14C  read_sector.err
+             14C               14C  error_diskaccess
+             160               160  read_sector.sectorseg_helper_es
+             161               161  read_sector.sectorseg_helper_then_done
+             171               171  read_sector.done
+             17A               17A  read_sector.increment_sector_number
+             17E               17E  ..@.@@.1.6
+             17F               17F  read_sector.int13_retry
+             18B               18B  ..@.@@.1.7
+             18E               18E  ..@.@@.1.8
+             18F               18F  read_sector.int13_preserve_lpcount
+             198               198  error_shortfile
+             1AE               1AE  error_badchain
+             1C4               1C4  error_badclusters
+             1DF               1DF  error_outofmemory
+             1FD               1FD  error_outofmemory_j1
+             200               200  ms7_entry
+             205               205  ms7_entry.ms6_common
+             208               208  ms7_entry.continue2_set_extra_and_empty_cmdline
+             20E               20E  ms7_entry.continue2
+             21E               21E  msg
+             21E               21E  msg.error
+             22B               22B  finish_continue
+             24E               24E  finish_relocation
+             26A               26A  ..@.@@.1.9
+             273               273  relocate_to
+             273               273  ..@.@@.1.10
+             291               291  ..@.@@.1.11
+             29D               29D  finish_load
+             2C0               2C0  skip_next_clust
+             2C5               2C5  skip_next_sect
+             2E7               2E7  end_of_chain
+             2F3               2F3  loaded_all_if_ae
+             2FB               2FB  skipped_all
+             304               304  error_badchain_j
+             307               307  relocator
+             30B               30B  relocator.end
+             30B               30B  clust_to_first_sector
+             31E               31E  clust_to_first_sector.cy_error_badchain
+             32A               32A  clust_next
+             339               339  clust_next.fat12
+             354               354  clust_next.fat32
+             358               358  clust_next.fat16
+             372               372  ..@.@@.1.12
+             38A               38A  ..@.@@.1.13
+             39A               39A  clust_next.gotvalue_zero_dx
+             39C               39C  ..@.@@.1.14
+             39D               39D  check_clust
+             3AE               3AE  check_clust.fat12
+             3B3               3B3  check_clust.fat32
+             3B9               3B9  check_clust.fat16
+             3BC               3BC  ..@.@@.1.15
+             3BC               3BC  check_clust.common
+             3BE               3BE  ms6_continue1
+             400               400  ldos_entry
+             409               409  ldos_entry.ms7_common
+             415               415  error_notfullyloaded
+             439               439  ..@.@@.1.16
+             445               445  ..@.@@.1.17
+             445               445  init_memory
+             46B               46B  init_memory.no_rpl
+             48D               48D  init_memory.gotsectorseg
+             493               493  init_memory.gotsegs
+             49D               49D  init_memory.error_outofmemory
+             4A0               4A0  ..@.@@.1.18
+             4AE               4AE  ..@.@@.1.19
+             4E7               4E7  init_memory.no_cmdline
+             4ED               4ED  ..@.@@.1.20
+             552               552  init_memory.is_fat32
+             56D               56D  ..@.@@.1.21
+             58F               58F  ..@.@@.1.22
+             5B5               5B5  init_memory.badclusters
+             5B8               5B8  ..@.@@.1.23
+             5DB               5DB  ..@.@@.1.24
+             5E5               5E5  ..@.@@.1.25
+             5E5               5E5  init_memory.got_fat12
+             5E6               5E6  init_memory.got_fat_type
+             600               600  end
+             600               600  load_next_clust
+             605               605  load_next_sect
+             610               610  skipped_all_continue
+             61F               61F  loaded_all.2stack_j
+             622               622  ms7_entry.continue
+             636               636  ..@.@@.1.26
+             800               800  end2
+             800               800  loaded_all.2stack
+             802               802  loaded_all
+             815               815  loaded_all.fat32
+             83A               83A  freedos_or_msdos1_com_entry
+             83D               83D  ..@.@@.1.27
+             847               847  freedos_entry
+             855               855  ..@.@@.1.28
+             860               860  ..@.@@.1.29
+             864               864  freedos_entry.canbevalid
+             86E               86E  ..@.@@.1.30
+             877               877  ..@.@@.1.31
+             884               884  freedos_entry.multiboot_entry
+             88E               88E  freedos_entry.error
+             8BD               8BD  handle_lsv_extra_flags
+             8C6               8C6  ..@.@@.1.32
+             8CF               8CF  ..@.@@.1.33
+             8D0               8D0  parse_partition_number
+             8EB               8EB  ..@.@@.1.34
+             916               916  ..@.@@.1.35
+             97D               97D  ..@.@@.1.36
+             992               992  ..@.@@.1.37
+             9A2               9A2  parse_partition_number.got_match
+             9EE               9EE  ..@.@@.1.38
+             A4B               A4B  parse_partition_number.not_fat32
+             A6D               A6D  parse_partition_number.invalid_return
+             A75               A75  ..@.@@.1.39
+             A7D               A7D  parse_partition_number.per_partition
+             AAC               AAC  ..@.@@.1.40
+             AC6               AC6  ..@.@@.1.41
+             ACB               ACB  parse_partition_number.int13_retry
+             ADC               ADC  ..@.@@.1.42
+             AE1               AE1  parse_partition_number.access_error
+             AE4               AE4  parse_partition_number.sector_too_large
+             AE4               AE4  parse_partition_number.sector_too_small
+             AE4               AE4  parse_partition_number.sector_not_power
+             AFC               AFC  parse_partition_number.invalid_sectors
+             AFC               AFC  parse_partition_number.invalid_heads
+             B11               B11  scan_logical.got_partition_cycle
+             B2E               B2E  scan_logical.error_too_many_partitions
+             B4F               B4F  read_partition_table.signature_fail
+             B74               B74  read_ae_512_bytes
+             B7C               B7C  read_ae_512_bytes.loop
+             B88               B88  scan_partitions
+             BC1               BC1  ..@.@@.1.43
+             BCF               BCF  scan_partitions.loop_primary_parts
+             BDC               BDC  scan_partitions.loop_primary_skip
+             BE5               BE5  scan_logical
+             BE5               BE5  scan_logical.
+             BE8               BE8  scan_logical.loop
+             C11               C11  scan_logical.logical
+             C1C               C1C  scan_logical.next
+             C29               C29  scan_logical.end
+             C2D               C2D  scan_logical.push
+             C2E               C2E  scan_logical.push_check_empty_next
+             C3E               C3E  scan_logical.push_check_is_not_empty
+             C5D               C5D  scan_logical.replace_common
+             C73               C73  scan_logical.have_root
+             C79               C79  scan_logical.pop
+             C8D               C8D  scan_logical.replace
+             CA8               CA8  read_partition_table
+             CE0               CE0  scanparttab_variables_start
+             CE0               CE0  partition_table
+             D20               D20  partition_table.end
+             D20               D20  partition_offset
+             D24               D24  load_partition_cycle
+             D26               D26  load_current_partition
+             D27               D27  partition_type
+             D28               D28  calculate_data_start
+             D54               D54  ..@.@@.1.44
+             D7D               D7D  calculate_data_start.error_badchain
+             D80               D80  end_of_handle_lsv_extra_flags
+             D80               D80  mbootheader
+             DA0               DA0  mboot2_header
+             DB0               DB0  mboot2_tag_information_request
+             DB0               DB0  mboot2_tag_information_request.
+             DB0               DB0  mboot2_tag_information_request.type
+             DB2               DB2  mboot2_tag_information_request.flags
+             DB4               DB4  mboot2_tag_information_request.size
+             DC0               DC0  mboot2_tag_information_request.end
+             DC0               DC0  mboot2_tag_addresses
+             DC0               DC0  mboot2_tag_addresses.
+             DC0               DC0  mboot2_tag_addresses.type
+             DC2               DC2  mboot2_tag_addresses.flags
+             DC4               DC4  mboot2_tag_addresses.size
+             DD8               DD8  mboot2_tag_addresses.end
+             DD8               DD8  mboot2_tag_entrypoint
+             DD8               DD8  mboot2_tag_entrypoint.
+             DD8               DD8  mboot2_tag_entrypoint.type
+             DDA               DDA  mboot2_tag_entrypoint.flags
+             DDC               DDC  mboot2_tag_entrypoint.size
+             DE4               DE4  mboot2_tag_entrypoint.end
+             DE8               DE8  mboot2_tag_end
+             DE8               DE8  mboot2_tag_end.
+             DE8               DE8  mboot2_tag_end.type
+             DEA               DEA  mboot2_tag_end.flags
+             DEC               DEC  mboot2_tag_end.size
+             DF0               DF0  mboot2_tag_end.end
+             DF0               DF0  mboot2_header_end
+             DF0               DF0  mbootentry.halt
+             DF0               DF0  mboot2entry.halt
+             DF1               DF1  ..@.@@.1.45
+             DF4               DF4  mbootentry
+             E23               E23  ..@.@@.1.46
+             E3D               E3D  ..@.@@.1.47
+             E41               E41  mboot2entry
+             E72               E72  mboot2entry.tags_loop
+             E82               E82  mboot2entry.tags_next
+             E8D               E8D  mboot2entry.cmdline
+             EA2               EA2  mboot2entry.partition
+             EAE               EAE  ..@.@@.1.48
+             EBA               EBA  ..@.@@.1.49
+             EBC               EBC  mboot2entry.tags_end
+             EBE               EBE  multiboot_1_2_common
+             F15               F15  multiboot_1_2_common.pm16
+             F24               F24  multiboot_1_2_common.rm
+             F70               F70  mbootgdt
+             F88               F88  mbootgdtdesc
+             F8E               F8E  mbootidtdesc
+             F94               F94  msdos1_com_entry
+             F9D               F9D  msdos1_com_entry.msg
+             FD0               FD0  payload
+           12880             12880  payload.actual_end
+           12C00             12C00  payload.end
+

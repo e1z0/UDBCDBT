@@ -1,0 +1,1293 @@
+[list -]
+%if 0
+
+lDebug general set up and macros
+
+Copyright (C) 1995-2003 Paul Vojta
+Copyright (C) 2008-2012 C. Masloch
+
+Usage of the works is permitted provided that this
+instrument is retained with the works, so that any entity
+that uses the works is notified of this instrument.
+
+DISCLAIMER: THE WORKS ARE WITHOUT WARRANTY.
+
+%endif
+
+TOLOWER		equ 32
+TOUPPER		equ ~32
+TOUPPER_W	equ ~(32<<8|32)
+MNEMONOFS	equ 28		; offset in disassembler output line
+				;  where mnemonics start
+MNEMONOFS_40	equ 20
+
+%include "lmacros3.mac"
+[list -]
+%include "AMIS.MAC"
+[list -]
+
+	defaulting 1			; enable defaulting
+	numdef SYMBOLIC, 0
+
+%if _SYMBOLIC
+	defaulting 0			; disable defaulting
+%include "symbols.mac"
+[list -]
+		; symbolic branch defines *without* defaulting!
+	numdef ZZ_INSERT_TEMP, 1
+	numdef XMS_SYMBOL_TABLE, 1
+	numdef BUFFER_86MM_SLICE, 0
+	numdef SECOND_SLICE, 0
+
+	defaulting 1			; re-enable defaulting
+
+		; symbolic branch defines
+	numdef 86MM_SYMBOL_TABLE_MAX, 256, 256
+%endif
+
+		; serialp defines
+	numdef USE_TX_FIFO, 1		; fill 16-byte UART TX FIFO when THRE
+	numdef ECHO_RX_TO_TX, 0		; echo received text to the other side
+	numdef RX_TO_TX_ADD_LF, 1
+
+	numdef UART_PORT, 2
+%if _UART_PORT == 1
+	numdef INTNUM, 0Ch
+	numdef OFFMASK, 0001_0000b
+_ONMASK      equ ~ _OFFMASK
+	numdef UART_BASE, 3F8h
+%elif _UART_PORT == 2
+	numdef INTNUM, 0Bh
+	numdef OFFMASK, 0000_1000b
+_ONMASK      equ ~ _OFFMASK
+	numdef UART_BASE, 2F8h
+%else
+ %fatal Invalid UART_PORT value: _UART_PORT
+%endif
+	numdef UART_RATE, 12		; 9600 bps, see table in this file
+	numdef UART_PARAMS, 0000_0011b	; 8n1, see tables
+	numdef UART_FIFO, 0
+		; 20h = (sometimes) use 64-byte FIFOs
+		; 30h = (sometimes) mask of tx FIFO trigger level
+		; C0h = mask of rx FIFO trigger level:
+		;	00h = 1 byte
+		;	40h = 4 bytes
+		;	80h = 8 bytes
+		;	C0h = 14 bytes
+		; (may differ for some chips)
+		; refer to https://github.com/spotify/linux/blob/6eb782fc88d11b9f40f3d1d714531f22c57b39f9/include/linux/serial_reg.h#L48
+	numdef RXFIFOSIZE, 128	; set this to your needs
+	numdef TXFIFOSIZE, 128	; dito.
+		; the fifos must be large on slow computers
+		; and can be small on fast ones
+		; These have nothing to do with the 16550A's
+		; built-in FIFOs!
+	numdef BI_TX_FIFO_SIZE, 16
+		; This refers to the 16550A's built-in TX FIFO.
+		;  Set to 15 (instead of 16) here or in variable DSF if
+		;  using dosemu before revision gc7f5a828 2019-01-22,
+		;  see https://github.com/stsp/dosemu2/issues/748
+
+%macro rx_checkwrap 0
+  cmp  si, rxfifo+_RXFIFOSIZE
+  jb  %%rx_nowrap
+  mov  si, rxfifo
+%%rx_nowrap:
+%endmacro
+
+%macro tx_checkwrap 0
+  cmp  si, txfifo+_TXFIFOSIZE
+  jb  %%tx_nowrap
+  mov  si, txfifo
+%%tx_nowrap:
+%endmacro
+
+
+			; Options. The defaults can be configured here.
+			; All options can be set on NASM's command line too.
+strdef FILENAME,	"DEBUG"	; max 6 characters!
+strdef BOOTSCRIPTPREFIX,""
+strdef BOOTSCRIPTNAME,	"LDEBUG.SLD"
+strdef BOOTSCRIPTLABEL,	"bootstartup"
+strdef PROGNAME,	"lDebug"
+strdef VERSION,		{" (",__DATE__,")"}	; immediately follows _PROGNAME
+strdef REVISIONID,	""
+strdef REVISIONID_LMACROS,	""
+strdef REVISIONID_SYMSNIP,	""
+strdef REVISIONID_SCANPTAB,	""
+strdef REVISIONID_INICOMP,	""
+strdef REVISIONID_INICHECK,	""
+strdef REVISIONID_LDOSBOOT,	""
+numdef XTNAME,		0
+numdef PM,		0	; create DEBUGX
+numdef DEBUG,		0	; debug lDebug with itself, support BU command
+numdef DEBUG_COND,	0	; add debug mode (conditionally debuggable)
+numdef DEBUG_COND_DEFAULT_ON,1	; enable debug mode by default
+numdef DEBUG0
+numdef DEBUG1
+numdef DEBUG2
+numdef DEBUG3
+numdef DEBUG4
+numdef DEBUG5
+%idefine d5 _d 5,
+numdef TTEST,		1
+numdef SLEEP_NEW,	1
+numdef DOUBLEDOLLAR,	0	; accept double dollar for setting a high limit
+				;  for dollar-prefixed segments in PM
+numdef IMMASM,		0
+numdef IMMASM_AUXBUFF,	0
+numdef REGSHIGHLIGHT,	1
+numdef GETLINEHIGHLIGHT,1
+numdef PASSTF,		0	; do not clear TF early in intr1 unconditionally
+numdef VXCHG,		1	; support video swap so outputs remain separated
+numdef VXCHG_DEFAULT_ON,0	; enable video swap by default
+numdef VXCHGBIOS,	0	; use ROM-BIOS page swap to do video swap
+numdef FORCETEXT,	0	; force setting text mode upon run return
+numdef ALTVID,		1	; support alternate video adapter
+numdef MCLOPT,		0	; accept /M command line option
+numdef MCLOPT_DEFAULT,	8	; default for /M (8 = /M-, 20h = /M+)
+numdef INDOS_PROMPT,	1	; prepend '!' to prompt while InDOS
+numdef INDOS_PROMPT_NOBOOT, 1	; -... except while booted
+numdef INDOS_PROMPT_NOFLAG, 1	; -... except while only DCO flag set
+numdef EMS,		1	; support X commands
+numdef INT,		1	; support DI command
+numdef MCB,		1	; support DM command
+numdef RN,		1	; support RN command
+numdef DSTRINGS,	1	; support DZ, D$, D#, DW# commands
+numdef DNUM,		1	; support DB, DW, DD, DP, DS, DO commands
+numdef SDUMP,		1	; dump 16 bytes at found location for S command
+numdef ESTRINGS,	1	; support EZ, E$, E#, EW# commands
+numdef ENUM,		1	; support EB, EW, ED, EP, ES, EO commands
+numdef USESDA,		1	; use SDA to get/set PSP in RM
+numdef SYSREQINT,	09h	; if _CATCHSYSREQ, defines the method (int 09h or 15h)
+numdef SYSREQ_DISABLE_INT2F_HOOK,	0
+				; if _CATCHSYSREQ and _PM disable int 2Fh hook
+%if _SYSREQINT != 09h && _SYSREQINT != 15h
+ %error Invalid SysReq interrupt number
+%endif
+numdef VDD,		1	; try to load DEBXXVDD.DLL to use it for L and W sector commands
+numdef EXPRESSIONS,	1	; support expression evaluator for any numeric value
+				; disabling this also uses the simple H command
+numdef EXPRESSION_PRECEDENCE_STACK_CHECK,	128	; see usage
+numdef EXPRESSION_PARENS_STACK_CHECK,		128	; see usage
+numdef EXPRESSION_INDIRECTION_STACK_CHECK,	128	; see usage
+numdef EXPRESSION_VALUE_IN_STACK_CHECK,		128	; see usage
+numdef EXPRESSION_LINEAR_STACK_CHECK,		128	; see usage
+numdef EXPRESSION_DESCTYPE_STACK_CHECK,		128	; see usage
+numdef EXPRESSION_COND_STACK_CHECK,		128	; see usage
+numdef EXPRESSION_DEBUG,0	; output debugging trace of expression
+
+numdef INDIRECTION,	1	; support memory access inside expressions
+numdef VARIABLES,	1	; support V0 to VF calculation variables
+numdef OPTIONS,		1	; support DCO, DCS, DIF, DAO, DAS option variables
+
+numdef COND,		1	; disassemble short conditional jumps with notice on the condition
+numdef COND_RDUMP_ONLY,	1	;  but only in the register dump single-line disassembler (R)
+excdef !_COND,COND_RDUMP_ONLY
+
+numdef BOOTLDR,		1	; support loading instead of DOS
+numdef CHECKSUM,	0	; include inicheck revision ID if true
+numdef INPUT_FILE_BOOT,	4	; number of boot input file levels to allow
+excdef !_BOOTLDR, INPUT_FILE_BOOT
+				; (if no bootldr, force number to zero)
+
+numdef INPUT_FILE_HANDLES, 16	; number of input file levels to allow
+numdef RE_BUFFER_SIZE, 2048, -	; size of RE commands buffer
+numdef RC_BUFFER_SIZE, 256, -	; size of RC commands buffer
+numdef ACCESS_VARIABLES_AMOUNT, 4, 4
+numdef MEMREF_AMOUNT, 4, 4
+excdef !_MEMREF_AMOUNT, ACCESS_VARIABLES_AMOUNT
+
+numdef BREAKPOINTS,	1	; support B commands
+numdef NUM_B_BP,	16,-	; number of breakpoints for B
+numdef NUM_SYM_BP,	16,-	; number of symbol breakpoints
+numdef NUM_G_BP,	16,-	; number of breakpoints for G
+excdef !_SYMBOLIC,NUM_SYM_BP	; no symbol breakpoints if not symbolic
+excdef !_BREAKPOINTS,NUM_B_BP,NUM_SYM_BP
+				; (if no support, force number to zero)
+excdef !(_NUM_B_BP + _NUM_SYM_BP),BREAKPOINTS
+				; (if number zero, no support)
+numdef BREAKPOINTS_STICKY, 0	; support sticky breakpoints for B
+numdef NUM_B_ID_BYTES, 384, -	; size of shared bb ID buffer space
+numdef NUM_B_WHEN_BYTES, 1024, -; size of shared bb condition buffer space
+
+%if _NUM_G_BP > 128
+ %errror Number of G breakpoints must not be higher than 128
+				; more don't fit on the command line anyway.
+				; also insures our byte count is large enough.
+%endif
+
+%if (_NUM_B_BP + _NUM_SYM_BP) > 255
+ %error Number of B breakpoints must not be higher than 255
+				; insure that they work with a byte count
+%endif
+
+%if _NUM_B_ID_BYTES > 1024
+ %error Size of bb ID buffer must not be higher than 1024 bytes
+				; we use 10 bits for our offsets into this buffer
+%endif
+
+numdef DEVICE,		1	; support loading as device driver
+numdef DEVICE_SET_2324,	1	; set up debugger's own int 23h/24h for device mode
+numdef TSR,		1	; support resident operation from application load
+numdef DETECT,		0	; (not yet) detect DPMI mode changes
+numdef MMXSUPP,		1	; support MMX specific commands
+numdef MMX_REDETECT,	1	; redetect MMX support (86 Mode / PM)
+numdef GUARD_86M_INT2F,	1	; check before calling 86 Mode int 2Fh
+				; (it is assumed to be valid if we entered PM)
+numdef DELAY_BEFORE_BP,	1	; allow option to delay before writing breakpoints
+numdef HISTORY,		1	; command history for rawinput
+numdef HISTORY_SIZE,	1024	; size of history buffer
+numdef HISTORY_SEPARATE_FIXED, 1; use fixed-size separate history segment
+%if _HISTORY
+ %if _HISTORY_SEPARATE_FIXED
+numdef HISTORY_SIZE,	8192	; different default size
+ historysegment_size equ (_HISTORY_SIZE + 15) & ~15
+ %imacro gethistorysegment 1
+	mov %1, word [ss:history.segorsel]
+ %endmacro
+ %imacro gethistoryoffset 1
+	mov %1, 0
+ %endmacro
+ %else
+ historysegment_size equ 0
+ %imacro gethistorysegment 1
+	push ss
+	pop %1
+ %endmacro
+ %imacro gethistoryoffset 1
+	mov %1, historybuffer
+ %endmacro
+ %endif
+%else
+ historysegment_size equ 0
+%endif
+numdef NEWFULLHANDLING, 1	; fillbuf related hackery (ee/getline)
+numdef DEFAULTSHOWSIZE,	0	; show size of various parts by default
+numdef 40COLUMNS,	1
+
+numdef CATCHINT00,	1	; catch Int00 (divide error)
+numdef CATCHINT01,	1	; catch Int01 (single-step)
+numdef CATCHINT03,	1	; catch Int03 (breakpoint)
+	; The debugger only works properly with Int01 and Int03 hooked.
+	;  However, the same as FreeDOS Debug we offer the option to
+	;  not hook them. This is intended as an alternative to using
+	;  the _DEBUG option (DDebug); if the inner debugger does not
+	;  hook the breakpoint interrupts then it can be debugged.
+numdef CATCHINT06,	1	; catch Int06 (invalid opcode)
+numdef CATCHINT07,	0	; catch Int07 (no x87 present on 286+)
+numdef CATCHINT0C,	0	; catch Int0C (stack fault in R86M, or IRQ)
+numdef CATCHINT0D,	0	; catch Int0D (general protection fault in R86M, or IRQ)
+numdef DETECT95LX,	1	; do not catch Int06 on HP 95LX
+numdef CATCHINT18,	1	; catch Int18 (diskless boot hook)
+numdef CATCHINT19,	1	; catch Int19 (boot load)
+numdef CATCHSYSREQ,	0	; catch Int15 or Int09 (sysreq)
+%assign CATCHINTAMOUNT (!!_CATCHINT00 \
+			 + !!_CATCHINT01 \
+			 + !!_CATCHINT03 \
+			 + !!_CATCHINT06 \
+			 + !!_CATCHINT07 \
+			 + !!_CATCHINT0C \
+			 + !!_CATCHINT0D \
+			 + !!_CATCHINT18 \
+			 + !!_CATCHINT19 \
+			 + !!_CATCHSYSREQ \
+			 )
+numdef CATCHINT08,	1	; catch Int08 (timer IRQ, special)
+numdef CATCHINT2D,	1	; catch Int2D (AMIS, special)
+numdef DEBUGUPDATESAVE,	1
+%assign _DEBUGUPDATESAVE 1	; (must be on now that unused downlinks equal -1)
+numdef STACKSIZE,	512
+%if _STACKSIZE < 128
+ %error Too low stack size set
+%endif
+numdef AUXBUFFSIZE,	8192 + 16
+numdef EXTHELP,		1
+numdef PSPVARIABLES,	1	; support PSP, PPI, PPR variables
+numdef DOSEMU,		1	; detect dosemu (eg to avoid DPMI entry hook)
+
+		; these options ain't working yet:
+numdef INSTSET,		6	; set general instruction set (0..6 for 8086..686)
+numdef MMXINSTSET,	0	; (not yet) MMX instruction set
+numdef FPUINSTSET,	1	; FPU instruction set
+;numdef 386REGS,	1	; support 32-bit registers, as well as the FS and GS segment registers
+numdef ONLYNON386,	0	; only support non-386 operation. no
+				; 386-related patching is used.
+				; additionally, 386 registers ain't
+				; managed by lDebug. displays a warning.
+numdef ONLY386,		0	; only 386+ operation. no 386-related
+				; patching is used, and loading is
+				; aborted on non-386 CPUs.
+%if _ONLY386 && _ONLYNON386
+ %error Cannot set both only 386 and only non-386
+%endif
+%if _DEBUG && _DEBUG_COND
+%strcat _PROGNAME "Condtnl. Debuggable ",_PROGNAME
+%strcat _FILENAME "C",_FILENAME
+strdef BOOTSCRIPTNAME,	"LCDEBUG.SLD"
+%elif _DEBUG
+%strcat _PROGNAME "Debuggable ",_PROGNAME
+%strcat _FILENAME "D",_FILENAME
+strdef BOOTSCRIPTNAME,	"LDDEBUG.SLD"
+%endif
+
+
+			; Option sets. Selecting one of these
+			; special options sets the default values
+			; for other options. Because of defaulting,
+			; the option sets have to be defined after
+			; all the defaults for these options. (The
+			; default that occurs last is used.)
+numdef XT,		0
+%if _XT
+numdef INSTSET,		1	; restrict instruction set to 8086/88, 80186/88 (NEC V30/V20)
+numdef PM,		0	; disable DPMI support
+numdef VDD,		0	; disable VDD support
+numdef MMXINSTSET,	0	; disable MMX instructions
+numdef MMXSUPP,		0	; disable RM command
+numdef ONLYNON386,	1	; disable 386-specific code
+numdef ONLY386,		0	; disable 386-specific code
+numdef XTNAME,		1
+%endif
+
+
+%if _XTNAME
+%strcat _PROGNAME _PROGNAME,"XT"; lDebugXT
+%strcat _FILENAME _FILENAME,"XT"; DEBUGXT
+%endif
+
+		; Following only take effect if _PM is true
+numdef NOEXTENDER,	1	; don't assume DPMI host includes a DOS extender
+numdef WIN9XSUPP,	1	; avoid to hook DPMI entry when running in Win9x
+numdef CATCHEXC00,	1
+numdef CATCHEXC01,	1
+numdef CATCHEXC03,	1
+	; As for the interrupts (refer to CATCHINT defines above), we
+	;  allow building without the hooks for breakpoint exceptions.
+numdef CATCHEXC06,	1	; catch exception 06h in PM
+numdef CATCHEXC0C,	1	; catch exception 0Ch in PM
+numdef CATCHEXC0D,	1
+numdef CATCHEXC0E,	1
+%assign CATCHEXCAMOUNT (!!_CATCHEXC00 \
+			 + !!_CATCHEXC01 \
+			 + !!_CATCHEXC03 \
+			 + !!_CATCHEXC06 \
+			 + !!_CATCHEXC0C \
+			 + !!_CATCHEXC0D \
+			 + !!_CATCHEXC0E \
+			 )
+numdef CATCHPMINT214C,	1	; catch interrupt 21h function 4Ch in PM
+numdef CATCHPMINT41,	0	; catch interrupt 41h (function 004Fh handled)
+%assign CATCHPMINTAMOUNT (!!_CATCHPMINT214C \
+			   + !!_CATCHPMINT41)
+numdef BREAK_INSTALLDPMI, 1	; allow to break on entering PM
+numdef DISPHOOK,	1	; display "DPMI entry hooked..."
+excdef !_PM,NOEXTENDER,WIN9XSUPP,CATCHEXC06,CATCHEXC0C,DISPHOOK
+excdef !(_PM || _CATCHINT07 || _CATCHINT0C || _CATCHINT0D),EXCCSIP
+%if _PM
+%strcat _PROGNAME _PROGNAME,"X"
+%strcat _FILENAME _FILENAME,"X"
+%endif
+
+	numdef BP_OFFSET, 1	; store preferred offsets in breakpoints
+				;  (only displayed by BL and G LIST)
+%if _BP_OFFSET
+ %if _PM
+  %assign BPSIZE	9	; 4 byte for 32-bit address,
+				;  4 byte for 32-bit offset,
+				;  1 byte storing original data
+ %else
+  %assign BPSIZE	6	; 3 byte for 21-bit address,
+				;  2 byte for 16-bit offset,
+				;  1 byte storing original data
+ %endif
+%else
+ %if _PM
+  %assign BPSIZE	5	; 4 byte for 32-bit address,
+				;  1 byte storing original data
+ %else
+  %assign BPSIZE	4	; 3 byte for 21-bit address,
+				;  1 byte storing original data
+ %endif
+%endif
+
+numdef EXCCSIP,		1	; display CS:IP where exception occured
+numdef AREAS_HOOK_CLIENT, _PM && _DEBUG
+				; allow to install our areas into another debugger
+				;  (this indicates to *use* AMIS function 33h)
+numdef AREAS_HOOK_SERVER, _PM	; allow others to install areas into us
+				;  (this indicates to *provide* AMIS function 33h)
+numdef AREAS, \
+	_AREAS_HOOK_CLIENT || _PM || \
+	_CATCHINT07 || _CATCHINT0C || _CATCHINT0D
+				; display message indicating area of fault
+
+
+LINE_IN_LEN equ	257		; length of line_in (including header stuff)
+
+		; PSP offsets
+ALASAP	equ 02h			; Address of LAst Segment Allocated to Program
+				;  => behind process's allocation
+TPIV	equ 0Ah			; Terminate Program Interrupt Vector (Int22)
+CCIV	equ 0Eh			; Control-C Interrupt Vector (Int23)
+CEIV	equ 12h			; Critical Error Interrupt Vector (Int24)
+SPSAV	equ 2Eh			; Save the stack pointer here
+DTA	equ 80h			; Program arguments; also used to store file name (N cmd)
+
+
+	struc SEGADR
+saOffset:	resd 1
+saSegSel:	resw 1
+%if _PM
+saSegment:	resw 1
+saSelector:	resw 1
+%endif
+	endstruc
+
+	%macro segmentedaddress 0.nolist
+	istruc SEGADR
+	iend
+	%endmacro
+
+	struc SEGOFS16ADR
+so16aOffset:	resw 1
+so16aSegSel:	resw 1
+%if _PM
+so16aSegment:	resw 1
+so16aSelector:	resw 1
+%endif
+	endstruc
+
+	%macro segofs16address 0-1.nolist zero
+	istruc SEGOFS16ADR
+%ifidni %1,zero
+%elifidni %1,minusone
+at so16aOffset,		dw -1
+at so16aSegSel,		dw -1
+ %if _PM
+at so16aSegment,	dw -1
+at so16aSelector,	dw -1
+ %endif
+%else
+ %error Unexpected initialiser keyword
+%endif
+	iend
+	%endmacro
+
+	struc SEGONLYADR
+soaSegSel:	resw 1
+%if _PM
+soaSegment:	resw 1
+soaSelector:	resw 1
+%endif
+	endstruc
+
+	%macro segonlyaddress 0.nolist
+	istruc SEGONLYADR
+	iend
+	%endmacro
+
+
+%if _BOOTLDR
+	struc BS
+bsJump:	resb 3
+bsOEM:	resb 8
+bsBPB:
+	endstruc
+
+	struc EBPB		;        BPB sec
+bpbBytesPerSector:	resw 1	; offset 00h 0Bh
+bpbSectorsPerCluster:	resb 1	; offset 02h 0Dh
+bpbReservedSectors:	resw 1	; offset 03h 0Eh
+bpbNumFATs:		resb 1	; offset 05h 10h
+bpbNumRootDirEnts:	resw 1	; offset 06h 11h -- 0 for FAT32
+bpbTotalSectors:	resw 1	; offset 08h 13h
+bpbMediaID:		resb 1	; offset 0Ah 15h
+bpbSectorsPerFAT:	resw 1	; offset 0Bh 16h -- 0 for FAT32
+bpbCHSSectors:		resw 1	; offset 0Dh 18h
+bpbCHSHeads:		resw 1	; offset 0Fh 1Ah
+bpbHiddenSectors:	resd 1	; offset 11h 1Ch
+bpbTotalSectorsLarge:	resd 1	; offset 15h 20h
+bpbNew:				; offset 19h 24h
+
+ebpbSectorsPerFATLarge:	resd 1	; offset 19h 24h
+ebpbFSFlags:		resw 1	; offset 1Dh 28h
+ebpbFSVersion:		resw 1	; offset 1Fh 2Ah
+ebpbRootCluster:	resd 1	; offset 21h 2Ch
+ebpbFSINFOSector:	resw 1	; offset 25h 30h
+ebpbBackupSector:	resw 1	; offset 27h 32h
+ebpbReserved:		resb 12	; offset 29h 34h
+ebpbNew:			; offset 35h 40h
+	endstruc
+
+	struc BPBN		; ofs B16 S16 B32 S32
+bpbnBootUnit:		resb 1	; 00h 19h 24h 35h 40h
+			resb 1	; 01h 1Ah 25h 36h 41h
+bpbnExtBPBSignature:	resb 1	; 02h 1Bh 26h 37h 42h -- 29h for valid BPBN
+bpbnSerialNumber:	resd 1	; 03h 1Ch 27h 38h 43h
+bpbnVolumeLabel:	resb 11	; 07h 20h 2Bh 3Ch 47h
+bpbnFilesystemID:	resb 8	; 12h 2Bh 36h 47h 52h
+	endstruc		; 1Ah 33h 3Eh 4Fh 5Ah
+
+	struc DIRENTRY
+deName:		resb 8
+deExt:		resb 3
+deAttrib:	resb 1
+dePlusSize:	resb 1
+		resb 7
+deClusterHigh:	resw 1
+deTime:		resw 1
+deDate:		resw 1
+deClusterLow:	resw 1
+deSize:		resd 1
+	endstruc
+
+ATTR_READONLY	equ 1
+ATTR_HIDDEN	equ 2
+ATTR_SYSTEM	equ 4
+ATTR_VOLLABEL	equ 8
+ATTR_DIRECTORY	equ 10h
+ATTR_ARCHIVE	equ 20h
+
+lsvclSignature		equ "CL"
+lsvclBufferLength	equ 256
+
+	struc LOADSTACKVARS, -10h
+lsvFirstCluster:	resd 1
+lsvFATSector:		resd 1
+lsvFATSeg:		resw 1
+lsvLoadSeg:		resw 1
+lsvDataStart:		resd 1
+	endstruc
+
+	struc LOADDATA, LOADSTACKVARS - 10h
+ldMemoryTop:	resw 1
+ldLoadTop:	resw 1
+ldSectorSeg:	resw 1
+ldFATType:	resb 1
+ldFlags:
+ldHasLBA:	resb 1
+ldClusterSize:	resw 1
+ldParaPerSector:resw 1
+ldDirCluster:			; dword
+ldLoadingSeg:		; word
+ldQueryPatchValue:	; word
+lsvCommandLine:		; word
+.start:		equ $ - lsvclBufferLength
+.signature:	resw 1
+ldLoadUntilSeg:		; word
+lsvExtra:		; word
+.partition:	resb 1	; byte
+.flags:		resb 1	; byte
+	endstruc
+
+lsvefNoDataStart	equ 1
+lsvefPartitionNumber	equ 2
+
+	struc LOADCMDLINE, LOADDATA - lsvclBufferLength
+ldCommandLine:
+.start:		resb lsvclBufferLength
+	endstruc
+
+ldfHasLBA:	equ 1
+ldfFATInvalid:	equ 2
+
+	struc LOADDATA2, LOADDATA - 10h
+ldRootSector:		resd 1
+ldEntriesPerSector:	resw 1
+ldLastAvailableSector:	resw 1
+ldParasLeft:		resw 1
+ldParasDone:		resw 1
+	endstruc
+
+	struc LOADDATA3, LOADDATA2 - 10h
+ldMaxCluster:		resd 1
+ldFileSize:		resd 1
+ldCurrentCluster:	resd 1
+ldCurrentSeek:		resd 1
+	endstruc
+
+	struc LOADSETTINGS
+lsKernelName:	resw 1	; -> kernel file default name
+lsAddName:	resw 1	; -> additional file default name, may be empty string
+lsMinPara:	resw 1	; how much to load at least, fail if file smaller
+lsMaxPara:	resw 1	; how much to load at most
+lsOptions:	resw 1	; option flags
+lsSegment:	resw 1	; => where to load file
+lsEntry:	resd 1	; relative segment for CS, value for IP
+lsBPB:		resd 1	; segment for BPB (-1 auto-BPB), offset for BPB
+lsCheckOffset:	resw 1	; offset in file segment of word to check
+lsCheckValue:	resw 1	; value to check for word, 0 if unused
+lsName:		resq 1	; ASCIZ load protocol name
+	endstruc
+
+	struc DIRENTRY
+deName:		resb 8
+deExt:		resb 3
+deAttrib:	resb 1
+		resb 8
+deClusterHigh:	resw 1
+deTime:		resw 1
+deDate:		resw 1
+deClusterLow:	resw 1
+deSize:		resd 1
+	endstruc
+
+ATTR_READONLY	equ 1
+ATTR_HIDDEN	equ 2
+ATTR_SYSTEM	equ 4
+ATTR_VOLLABEL	equ 8
+ATTR_DIRECTORY	equ 10h
+ATTR_ARCHIVE	equ 20h
+
+	struc LBAPACKET
+lpSize:		resw 1
+lpCount:	resw 1
+lpBuffer:	resd 1
+lpSector:	resq 1
+	endstruc
+
+	struc PARTINFO
+piBoot:		resb 1
+piStartCHS:	resb 3
+piType:		resb 1
+piEndCHS:	resb 3
+piStart:	resd 1
+piLength:	resd 1
+	endstruc
+
+ptEmpty:		equ 0
+ptFAT12:		equ 1
+ptFAT16_16BIT_CHS:	equ 4
+ptExtendedCHS:		equ 5
+ptFAT16_CHS:		equ 6
+ptFAT32_CHS:		equ 0Bh
+ptFAT32:		equ 0Ch
+ptFAT16:		equ 0Eh
+ptExtended:		equ 0Fh
+ptLinux:		equ 83h
+ptExtendedLinux:	equ 85h
+
+		; Flags of load_unit_flags
+lufForceCHS:		equ 1
+lufForceLBA:		equ 2
+lufForceGeometry:	equ 4
+luf_mask_writable equ lufForceCHS | lufForceLBA | lufForceGeometry
+
+		numdef LUF_DEFAULT_DISKETTE, 0
+		numdef LUF_DEFAULT_HARDDISK, 0
+%endif
+
+	struc EXEHEADER
+exact_struc_at 00h, exeSignature:	resw 1
+exact_struc_at 02h, exeExtraBytes:	resw 1	; bytes in last page
+exact_struc_at 04h, exePages:		resw 1	; number of 512-byte pages. includes the header!
+exact_struc_at 06h, exeRelocItems:	resw 1	; number of relocation items
+exact_struc_at 08h, exeHeaderSize:	resw 1	; header size in 16-byte paragraphs
+exact_struc_at 0Ah, exeMinAlloc:	resw 1	; minimum (bss) allocation in paragraphs
+exact_struc_at 0Ch, exeMaxAlloc:	resw 1	; maximum (bss) allocation in paragraphs
+exact_struc_at 0Eh, exeInitSS:		resw 1	; init ss (is relocated)
+exact_struc_at 10h, exeInitSP:		resw 1	; init sp
+exact_struc_at 12h, exeChecksum:	resw 1
+exact_struc_at 14h, exeInitCSIP:
+exact_struc_at 14h, exeInitIP:		resw 1	; init ip
+exact_struc_at 16h, exeInitCS:		resw 1	; init cs (is relocated)
+exact_struc_at 18h, exeRelocTable:	resw 1	; byte offset of relocation table
+		; Each relocation item is a word offset and a word segment.
+		;  The segment of the item itself is relocated as well.
+exact_struc_at 1Ah, exeOverlayNum:	resw 1
+exact_struc_at 1Ch
+	endstruc
+
+
+	struc INPUTFILEHANDLE
+ifhHandle:	resw 1
+ifhFlags:	resw 1
+ifhParentSeek:	resd 1
+	endstruc
+
+ifhfIsDup:		equ  100h	; before closing, seek it back
+	; same value as LBA flag for boot load input files
+ifhfTestReserved1:	equ 1000h
+ifhfTestReserved2:	equ 2000h
+ifhfQuietInput:		equ 4000h	; do not display prompt and input
+ifhfQuietOutput:	equ 8000h	; do not display normal output
+	; these four are valid for both input file handles and
+	;  boot load input files.
+
+
+	struc AREASTRUC
+areastrucEntry:		resb 24
+areastrucNext:		resd 1
+areastrucPrev:		resd 1
+areastrucSubAmount:	resw 1
+areastrucSubOffset:	resw 1
+areastrucFunAmount:	resw 1
+areastrucFunOffset:	resw 1
+	endstruc
+
+	struc AREASTRUCSUB
+areastrucsubLinear:	resd 1
+areastrucsubLinearEnd:	resd 1
+areastrucsubListOffset:	resw 1
+areastrucsubListAmount:	resw 1
+	endstruc
+
+	struc AREASTRUCFUN
+areastrucfunLinear:	resd 1
+areastrucfunLinearEnd:	resd 1
+areastrucfunListOffset:	resw 1
+areastrucfunListAmount:	resw 1
+	endstruc
+
+	struc AREA
+areastart:		resw 1
+areaend:		resw 1
+areamessage:		resw 1
+			resw 1
+	endstruc
+
+
+	struc ISVARIABLESTRUC
+ivName:		resw 1		; -> name (up to 13 bytes, but actually only 11)
+				;  (search for ivfNameLengthLimit for limit)
+				;  (length given by ivFlags & ivfNameLengthMask)
+	; The ivName pointer is only used for more-byte names. It actually
+	;  contains the trailer of the name, excluding the prefix formed by
+	;  the first two bytes. This suffix can be the empty string if the
+	;  variable in question has a two-byte name.
+	; (For one-byte names this field is unused and contains zero.)
+ivFlags:	resw 1
+ivAddress:	resw 1		; -> variable, or -> special set up code
+ivArrayLast:	resb 1		; 0 if no array, FFh = 256 entries
+ivArrayBetween: resb 1		; how many bytes to skip for each index
+	endstruc
+
+ivfNameLengthMask:	equ 15
+ivfNameLengthLimit:	equ 13
+ivfVarLengthShift:	equ 4
+ivfVarLengthMask:	equ 3 << ivfVarLengthShift
+ivfSpecialSetUp:	equ 40h
+ivfReadOnly:		equ 80h
+ivfArrayOneBased:	equ 100h
+ivfArrayOptional:	equ 200h
+ivfSeparatorSpecial:	equ 400h
+
+%define ISVARIABLESTRINGS db "",db ""
+%define IVS_ONEBYTE_NAMES ""
+%define IVS_MOREBYTE_NAMEHEADERS ""
+%assign IVS_HAVE_ONEBYTE 0
+%assign IVS_SINGLE_ONEBYTE 1
+
+	%macro isvariablestruc 4-6.nolist 0, 0
+%push
+%strlen %$namelength %1
+%if %$namelength > ivfNameLengthLimit
+ %error Expected at most 13-byte name (or adjust isvariable? code)
+%endif
+%if IVS_ONEBYTE && %$namelength != 1
+ %error Expected a one-byte name
+%elif ! IVS_ONEBYTE && %$namelength < 2
+ %error Expected at least a two-byte name
+%endif
+%if IVS_ONEBYTE
+ %define IVS_SINGLE_ONEBYTE_NAME %1
+ %if IVS_HAVE_ONEBYTE
+  %assign IVS_SINGLE_ONEBYTE 0
+ %endif
+ %assign IVS_HAVE_ONEBYTE 1
+ %assign %$namelength 0
+ %xdefine IVS_ONEBYTE_NAMES IVS_ONEBYTE_NAMES, %1
+ %%name equ 0
+%else
+ %assign %$namelength %$namelength - 2
+ %substr %$nametrailer %1 3,-1
+ %substr %$nameheader %1 1,2
+ %xdefine IVS_MOREBYTE_NAMEHEADERS IVS_MOREBYTE_NAMEHEADERS, %$nameheader
+ %xdefine ISVARIABLESTRINGS ISVARIABLESTRINGS, %%name:, {db %$nametrailer}
+%endif
+
+%assign %$varlength %2 - 1	; 0 means one byte, 1 means two bytes,
+				;  2 means three bytes, 3 means four bytes
+	istruc ISVARIABLESTRUC
+at ivName,		dw %%name
+at ivFlags,		dw %$$namelength | (%$$varlength << ivfVarLengthShift) | %3
+at ivAddress,		dw %4
+at ivArrayLast,		db %5
+at ivArrayBetween,	db %6
+	iend
+%pop
+	%endmacro
+
+	%macro isvariablestrings 2-*.nolist
+%rep %0
+ %1
+ %rotate 1
+%endrep
+	%endmacro
+
+
+	numdef WPT_LABELS, 0
+		; This used to be required, because CODESECTIONFIXUP used
+		;  ldebug_data_entry_size, which is not yet defined during
+		;  assembling of (most) lDEBUG_CODE fragments.
+		; However, assembling DebugX with this option selected
+		;  took more than 2 minutes, so the non-label variant
+		;  is clearly to be preferred when available.
+		; Now that lDEBUG_CODE has vstart=0 we can use the
+		;  CODESECTIONFIXUP again and thus disable this option.
+
+%define PATCH_NO386_TABLE ""
+%define PATCH_386_TABLE ""
+%define PATCH_NO386_TABLE2 ""
+%define PATCH_386_TABLE2 ""
+
+%if _ONLY386
+		; Default patch macros if only running on 386+.
+%define _386_o32 o32
+%define _386_a32 a32
+%define _386_jmps jmp short
+%define _386_jmpn jmp near
+%define _no386_jmps comment
+%define _no386_jmpn comment
+	%macro _386 0-1+.nolist
+[cpu 386]			; change CPU type
+		%1		; write instruction
+__CPU__				; reset CPU type
+	%endmacro
+%define _no386 comment
+%elif _ONLYNON386
+		; Default patch macros if only running on non-386.
+%define _386_o32
+%define _386_a32
+%define _386_jmps comment
+%define _386_jmpn comment
+%define _no386_jmps jmp short
+%define _no386_jmpn jmp near
+%define _386 comment
+%define _no386
+%else
+
+; These macros are to make DEBUG's 386 support as small as
+; possible. To achieve this, two patch tables are created
+; in the initialisation code. One of the tables is used if
+; the CPU is a 386+, the other one if it isn't. The bytes
+; pointed to in the used table are over-written with NOP
+; instructions. (The patched bytes are usually address or
+; operand size prefixes or jumps that branch to 386/non-386
+; code.)
+
+; There are a few special patches that require the
+; initialisation code to write specific bytes other than
+; NOP instructions for lower resident memory usage.
+; Two are in the run: code, three in pmentry.asm.
+
+	%macro patch386 2+.nolist
+%ifidn _CURRENT_SECTION, lDEBUG_CODE
+ %define PATCH_%{1}386_TABLE %[PATCH_%{1}386_TABLE], %2
+%elifidn _CURRENT_SECTION, lDEBUG_CODE2
+ %define PATCH_%{1}386_TABLE2 %[PATCH_%{1}386_TABLE2], %2
+%else
+ %error Wrong section
+%endif
+	%endmacro
+
+%if _WPT_LABELS
+	; These forms provide verbose info by defining a
+	; meaningful label for each patch. That fills up
+	; the map file and might take longer though.
+		; Operand size 32-bit prefix if 386+ CPU
+	%macro _386_o32 0-1+.nolist
+%%386_o32:	o32
+patch386 NO, %%386_o32
+		%1
+	%endmacro
+
+		; Address size 32-bit prefix if 386+ CPU
+	%macro _386_a32 0-1+.nolist
+%%386_a32:	a32
+patch386 NO, %%386_a32
+		%1
+	%endmacro
+
+		; Short jump if 386+ CPU
+	%macro _386_jmps 1.nolist
+%%386_jmps:	jmp short %1
+patch386 NO, %%386_jmps,%%386_jmps+1
+	%endmacro
+
+		; Near jump if 386+ CPU
+	%macro _386_jmpn 1.nolist
+%%386_jmpn:	jmp near %1
+patch386 NO, %%386_jmpn,%%386_jmpn+1,%%386_jmpn+2
+	%endmacro
+
+		; Short jump if no 386+ CPU
+	%macro _no386_jmps 1.nolist
+%%no386_jmps:	jmp short %1
+patch386 , %%no386_jmps,%%no386_jmps+1
+	%endmacro
+
+		; Near jump if no 386+ CPU
+	%macro _no386_jmpn 1.nolist
+%%no386_jmpn:	jmp near %1
+patch386 , %%no386_jmpn,%%no386_jmpn+1,%%no386_jmpn+2
+	%endmacro
+
+		; Instruction if 386+ CPU
+	%macro _386 0-1+.nolist
+[cpu 386]			; change CPU type
+%%386_instr:	%1		; write instruction
+__CPU__				; reset CPU type
+
+%assign %%INSTRCOUNT 0
+%rep $-%%386_instr		; count size of instruction
+ patch386 NO, %%386_instr+%[%%INSTRCOUNT]
+				; write a patch for each byte
+ %assign %%INSTRCOUNT %%INSTRCOUNT+1
+%endrep
+%undef %%INSTRCOUNT
+	%endmacro
+
+		; Instruction if no 386+ CPU
+	%macro _no386 0-1+.nolist
+%%no386_instr:	%1		; write instruction
+
+%assign %%INSTRCOUNT 0
+%rep $-%%no386_instr		; count size of instruction
+ patch386 , %%no386_instr+%[%%INSTRCOUNT]
+				; write a patch for each byte
+ %assign %%INSTRCOUNT %%INSTRCOUNT+1
+%endrep
+%undef %%INSTRCOUNT
+	%endmacro
+%else	; 0
+		; Operand size 32-bit prefix if 386+ CPU
+	%macro _386_o32 0-1+.nolist
+_386		o32
+		%1
+	%endmacro
+
+		; Address size 32-bit prefix if 386+ CPU
+	%macro _386_a32 0-1+.nolist
+_386		a32
+		%1
+	%endmacro
+
+		; Short jump if 386+ CPU
+	%macro _386_jmps 1.nolist
+_386		jmp short %1
+	%endmacro
+
+		; Near jump if 386+ CPU
+	%macro _386_jmpn 1.nolist
+_386		jmp near %1
+	%endmacro
+
+		; Short jump if no 386+ CPU
+	%macro _no386_jmps 1.nolist
+_no386		jmp short %1
+	%endmacro
+
+		; Near jump if no 386+ CPU
+	%macro _no386_jmpn 1.nolist
+_no386		jmp near %1
+	%endmacro
+
+		; Instruction if 386+ CPU
+	%macro _386 0-1+.nolist
+%push
+[cpu 386]			; change CPU type
+%assign %$entry $ + _CURRENT_SECTION %+ FIXUP
+		%1		; write instruction
+__CPU__				; reset CPU type
+
+%rep ($ + _CURRENT_SECTION %+ FIXUP) - %$entry
+				; count size of instruction
+ patch386 NO, %[%$entry]	; write a patch for each byte
+ %assign %$entry %$entry+1
+%endrep
+%pop
+	%endmacro
+
+		; Instruction if no 386+ CPU
+	%macro _no386 0-1+.nolist
+%push
+%assign %$entry $ + _CURRENT_SECTION %+ FIXUP
+		%1		; write instruction
+
+%rep ($ + _CURRENT_SECTION %+ FIXUP) - %$entry
+				; count size of instruction
+ patch386 , %[%$entry]		; write a patch for each byte
+ %assign %$entry %$entry+1
+%endrep
+%pop
+	%endmacro
+%endif	; 1
+
+
+%endif
+
+		; Patch macros but for cases where the 386+
+		; instructions should only be generated for
+		; DEBUGX (i.e. for 32-bit DPMI addressing code).
+%if _PM
+%define _386_PM_o32	_386_o32
+%define _386_PM_a32	_386_a32
+%define _386_PM_jmps	_386_jmps
+%define _386_PM_jmpn	_386_jmpn
+%define _386_PM		_386
+%else
+%define _386_PM_o32
+%define _386_PM_a32
+%define _386_PM_jmps	comment
+%define _386_PM_jmpn	comment
+%define _386_PM		comment
+%endif
+
+%if _VDD
+; standard BOPs for communication with DEBXXVDD on NT platforms
+%macro RegisterModule 0.nolist
+	db 0C4h, 0C4h, 58h, 0
+	nop
+%endmacro
+%macro UnRegisterModule 0.nolist
+	db 0C4h, 0C4h, 58h, 1
+	nop
+%endmacro
+%macro DispatchCall 0.nolist
+	db 0C4h, 0C4h, 58h, 2
+	nop
+%endmacro
+%endif
+
+%assign CODE_INSURE_COUNT 0
+
+		; The entry_to_code_seg/_sel dispatcher in lDEBUG_DATA_ENTRY
+		;  detects mistaken debugger breakpoints in its
+		;  in-code-parameter by checking for a low-byte
+		;  value equal to 0CCh (one-byte int3 opcode).
+		; Therefore, we insure that all destinations jumped to
+		;  via that dispatcher do not happen to be located
+		;  on an offset that gives 0CCh in the low byte.
+	%imacro code_insure_low_byte_not_0CCh 0.nolist
+ %if (($ - _CURRENT_SECTION %+ _start) & 0FFh) == 0CCh
+	nop
+  %assign CODE_INSURE_COUNT 1 + CODE_INSURE_COUNT
+ %endif
+	%endmacro
+
+
+		; dual code segments
+	numdef DUALCODE, _SYMBOLIC && _PM
+	numdef DUALCODENEARDUAL, 1
+	numdef SYMBOLICDUALCODE, 1
+	numdef SYMBOLASMDUALCODE, 0
+%if _DUALCODE && _PM
+
+%if _DEBUG
+%idefine dualfunction comment
+%else
+%idefine dualfunction code_insure_low_byte_not_0CCh
+%endif
+
+%idefine dualreturn call _CURRENT_SECTION %+ _dualret_helper
+%idefine dualdistance far
+	%imacro dualcall 1.nolist
+%ifndef SECTION_OF_%1
+ %error Unknown target section for symbol %1
+%endif
+	call _CURRENT_SECTION %+ _to_ %+ %[SECTION_OF_%1] %+ _dualcall_helper
+ %if _DEBUG
+	jmp strict short %%skipdata
+ %endif
+	dw %1
+%%skipdata:
+	%endmacro
+	%imacro nearcall 1.nolist
+%ifndef SECTION_OF_%1
+ %error Unknown target section for symbol %1
+%endif
+%ifidni %[SECTION_OF_%1], _CURRENT_SECTION
+	call %1
+%else
+	call _CURRENT_SECTION %+ _to_ %+ %[SECTION_OF_%1] %+ _nearcall_helper
+ %if _DEBUG
+	jmp strict short %%skipdata
+ %endif
+	dw %1
+%%skipdata:
+%endif
+	%endmacro
+
+%elif _DUALCODE && ! _PM
+
+%idefine dualfunction comment
+%idefine dualreturn
+%idefine dualdistance far
+%define PATCH_RELOCATE_FROM_lDEBUG_CODE ""
+%define PATCH_RELOCATE_FROM_lDEBUG_CODE2 ""
+	%imacro dualcall 1.nolist
+%ifndef SECTION_OF_%1
+ %error Unknown target section for symbol %1
+%endif
+%ifidni %[SECTION_OF_%1], _CURRENT_SECTION
+	push cs
+	call %1
+%else
+	call relocatedzero:%1
+%push
+%assign %$entry ($ + _CURRENT_SECTION %+ FIXUP) - 2
+	relocatelist _CURRENT_SECTION, %$entry
+%pop
+%endif
+	%endmacro
+	%imacro relocatelist 2.nolist
+ %define PATCH_RELOCATE_FROM_%1 %[PATCH_RELOCATE_FROM_%1],%2
+	%endmacro
+ %if _DUALCODENEARDUAL
+	%imacro nearcall 1
+%ifndef SECTION_OF_%1
+ %error Unknown target section for symbol %1
+%endif
+%ifidni %[SECTION_OF_%1], _CURRENT_SECTION
+	call %1
+%else
+ %push
+ %xdefine %$originalsection _CURRENT_SECTION
+ %xdefine %$targetsection SECTION_OF_%1
+  %ifndef NEARCALL_THUNK_TO_%1
+	usesection %$targetsection
+%define NEARCALL_THUNK_TO_%1 %%nearcall_thunk_to_%1
+section_of %%nearcall_thunk_to_%1
+dualfunction
+%%nearcall_thunk_to_%1:
+	call %1
+	dualreturn
+	retf
+
+	usesection %$originalsection
+  %endif
+ %pop
+	dualcall NEARCALL_THUNK_TO_%1
+%endif
+	%endmacro
+ %else
+	%imacro nearcall 1.nolist
+%ifndef SECTION_OF_%1
+ %error Unknown target section for symbol %1
+%endif
+%ifidni %[SECTION_OF_%1], _CURRENT_SECTION
+	call %1
+%else
+	call _CURRENT_SECTION %+ _to_ %+ %[SECTION_OF_%1] %+ _nearcall_helper
+ %if _DEBUG
+	jmp strict short %%skipdata
+ %endif
+	dw %1
+%%skipdata:
+%endif
+	%endmacro
+ %endif
+%elif ! _DUALCODE
+
+%idefine dualfunction comment
+%idefine dualreturn
+%idefine dualdistance near
+	%imacro dualcall 1.nolist
+	call %1
+	%endmacro
+	%imacro nearcall 1.nolist
+	call %1
+	%endmacro
+%assign _SYMBOLICDUALCODE 0
+%assign _SYMBOLASMDUALCODE 0
+
+%else
+ %error Unexpected defines
+%endif
+
+%ifn _SYMBOLICDUALCODE
+ %assign _SYMBOLASMDUALCODE 0
+%endif
+
+ %if _SYMBOLIC && _DUALCODE && _SYMBOLASMDUALCODE
+%idefine dual2function	dualfunction
+%idefine dual2return	dualreturn
+%idefine dual2distance	dualdistance
+%idefine dual2call	dualcall
+ %else
+%idefine dual2function comment
+%idefine dual2return
+%idefine dual2distance near
+	%imacro dual2call 1.nolist
+	call %1
+	%endmacro
+ %endif
+
+	%imacro section_of 1-*.nolist
+%rep %0
+%xdefine SECTION_OF_%1 _CURRENT_SECTION
+%rotate 1
+%endrep
+	%endmacro
+
+	%imacro check_section_of 1.nolist
+%ifndef SECTION_OF_%1
+ %error No section specified for symbol %1
+%elifnidni SECTION_OF_%1, _CURRENT_SECTION
+ %error Wrong section for symbol %1: section_of=SECTION_OF_%1, current=_CURRENT_SECTION
+%endif
+	%endmacro
+
+	%imacro section_of_function 0.nolist
+check_section_of %00
+%00:
+	%endmacro
+
+
+	struc MEMREF
+mrLinear:		resd 1
+mrOffset:		resd 1
+mrSegmentSelector:	resw 1
+mrFlags:		resw 1
+mrLength:		resd 1
+	endstruc
+
+		; Currently only direct branches are allowed when
+		;  disassembling from the U command. (That is,
+		;  [disflags] & DIS_F_SHOW is clear.) All other
+		;  types of references depend on segment registers
+		;  and sometimes base and index registers, which are
+		;  not known ahead of time. They are only known for
+		;  the R command's disassembly. (DIS_F_SHOW set.)
+		; (When a mov ss or pop to ss will change ss, a
+		;  subsequent instruction using ss will not be
+		;  disassembled with the correct ss value.
+		;  This should be rare though. We may at a later
+		;  point detect this condition and not display
+		;  references with ss then.)
+mrfBranchDirect:	equ    1
+mrfMem:			equ    2
+mrfMemSource:		equ    4
+mrfMemDest:		equ    8
+mrfA32:			equ   10h
+mrfString:		equ   20h
+mrfStringSource:	equ   40h
+mrfStringDest:		equ   80h
+mrfUsesSS:		equ  100h
+mrfBranchIndirect:	equ  200h
+
+
+%if _VXCHG && ! _VXCHGBIOS
+	struc XMSM
+.size_:		resd 1
+.srchdl:	resw 1
+.srcadr:	resd 1
+.dsthdl:	resw 1
+.dstadr:	resd 1
+	endstruc
+%endif
+
+
+[list +]

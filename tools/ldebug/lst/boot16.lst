@@ -1,0 +1,2063 @@
+     1                                  
+     2                                  %if 0
+     3                                  
+     4                                  File system boot sector loader code for FAT12 or FAT16
+     5                                  
+     6                                  Adapted from 2002-11-26 fatboot.zip/fat12.asm,
+     7                                   released as public domain by Chris Giese
+     8                                  
+     9                                  Public domain by C. Masloch, 2012
+    10                                  
+    11                                  %endif
+    12                                  
+    13                                  
+    14                                  %include "lmacros2.mac"
+     1                              <1> [list -]
+    14                              <1> [list -]
+    15                                  
+    16                                  %ifndef _MAP
+    17                                  %elifempty _MAP
+    18                                  %else	; defined non-empty, str or non-str
+    19                                  	[map all _MAP]
+    20                                  %endif
+    21                                  
+    22                                  	defaulting
+    23                                  
+    24                                  	numdef FAT16,		0	; 0 = FAT12, 1 = FAT16
+    25                                  	strdef OEM_NAME,	"    lDOS"
+    26                                  	strdef OEM_NAME_FILL,	'_'
+    27                                  	strdef DEFAULT_LABEL,	"lDOS"
+    28                                  	numdef VOLUMEID,	0
+    29                                  
+    30                                  	strdef LOAD_NAME,	"LDOS"
+    31                                  	strdef LOAD_EXT,	"COM"	; name of file to load
+    32                                  	numdef LOAD_ADR,	02000h	; where to load
+    33                                  	numdef LOAD_MIN_PARA,	paras(4096)
+    34                                  	numdef LOAD_NON_FAT,	0, 2048	; use FAT-less loading (value is amount bytes)
+    35                                  	numdef EXEC_SEG_ADJ,	0	; how far cs will be from _LOAD_ADR
+    36                                  	numdef EXEC_OFS,	400h	; what value ip will be
+    37                                  	numdef CHECKOFFSET,	1020
+    38                                  	numdef CHECKVALUE,	"lD"
+    39                                  	numdef LOAD_DIR_SEG,	0	; => where to store dir entry (0 if nowhere)
+    40                                  	numdef ADD_SEARCH,	0	; whether to search second file
+    41                                  	strdef ADD_NAME,	""
+    42                                  	strdef ADD_EXT,		""	; name of second file to search
+    43                                  	numdef ADD_DIR_SEG,	0	; => where to store dir entry (0 if nowhere)
+    44                                  	numdef CHECK_ATTRIB,	0	; check attribute for LFN, label, directory
+    45                                  	numdef ATTRIB_SAVE,	_CHECK_ATTRIB
+    46                                  
+    47                                  	gendef _ADR_DIRBUF, end -start+7C00h	; 07E00h
+    48                                  	gendef _ADR_FATBUF, end -start+7C00h	; 07E00h
+    49                                  
+    50                                  	numdef QUERY_GEOMETRY,	1	; query geometry via 13.08 (for CHS access)
+    51                                  	numdef QUERY_GEOMETRY_DISABLED, 0
+    52                                  	numdef USE_PART_INFO,	1	; use ds:si-> partition info from MBR, if any
+    53                                  	numdef USE_PART_INFO_DISABLED, 0
+    54                                  	numdef USE_AUTO_UNIT,	1	; use unit passed from ROM-BIOS in dl
+    55                                  	numdef RPL,		1	; support RPL and do not overwrite it
+    56                                  	numdef RPL_GRACE_AREA,	130 * 1024
+    57                                  					; alternative RPL support,
+    58                                  					;  assume RPL fits in this area
+    59                                  	numdef CHS,		1	; support CHS (if it fits)
+    60                                  	numdef LBA,		1	; support LBA (if available)
+    61                                  	numdef LBA_33_BIT,	1	; support 33-bit LBA
+    62                                  	numdef LBA_CHECK_NO_33,	1	; else: check that LBA doesn't carry
+    63                                  
+    64                                  	numdef RELOCATE,	0	; relocate the loader to top of memory
+    65                                  	numdef SET_BL_UNIT,	0	; if to pass unit in bl as well
+    66                                  	numdef SET_DL_UNIT,	0	; if to pass unit in dl
+    67                                  	numdef SET_AXBX_DATA,	0	; if to pass first data sector in ax:bx
+    68                                  	numdef SET_DSSI_DPT,	0	; if to pass DPT address in ds:si
+    69                                  	numdef PUSH_DPT,	0	; if to push DPT address
+    70                                  	numdef MEMORY_CONTINUE,	1	; if to just execute when memory full
+    71                                  	numdef SET_DI_CLUSTER,	0	; if to pass first load file cluster in di
+    72                                  	numdef DIRBUF_500,	0	; if to load root dir sector(s) to 0:500h
+    73                                  	numdef DIR_ENTRY_500,	0	; if to copy directory entry to 0:500h
+    74                                  	numdef DIR_ENTRY_520,	0	; if to copy next directory entry to 0:520h
+    75                                  	numdef TURN_OFF_FLOPPY,	0	; if to turn off floppy motor after loading
+    76                                  	numdef DATASTART_HIDDEN,0	; if to add hidden sectors to data_start
+    77                                  	numdef LBA_SET_TYPE,	0	; if to set third byte to LBA partition type
+    78                                  	numdef SET_LOAD_SEG,	1	; if to set load_seg (word [ss:bp - 6])
+    79                                  	numdef SET_FAT_SEG,	1	; if to set fat_seg (word [ss:bp - 8])
+    80                                  	numdef SET_FAT_SEG_NORMAL, 1	; do not use aggressive optimisation
+    81                                  	numdef SET_CLUSTER,	1	; if to set first_cluster (word [ss:bp - 16])
+    82                                  	numdef ZERO_ES,		0	; if to set es = 0 before jump
+    83                                  	numdef ZERO_DS,		0	; if to set ds = 0 before jump
+    84                                  
+    85                                  	numdef FIX_SECTOR_SIZE, 0	; fix sector size (0 = disable, else = sector size)
+    86                                  	numdef FIX_SECTOR_SIZE_SKIP_CHECK,	0	; don't check sector size
+    87                                  	numdef FIX_CLUSTER_SIZE,		0	; fix cluster size
+    88                                  	numdef FIX_CLUSTER_SIZE_SKIP_CHECK,	0	; don't check cluster size
+    89                                  	numdef NO_LIMIT,	0	; allow using more memory than a boot sector
+    90                                  					;  also will not write 0AA55h signature!
+    91                                  	numdef WARN_PART_SIZE,	0
+    92                                  
+    93                                  	numdef LBA_SKIP_CHECK,	1	; don't use proper LBA extensions check
+    94                                  	numdef LBA_SKIP_CY,	1	; skip check: set up CY before 13.42
+    95                                  	numdef LBA_SKIP_ANY,	0	; skip check: try CHS on any error
+    96                                  	incdef _LBA_SKIP_ANY, LBA_SKIP_CY
+    97                                  	numdef LBA_RETRY,	0	; retry LBA reads one time
+    98                                  	numdef CHS_RETRY,	1	; retry CHS reads one time
+    99                                  	numdef CHS_RETRY_REPEAT,16	; retry CHS reads multiple times
+   100                                  					; (value of the def is used as count)
+   101                                  	numdef CHS_RETRY_NORMAL,1	; do not use aggressive optimisation
+   102                                  	numdef RETRY_RESET,	1	; call reset disk system 13.00 on retries
+   103                                  
+   104                                  	numdef MEDIAID, 0F0h		; media ID
+   105                                  	numdef UNIT, 0			; load unit in BPB
+   106                                  	numdef CHS_SECTORS, 18		; CHS geometry field for sectors
+   107                                  	numdef CHS_HEADS, 2		; CHS geometry field for heads
+   108                                  	numdef HIDDEN, 0		; number of hidden sectors
+   109                                  	numdef SPI, 2880		; sectors per image
+   110                                  	numdef BPS, 512			; bytes per sector
+   111                                  	numdef SPC, 1			; sectors per cluster
+   112                                  	numdef SPF, 9			; sectors per FAT
+   113                                  	numdef NUMFATS, 2		; number of FATs
+   114                                  	numdef NUMROOT, 224		; number of root directory entries
+   115                                  	numdef NUMRESERVED, 1		; number of reserved sectors
+   116                                  
+   117                                  %if _FAT16
+   118                                  		; Unlike the 1440 KiB diskette image defaults for the FAT12
+   119                                  		;  loader we just fill the FAT16 BPB with zeros by default.
+   120                                  	numdef MEDIAID, 0		; media ID
+   121                                  	numdef UNIT, 0			; load unit in BPB
+   122                                  	numdef CHS_SECTORS, 0		; CHS geometry field for sectors
+   123                                  	numdef CHS_HEADS, 0		; CHS geometry field for heads
+   124                                  	numdef HIDDEN, 0		; number of hidden sectors
+   125                                  	numdef SPI, 0			; sectors per image
+   126                                  	numdef BPS, 0			; bytes per sector
+   127                                  	numdef SPC, 0			; sectors per cluster
+   128                                  	numdef SPF, 0			; sectors per FAT
+   129                                  	numdef NUMFATS, 0		; number of FATs
+   130                                  	numdef NUMROOT, 0		; number of root directory entries
+   131                                  	numdef NUMRESERVED, 0		; number of reserved sectors
+   132                                  %endif
+   133                                  
+   134                                  %if _DIRBUF_500
+   135                                  	gendef _ADR_DIRBUF, 500h
+   136                                  %endif
+   137                                  
+   138                                  
+   139                                  	numdef COMPAT_FREEDOS,	0	; partial FreeDOS load compatibility
+   140                                  	numdef COMPAT_IBM,	0	; partial IBMDOS load compatibility
+   141                                  	numdef COMPAT_MS7,	0	; partial MS-DOS 7 load compatibility
+   142                                  	numdef COMPAT_MS6,	0	; partial MS-DOS 6 load compatibility
+   143                                  	numdef COMPAT_LDOS,	0	; lDOS load compatibility
+   144                                  	numdef COMPAT_KERNEL7E, 0	; kernel at 0:7E00h load compatibility
+   145                                  
+   146                                  %if (!!_COMPAT_FREEDOS + !!_COMPAT_IBM + 	!!_COMPAT_MS7 + !!_COMPAT_MS6 + 	!!_COMPAT_LDOS + !!_COMPAT_KERNEL7E) > 1
+   149                                   %error At most one set must be selected.
+   150                                  %endif
+   151                                  
+   152                                  %if _COMPAT_FREEDOS
+   153                                  	strdef LOAD_NAME,	"KERNEL"
+   154                                  	strdef LOAD_EXT,	"SYS"
+   155                                  	numdef LOAD_ADR,	00600h
+   156                                  	numdef LOAD_MIN_PARA,	paras(512)
+   157                                  	numdef EXEC_SEG_ADJ,	0
+   158                                  	numdef EXEC_OFS,	0
+   159                                  
+   160                                  	numdef CHECKVALUE,	0
+   161                                  	numdef SET_LOAD_SEG,	0
+   162                                  	numdef SET_FAT_SEG,	0
+   163                                  	numdef SET_CLUSTER,	0
+   164                                  
+   165                                  	numdef SET_BL_UNIT,	1
+   166                                  	numdef MEMORY_CONTINUE,	0
+   167                                  	numdef RELOCATE,	1
+   168                                  	; The FreeDOS load protocol mandates that the entire file be loaded.
+   169                                  %endif
+   170                                  
+   171                                  %if _COMPAT_IBM
+   172                                  	strdef LOAD_NAME,	"IBMBIO"
+   173                                  	strdef LOAD_EXT,	"COM"
+   174                                  	numdef LOAD_ADR,	00700h
+   175                                  	numdef LOAD_MIN_PARA,	paras(512)
+   176                                  	numdef EXEC_SEG_ADJ,	0
+   177                                  	numdef EXEC_OFS,	0
+   178                                  	numdef LOAD_DIR_SEG,	50h
+   179                                  	numdef ADD_SEARCH,	1
+   180                                  	strdef ADD_NAME,	"IBMDOS"
+   181                                  	strdef ADD_EXT,		"COM"
+   182                                  	numdef ADD_DIR_SEG,	52h
+   183                                   	; Note: The IBMBIO.COM directory entry must be stored at
+   184                                  	;  0:500h, and the IBMDOS.COM directory entry at 0:520h.
+   185                                  
+   186                                  	numdef CHECKVALUE,	0
+   187                                  	numdef SET_LOAD_SEG,	0
+   188                                  	numdef SET_FAT_SEG,	0
+   189                                  	numdef SET_CLUSTER,	0
+   190                                  
+   191                                  	numdef SET_DL_UNIT,	1
+   192                                  	numdef MEMORY_CONTINUE,	1
+   193                                  	; 3 sectors * 512 BpS should suffice. We load into 700h--7A00h,
+   194                                  	;  ie >= 6000h bytes (24 KiB), <= 7300h bytes (28.75 KiB).
+   195                                  	numdef SET_AXBX_DATA,	1
+   196                                  	numdef DATASTART_HIDDEN,1
+   197                                  	numdef SET_DSSI_DPT,	1
+   198                                  	numdef PUSH_DPT,	1
+   199                                  %endif
+   200                                  
+   201                                  %if _COMPAT_MS7
+   202                                  	strdef LOAD_NAME,	"IO"
+   203                                  	strdef LOAD_EXT,	"SYS"
+   204                                  	numdef LOAD_ADR,	00700h
+   205                                  	numdef LOAD_MIN_PARA,	paras(1024)
+   206                                  	numdef EXEC_SEG_ADJ,	0
+   207                                  	numdef EXEC_OFS,	200h
+   208                                  
+   209                                  	numdef CHECKVALUE,	0
+   210                                  	numdef SET_LOAD_SEG,	0
+   211                                  	numdef SET_FAT_SEG,	0
+   212                                  	numdef SET_CLUSTER,	0
+   213                                  
+   214                                  	numdef SET_DL_UNIT,	1
+   215                                  	numdef SET_DSSI_DPT,	0
+   216                                  	numdef PUSH_DPT,	1
+   217                                  	numdef MEMORY_CONTINUE,	1
+   218                                  	; 4 sectors * 512 BpS should suffice. We load into 700h--7A00h,
+   219                                  	;  ie >= 6000h bytes (24 KiB), <= 7300h bytes (28.75 KiB).
+   220                                  	numdef SET_DI_CLUSTER,	1
+   221                                  	numdef DATASTART_HIDDEN,1
+   222                                  	numdef LBA_SET_TYPE,	1
+   223                                  %endif
+   224                                  
+   225                                  %if _COMPAT_MS6
+   226                                  	strdef LOAD_NAME,	"IO"
+   227                                  	strdef LOAD_EXT,	"SYS"
+   228                                  	numdef LOAD_ADR,	00700h
+   229                                  	numdef LOAD_MIN_PARA,	paras(512)
+   230                                  	numdef EXEC_SEG_ADJ,	0
+   231                                  	numdef EXEC_OFS,	0
+   232                                  	numdef LOAD_DIR_SEG,	50h
+   233                                  	numdef ADD_SEARCH,	1
+   234                                  	strdef ADD_NAME,	"MSDOS"
+   235                                  	strdef ADD_EXT,		"SYS"
+   236                                  	numdef ADD_DIR_SEG,	52h
+   237                                   	; Note: The IO.SYS directory entry must be stored at
+   238                                  	;  0:500h, and the MSDOS.SYS directory entry at 0:520h.
+   239                                  
+   240                                  	numdef CHECKVALUE,	0
+   241                                  	numdef SET_LOAD_SEG,	0
+   242                                  	numdef SET_FAT_SEG,	0
+   243                                  	numdef SET_CLUSTER,	0
+   244                                  
+   245                                  	numdef SET_DL_UNIT,	1
+   246                                  	numdef MEMORY_CONTINUE,	1
+   247                                  	; 3 sectors * 512 BpS should suffice. We load into 700h--7A00h,
+   248                                  	;  ie >= 6000h bytes (24 KiB), <= 7300h bytes (28.75 KiB).
+   249                                  	numdef SET_AXBX_DATA,	1
+   250                                  	numdef DATASTART_HIDDEN,1
+   251                                  	numdef SET_DSSI_DPT,	1
+   252                                  	numdef PUSH_DPT,	1
+   253                                  %endif
+   254                                  
+   255                                  %if _COMPAT_LDOS
+   256                                  	strdef LOAD_NAME,	"LDOS"
+   257                                  	strdef LOAD_EXT,	"COM"
+   258                                  	numdef LOAD_ADR,	02000h
+   259                                  	numdef LOAD_MIN_PARA,	paras(4096)
+   260                                  	numdef EXEC_SEG_ADJ,	0
+   261                                  	numdef EXEC_OFS,	400h
+   262                                  	numdef CHECKOFFSET,	1020
+   263                                  	numdef CHECKVALUE,	"lD"
+   264                                  
+   265                                  	numdef SET_DL_UNIT,	0
+   266                                  	numdef SET_CLUSTER,	1
+   267                                  	numdef SET_FAT_SEG,	1
+   268                                  	numdef SET_LOAD_SEG,	1
+   269                                  	numdef MEMORY_CONTINUE,	1
+   270                                  	numdef DATASTART_HIDDEN,0
+   271                                  %endif
+   272                                  
+   273                                  %if _COMPAT_KERNEL7E
+   274                                  	strdef OEM_NAME,	"KERNEL7E"
+   275                                  	strdef LOAD_NAME,	"KERNEL7E"
+   276                                  	strdef LOAD_EXT,	"BIN"
+   277                                  	numdef LOAD_ADR,	07E00h
+   278                                  	numdef LOAD_MIN_PARA,	paras(512)
+   279                                  	numdef EXEC_SEG_ADJ,	-7E0h
+   280                                  	numdef EXEC_OFS,	7E00h
+   281                                  	numdef CHECKVALUE,	0
+   282                                  
+   283                                  	numdef SET_DL_UNIT,	1
+   284                                  	numdef SET_BL_UNIT,	0
+   285                                  	numdef SET_CLUSTER,	0
+   286                                  	numdef SET_FAT_SEG,	0
+   287                                  	numdef SET_LOAD_SEG,	0
+   288                                  	numdef MEMORY_CONTINUE,	0
+   289                                  	numdef DATASTART_HIDDEN,0
+   290                                  
+   291                                  	gendef _ADR_FATBUF,	4000h
+   292                                  	gendef _ADR_DIRBUF,	4000h
+   293                                  	numdef RPL,		0
+   294                                  	numdef ZERO_ES,		1
+   295                                  %endif
+   296                                  
+   297                                  
+   298                                  %if 0
+   299                                  
+   300                                  Notes about partial load compatibilities
+   301                                  
+   302                                  * FreeDOS:
+   303                                   * Relocates to an address other than 27A00h (1FE0h:7C00h)
+   304                                   * A lot of options between _USE_PART_INFO, _QUERY_GEOMETRY, _CHS, _LBA,
+   305                                     and/or _RPL need to be disabled to make the loader fit
+   306                                  * IBMDOS:
+   307                                  * MS-DOS 6:
+   308                                   * Does not actually relocate DPT, just provide its address
+   309                                   * A lot of options between _USE_PART_INFO, _QUERY_GEOMETRY, _CHS,
+   310                                     and/or _LBA need to be disabled to make the loader fit
+   311                                  * MS-DOS 7:
+   312                                   * Does not actually relocate DPT, just provide its address
+   313                                   * Does not contain message table used by loader
+   314                                  
+   315                                  %endif
+   316                                  
+   317                                  %if _SET_BL_UNIT && _SET_AXBX_DATA
+   318                                   %error Cannot select both of these options!
+   319                                  %endif
+   320                                  
+   321                                  %if _DIR_ENTRY_520
+   322                                   %assign _DIR_ENTRY_500		1
+   323                                  %endif
+   324                                  
+   325                                  %if _DIRBUF_500 && _ADD_SEARCH
+   326                                   %error Cannot select both of these options!
+   327                                  %endif
+   328                                  
+   329                                  %if _ADD_SEARCH
+   330                                   %if _LOAD_DIR_SEG == 0 || _ADD_DIR_SEG == 0
+   331                                    %error Assuming dir segs should be set if add search set
+   332                                   %endif
+   333                                  %endif
+   334                                  
+   335                                  %if _RPL
+   336                                   %assign _RPL_GRACE_AREA 0
+   337                                  %endif
+   338                                  
+   339                                  
+   340                                  %assign LOADLIMIT 0A0000h
+   341                                  %assign POSITION   07C00h
+   342                                  
+   343                                  %if _FIX_SECTOR_SIZE
+   344                                   %assign i 5
+   345                                   %rep 13-5
+   346                                    %if (1 << i) != (_FIX_SECTOR_SIZE)
+   347                                     %assign i i+1
+   348                                    %endif
+   349                                   %endrep
+   350                                   %if (1 << i) != (_FIX_SECTOR_SIZE)
+   351                                    %error Invalid sector size _FIX_SECTOR_SIZE
+   352                                   %endif
+   353                                  %endif
+   354                                  
+   355                                  %if _FIX_CLUSTER_SIZE
+   356                                   %if _FIX_CLUSTER_SIZE > 256
+   357                                    %error Invalid cluster size _FIX_CLUSTER_SIZE
+   358                                   %endif
+   359                                   %assign i 0
+   360                                   %rep 8-0
+   361                                    %if (1 << i) != (_FIX_CLUSTER_SIZE)
+   362                                     %assign i i+1
+   363                                    %endif
+   364                                   %endrep
+   365                                   %if (1 << i) != (_FIX_CLUSTER_SIZE)
+   366                                    %warning Non-power-of-two cluster size _FIX_CLUSTER_SIZE
+   367                                   %endif
+   368                                  %endif
+   369                                  
+   370                                  
+   371                                  ; 512-byte stack (minus the variables).
+   372                                  ADR_STACK_LOW	equ	7C00h - 200h		; 07A00h
+   373                                  
+   374                                  %if _DIRBUF_500
+   375                                  	gendef _ADR_DIRBUF,	500h
+   376                                  %elif _RELOCATE
+   377                                  	gendef _ADR_DIRBUF,	_LOAD_ADR
+   378                                  %endif
+   379                                  
+   380                                  ; one-sector directory buffer. Assumes sectors are no larger than 8 KiB
+   381                                  ADR_DIRBUF	equ	__ADR_DIRBUF
+   382                                  
+   383                                  %if ! _RELOCATE
+   384                                  ; this used to be a two-sector FAT buffer -- two sectors because FAT12
+   385                                  ;  entries are 12 bits and may straddle a sector boundary.
+   386                                  ; however, with the FAT12 loaded completely, the buffer only needs to hold
+   387                                  ;  one 8 KiB sector, two 4 KiB sectors, three 2 KiB sectors, six 1 KiB sectors,
+   388                                  ;  or twelve 512 byte sectors.
+   389                                  ; this shares its area with the directory buffer as they
+   390                                  ;  are not simultaneously used. (if not _DIRBUF_500.)
+   391                                  ADR_FATBUF	equ	__ADR_FATBUF
+   392                                  %endif
+   393                                  
+   394                                  ; start of unused memory after loader:
+   395                                  ADR_END		equ	end -start+7C00h
+   396                                  %if ! _RELOCATE
+   397                                   %if (ADR_FATBUF + 8192) > ADR_END
+   398                                    ADR_FREE_FROM	equ	(ADR_FATBUF + 8192)	; 09E00h
+   399                                   %else
+   400                                    ADR_FREE_FROM	equ	ADR_END			; 07E00h
+   401                                   %endif
+   402                                  
+   403                                  ; end of unused memory before loader:
+   404                                   %if ADR_FATBUF < ADR_STACK_LOW
+   405                                  ADR_FREE_UNTIL	equ	ADR_FATBUF
+   406                                   %else
+   407                                  ADR_FREE_UNTIL	equ	ADR_STACK_LOW
+   408                                   %endif
+   409                                  
+   410                                   %if ((ADR_FATBUF + 8192 - 1) & ~0FFFFh) != (ADR_FATBUF & ~0FFFFh)
+   411                                    %warning Possibly crossing 64 KiB boundary while reading FAT
+   412                                   %endif
+   413                                  %endif
+   414                                  
+   415                                  %if ((ADR_DIRBUF + 8192 - 1) & ~0FFFFh) != (ADR_DIRBUF & ~0FFFFh)
+   416                                   %warning Possibly crossing 64 KiB boundary while reading directory
+   417                                  %endif
+   418                                  
+   419                                  %if _RELOCATE
+   420                                   ADR_FREE_FROM	equ 0				; make next conditional true
+   421                                   ADR_FREE_UNTIL	equ 0
+   422                                  %endif
+   423                                  %if _LOAD_ADR >= ADR_FREE_FROM
+   424                                  	; If reading on a sector size boundary, no crossing can occur.
+   425                                  	;  Check for all possible sector sizes (32 B to 8 KiB). If one
+   426                                  	;  of them fails display a warning, including the minimum size.
+   427                                   %assign SECSIZECHECK 32
+   428                                   %assign EXITREP 0
+   429                                   %rep 256
+   430                                    %ifn EXITREP
+   431                                     %if _LOAD_ADR & (SECSIZECHECK - 1)
+   432                                      %warning Possibly crossing 64 KiB boundary while reading file (sector size >= SECSIZECHECK)
+   433                                      %assign EXITREP 1
+   434                                      %exitrep
+   435                                     %endif
+   436                                     %if SECSIZECHECK == 8192
+   437                                      %assign EXITREP 1
+   438                                      %exitrep
+   439                                     %endif
+   440                                     %assign SECSIZECHECK SECSIZECHECK * 2
+   441                                    %endif
+   442                                   %endrep
+   443                                  %else
+   444                                  	; If loading below the boot sector, address 1_0000h is never reached.
+   445                                  %endif
+   446                                  
+   447                                  
+   448                                  %if (_LOAD_ADR & 0Fh)
+   449                                   %error Load address must be on a paragraph boundary
+   450                                  %endif
+   451                                  
+   452                                  %if _LOAD_ADR > LOADLIMIT
+   453                                   %error Load address must be in LMA
+   454                                  %elif _LOAD_ADR < 00500h
+   455                                   %error Load address must not overlap IVT or BDA
+   456                                  %endif
+   457                                  
+   458                                  %if ! _RELOCATE
+   459                                   %if _LOAD_ADR > (POSITION-512) && _LOAD_ADR < (POSITION+512)
+   460                                    %error Load address must not overlap loader
+   461                                   %endif
+   462                                  
+   463                                   %if ADR_FATBUF > LOADLIMIT
+   464                                    %error FAT buffer address must be in LMA
+   465                                   %elif ADR_FATBUF < 00500h
+   466                                    %error FAT buffer address must not overlap IVT or BDA
+   467                                   %elif (ADR_FATBUF + 8192) > (POSITION-512) && ADR_FATBUF < (POSITION+512)
+   468                                    %error FAT buffer address must not overlap loader
+   469                                   %endif
+   470                                  %endif
+   471                                  
+   472                                  %if ADR_DIRBUF > LOADLIMIT
+   473                                   %error Dir buffer address must be in LMA
+   474                                  %elif ADR_DIRBUF < 00500h
+   475                                   %error Dir buffer address must not overlap IVT or BDA
+   476                                  %elif (ADR_DIRBUF + 8192) > (POSITION-512) && ADR_DIRBUF < (POSITION+512)
+   477                                   %error Dir buffer address must not overlap loader at initial position
+   478                                  %endif
+   479                                  
+   480                                  %if ((_EXEC_SEG_ADJ<<4)+_EXEC_OFS) < 0
+   481                                   %error Execution address must be in loaded file
+   482                                  %elif ((_EXEC_SEG_ADJ<<4)+_EXEC_OFS+_LOAD_ADR) > LOADLIMIT
+   483                                   %error Execution address must be in LMA
+   484                                  %endif
+   485                                  
+   486                                  %if (_EXEC_OFS & ~0FFFFh)
+   487                                   %error Execution offset must fit into 16 bits
+   488                                  %endif
+   489                                  
+   490                                  %if (_EXEC_SEG_ADJ > 0FFFFh || _EXEC_SEG_ADJ < -0FFFFh)
+   491                                   %error Execution segment adjustment must fit into 16 bits
+   492                                  %endif
+   493                                  
+   494                                  
+   495                                  %if !_CHS && _QUERY_GEOMETRY
+   496                                   %warning No CHS support but querying geometry anyway
+   497                                  %endif
+   498                                  
+   499                                  %if !_CHS && !_LBA
+   500                                   %error Either CHS or LBA or both must be enabled
+   501                                  %endif
+   502                                  
+   503                                  
+   504                                  %if 0
+   505                                  
+   506                                  There is some logic inside MS-DOS's hard disk partition initialisation
+   507                                  code that sets up several requirements for us to fulfil. Otherwise,
+   508                                  it will not accept the information given in the BPB (using default
+   509                                  information based on the length as specified by MBR/EPBR instead) or
+   510                                  make the whole file system inaccessible except for formatting. Both of
+   511                                  those are undesirable of course. Some/all(?) checks are documented on
+   512                                  pages 601,602 in "DOS Internals", Geoff Chappell 1994, as follows:
+   513                                  
+   514                                  * First three bytes contain either "jmp sho xx\ nop" or "jmp ne xx".
+   515                                  * Media descriptor field >= 0F0h.
+   516                                  * Bytes per sector field == 512.
+   517                                  * Sectors per cluster field a power of 2 (1,2,4,8,16,32,64,128).
+   518                                  * OEM name "version" (last three to four characters)
+   519                                   * must be "20.?", "10.?" (? = wildcard), but no other with "0.?",
+   520                                   * otherwise, must be "2.0", or
+   521                                    * 2nd-to-last,3rd-to-last character codes together > "3.", or
+   522                                     * those == "3.", last character code > "0"
+   523                                  
+   524                                  To stay compatible to those, display a warning here if the name
+   525                                  itself would disqualify our boot sector already.
+   526                                  
+   527                                  %endif
+   528                                  
+   529                                  %push
+   530                                  %strlen %$len _OEM_NAME_FILL
+   531                                  %if %$len != 1
+   532                                   %error Specified OEM name fill must be 1 character
+   533                                  %endif
+   534                                  %strlen %$len _OEM_NAME
+   535                                  %define %$nam _OEM_NAME
+   536                                  %if %$len > 8
+   537                                   %error Specified OEM name is too long
+   538                                  %else
+   539                                   %assign %$warn 0
+   540                                   %rep 8 - %$len
+   541                                    %strcat %$nam %$nam,_OEM_NAME_FILL
+   542                                   %endrep
+   543                                   %substr %$prefix %$nam	5	; "wvxyZa.b", get "Z"
+   544                                   %substr %$major %$nam 6,7	; "wvxyzA.b", get "A."
+   545                                   %substr %$minor %$nam 8	; "wvxyza.B", get "B"
+   546                                   %if %$major == "0."
+   547                                    %ifn %$prefix == "1" || %$prefix == "2"
+   548                                     %assign %$warn 1
+   549                                    %endif
+   550                                   %elifn %$major == "2." && %$minor == "0"
+   551                                    %if %$major < "3."
+   552                                     %assign %$warn 1
+   553                                    %elif %$major == "3." && %$minor < "1"
+   554                                     %assign %$warn 1
+   555                                    %endif
+   556                                   %endif
+   557                                   %if %$warn
+   558                                    %warning Specified OEM name fails MS-DOS's validation
+   559                                   %endif
+   560                                  %endif
+   561                                  %pop
+   562                                  
+   563                                  
+   564                                  	struc DIRENTRY
+   565 00000000 ????????????????        deName:		resb 8
+   566 00000008 ??????                  deExt:		resb 3
+   567 0000000B ??                      deAttrib:	resb 1
+   568 0000000C ????????????????        		resb 8
+   569 00000014 ????                    deClusterHigh:	resw 1
+   570 00000016 ????                    deTime:		resw 1
+   571 00000018 ????                    deDate:		resw 1
+   572 0000001A ????                    deClusterLow:	resw 1
+   573 0000001C ????????                deSize:		resd 1
+   574                                  	endstruc
+   575                                  
+   576                                  ATTR_READONLY	equ 1
+   577                                  ATTR_HIDDEN	equ 2
+   578                                  ATTR_SYSTEM	equ 4
+   579                                  ATTR_VOLLABEL	equ 8
+   580                                  ATTR_DIRECTORY	equ 10h
+   581                                  ATTR_ARCHIVE	equ 20h
+   582                                  
+   583                                  
+   584                                  ; use byte-offset addressing from BP for smaller code
+   585                                  %define	VAR(x)	((x) - start) + bp
+   586                                  
+   587                                  
+   588                                  	cpu 8086
+   589                                  ; bootsector loaded at address 07C00h, addressable using 0000h:7C00h
+   590                                  	org POSITION
+   591                                  start:
+   592                                  
+   593                                  
+   594                                  %define _LASTVARIABLE start
+   595                                  	%macro nextvariable 2-3.nolist
+   596                                  %1	equ (_LASTVARIABLE - %2)
+   597                                  %define _LASTVARIABLE %1
+   598                                  %ifidn %3, relocatestart
+   599                                   %define _RELOCATESTART %1
+   600                                  %elifempty %3
+   601                                  %else
+   602                                   %error Invalid third parameter
+   603                                  %endif
+   604                                  	%endmacro
+   605                                  
+   606                                  ; Variables
+   607                                  
+   608                                  ; (dword) sector where the first cluster's data starts
+   609                                  	nextvariable data_start, 4
+   610                                  
+   611                                  ; (word) current load segment (points behind last loaded data)
+   612                                  	nextvariable load_seg, 2
+   613                                  
+   614                                  ; (word) segment of FAT buffer
+   615                                  ; for FAT12 this holds the entire FAT
+   616                                  ; for FAT16 this holds the sector given by wo[fat_sector]
+   617                                  ; for FAT32 this holds the sector given by dwo[fat_sector]
+   618                                  	nextvariable fat_seg, 2
+   619                                  
+   620                                  ; (word for FAT16) currently loaded sector-in-FAT, -1 if none
+   621                                  	nextvariable fat_sector, 4
+   622                                  
+   623                                  ; (word for FAT12/FAT16) first cluster of load file
+   624                                  	nextvariable first_cluster, 4, relocatestart
+   625                                  
+   626                                  ADR_STACK_START	equ	_LASTVARIABLE -start+POSITION
+   627                                  
+   628                                  %ifn _FIX_SECTOR_SIZE
+   629                                  ; (word) number of 16-byte paragraphs per sector
+   630                                  	nextvariable para_per_sector, 2, relocatestart
+   631                                  %endif
+   632                                  
+   633                                  %assign DIRSEARCHSTACK_CL_FIRST 0
+   634                                  %assign DIRSEARCHSTACK_CL_SECOND 0
+   635                                  %assign PLACEHOLDER 0
+   636                                  
+   637                                   %if _ATTRIB_SAVE && ! (_ADD_SEARCH || _LOAD_DIR_SEG)
+   638                                     %if _LASTVARIABLE == start - 12h
+   639                                      %assign DIRSEARCHSTACK_CL_FIRST 1
+   640                                     %elif _LASTVARIABLE == start - 10h
+   641                                      %assign DIRSEARCHSTACK_CL_SECOND 1
+   642                                     %endif
+   643                                     %ifn _DIR_ENTRY_500
+   644                                  ; three words left on the stack after directory search
+   645                                  	nextvariable dirsearchstack, 6, relocatestart
+   646                                     %else
+   647                                  ; two words left on the stack after directory search
+   648                                  	nextvariable dirsearchstack, 4, relocatestart
+   649                                     %endif
+   650                                   %elifn !_RELOCATE && _LOAD_ADR < ADR_FREE_UNTIL
+   651                                    %if _LASTVARIABLE == start - 12h
+   652                                  	nextvariable cmdline_signature_placeholder, 2, relocatestart
+   653                                     %assign PLACEHOLDER 1
+   654                                    %elif _LASTVARIABLE == start - 10h
+   655                                     %if _PUSH_DPT
+   656                                  	nextvariable cmdline_signature_placeholder, 4, relocatestart
+   657                                      %assign PLACEHOLDER 2
+   658                                  	; In this case, part of the original DPT pointer may
+   659                                  	;  overlap the CL signature word. Therefore allocate
+   660                                  	;  two placeholder words to insure no CL match.
+   661                                     %else
+   662                                  	; In this case the last_available_sector variable
+   663                                  	;  will be at word [ss:bp - 12h] (or none) and the
+   664                                  	;  stack pointer will be equal to bp - 12h (or - 10h)
+   665                                  	;  at handover time. Thus no placeholder is needed.
+   666                                     %endif
+   667                                    %else
+   668                                     %error Placeholder not placed
+   669                                    %endif
+   670                                  		; This stack slot is used to insure that
+   671                                  		;  the "CL" signature is not present at this
+   672                                  		;  location. If not relocate and load address
+   673                                  		;  is below loader then the next variable
+   674                                  		;  (last_available_sector) will always receive
+   675                                  		;  a value < 7C0h so cannot hold "CL".
+   676                                  		; If _ATTRIB_SAVE is in use and neither the
+   677                                  		;  _ADD_SEARCH nor the _LOAD_DIR_SEG options
+   678                                  		;  are set, the first word of dirsearchstack
+   679                                  		;  will be at word [ss:bp - 14h].
+   680                                   %endif
+   681                                  
+   682                                  %ifn ! _RELOCATE && _LOAD_ADR < ADR_FREE_UNTIL && _FIX_SECTOR_SIZE
+   683                                  ; (word) segment of last available memory for sector
+   684                                  	nextvariable last_available_sector, 2
+   685                                  %else
+   686                                    %if _LASTVARIABLE == start - 12h
+   687                                  	nextvariable cmdline_signature_placeholder, 2, relocatestart
+   688                                     %assign PLACEHOLDER 1
+   689                                    %elif _LASTVARIABLE == start - 10h
+   690                                     %if _PUSH_DPT
+   691                                  	nextvariable cmdline_signature_placeholder, 4, relocatestart
+   692                                      %assign PLACEHOLDER 2
+   693                                     %endif
+   694                                    %endif
+   695                                  %endif
+   696                                  
+   697                                  lowest_variable		equ _LASTVARIABLE
+   698                                  
+   699                                  
+   700 00000000 EB47                    	jmp strict short skip_bpb
+   701                                  %if !_CHS && _LBA_SET_TYPE
+   702                                  	db 0Eh		; LBA-enabled FAT16 FS partition type
+   703                                  %else
+   704 00000002 90                      	nop		; default: no LBA
+   705                                  %endif
+   706                                  
+   707                                  
+   708                                  ; BIOS Parameter Block (BPB)
+   709                                  ;
+   710                                  ; Installation will use the BPB already present in your file system.
+   711                                  ; These values must be initialised when installing the loader.
+   712                                  ;
+   713                                  ; The values shown here work only with 1440 KiB disks (CHS=80:2:18)
+   714                                  
+   715                                  oem_id:			; offset 03h (03) - not used by this code
+   716 00000003 202020206C444F53        	fill 8,_OEM_NAME_FILL,db _OEM_NAME
+   717                                  bytes_per_sector:	; offset 0Bh (11) - refer to _FIX_SECTOR_SIZE !
+   718 0000000B 0000                    	dw _BPS
+   719                                  sectors_per_cluster:	; offset 0Dh (13) - refer to _FIX_CLUSTER_SIZE !
+   720 0000000D 00                      	db _SPC & 255
+   721                                  fat_start:
+   722                                  num_reserved_sectors:	; offset 0Eh (14)
+   723 0000000E 0000                    	dw _NUMRESERVED
+   724                                  num_fats:		; offset 10h (16)
+   725 00000010 00                      	db _NUMFATS
+   726                                  num_root_dir_ents:	; offset 11h (17)
+   727 00000011 0000                    	dw _NUMROOT
+   728                                  total_sectors:		; offset 13h (19) - not used by this code
+   729                                  %if _SPI < 1_0000h
+   730 00000013 0000                    	dw _SPI
+   731                                  %else
+   732                                  	dw 0
+   733                                  %endif
+   734                                  media_id:		; offset 15h (21) - not used by this code
+   735 00000015 00                      	db _MEDIAID
+   736                                  sectors_per_fat:	; offset 16h (22)
+   737 00000016 0000                    	dw _SPF
+   738                                  sectors_per_track:	; offset 18h (24)
+   739 00000018 0000                    	dw _CHS_SECTORS
+   740                                  heads:			; offset 1Ah (26)
+   741 0000001A 0000                    	dw _CHS_HEADS
+   742                                  hidden_sectors:		; offset 1Ch (28)
+   743 0000001C 00000000                	dd _HIDDEN
+   744                                  total_sectors_large:	; offset 20h (32) - not used by this code
+   745                                  %if _SPI >= 1_0000h
+   746                                  	dd _SPI
+   747                                  %else
+   748 00000020 00000000                	dd 0
+   749                                  %endif
+   750                                  
+   751                                  ; Extended BPB
+   752                                  
+   753 00000024 00                      boot_unit:		db _UNIT
+   754 00000025 00                      			db 0
+   755 00000026 29                      ext_bpb_signature:	db 29h
+   756 00000027 00000000                serial_number:		dd _VOLUMEID
+   757 0000002B 6C444F5320<rep 7h>      volume_label:		fill 11,32,db _DEFAULT_LABEL
+   758 00000036 464154313620-           filesystem_identifier:	fill 8,32,db "FAT1",'2'+4*!!_FAT16
+   758 00000036 <rep 3h>           
+   759                                  
+   760                                  
+   761                                  ; Initialised data
+   762                                  
+   763                                  load_name:
+   764 0000003E 4C444542554720-         	fill 8,32,db _LOAD_NAME
+   764 0000003E <rep 2h>           
+   765 00000046 434F4D                  	fill 3,32,db _LOAD_EXT
+   766                                  %if _ADD_SEARCH
+   767                                  add_name:
+   768                                  	fill 8,32,db _ADD_NAME
+   769                                  	fill 3,32,db _ADD_EXT
+   770                                  
+   771                                  	; align 2
+   772                                  	;  This happens to be aligned anyway. But even if
+   773                                  	;  it didn't, we'd rather save that byte than use
+   774                                  	;  it to align these fields. So comment this out.
+   775                                  dirseg:
+   776                                  	dw _ADD_DIR_SEG
+   777                                  %endif
+   778                                  
+   779                                  
+   780                                  	numdef TMPINC, 0
+   781                                  
+   782                                  %if _TMPINC
+   783                                   [list -]
+  1146                                  %endif
+  1147                                  
+  1148                                  %if _WARN_PART_SIZE
+  1149                                   %assign num $ - start
+  1150                                   %warning BPB + data size is num bytes
+  1151                                  %endif
+  1152                                  
+  1153                                  
+  1154                                  ; Code
+  1155                                  
+  1156                                  skip_bpb:
+  1157 00000049 FA                      	cli
+  1158 0000004A FC                      	cld
+  1159 0000004B 31C9                    	 xor cx, cx
+  1160 0000004D BD[0000]                	mov bp, start		; magic bytes - checked by instsect
+  1161 00000050 8ED1                    	 mov ss, cx
+  1162 00000052 BCF07B                  	mov sp, ADR_STACK_START
+  1163                                  %if _USE_AUTO_UNIT
+  1164 00000055 885624                  	mov [VAR(boot_unit)], dl; magic bytes - checked by instsect
+  1165                                  %else
+  1166                                  	mov dl, [VAR(boot_unit)]; magic bytes - checked by instsect
+  1167                                  %endif
+  1168                                  
+  1169                                  	; Note:	es is left uninitialised here until the first call to
+  1170                                  	;	 read_sector if the below conditional is false.
+  1171                                  %if _USE_PART_INFO	; +19 bytes
+  1172 00000058 8EC1                    	 mov es, cx
+  1173                                  ; Note:	Award Medallion BIOS v6.0 (ASUS MED 2001 ACPI BIOS Revision 1009)
+  1174                                  ;	 loads from a floppy disk drive with ds:si = 0F000h:0A92Dh ->
+  1175                                  ;	 FF FF FF FF 08 00 08 01 FF FF FF FF FF FF FF FF, which was detected
+  1176                                  ;	 as a valid partition table entry by this handling. Therefore, we
+  1177                                  ;	 only accept partition information when booting from a hard disk now.
+  1178                                  
+  1179                                  		; start of magic byte sequence for instsect
+  1180 0000005A 84D2                    	test dl, dl		; floppy ?
+  1181 0000005C 7911                    	jns @F			; don't attempt detection -->
+  1182                                  ; Check whether an MBR left us partition information.
+  1183                                  ; byte[ds:si] bit 7 means active and must be set if valid.
+  1184 0000005E 380C                    	cmp byte [si], cl	; flags for xx-00h (result is xx), SF = bit 7
+  1185 00000060 790D                    	jns @F			; xx < 80h, ie info invalid -->
+  1186                                  ; byte[ds:si+4] is the file system type. Check for valid one.
+  1187 00000062 384C04                  	cmp byte [si+4], cl	; is it zero?
+  1188 00000065 7408                    	je @F			; yes, info invalid -->
+  1189                                  ; Info valid, trust their hidden sectors over hardcoded.
+  1190                                  ; Assume the movsw instructions won't run with si = FFFFh.
+  1191 00000067 BF[1C00]                	mov di, hidden_sectors	; -> BPB field
+  1192 0000006A 83C608                  	add si, 8		; -> partition start sector in info
+  1193                                   %if _USE_PART_INFO_DISABLED
+  1194                                  	nop
+  1195                                  	nop			; size has to match enabled code
+  1196                                   %else
+  1197 0000006D A5                      	movsw
+  1198 0000006E A5                      	movsw			; overwrite BPB field with value from info
+  1199                                   %endif
+  1200                                  @@:
+  1201                                  		; end of magic byte sequence for instsect
+  1202                                  %endif
+  1203 0000006F 8ED9                    	mov ds, cx
+  1204 00000071 FB                      	sti
+  1205                                  
+  1206                                  
+  1207                                  %if _QUERY_GEOMETRY	; +27 bytes
+  1208                                  
+  1209                                  		; start of magic byte sequence for instsect
+  1210                                  ;	test dl, dl		; floppy?
+  1211                                  ;	jns @F			; don't attempt query, might fail -->
+  1212                                  	; Note that while the original PC BIOS doesn't support this function
+  1213                                  	;  (for its diskettes), it does properly return the error code 01h.
+  1214                                  	; https://sites.google.com/site/pcdosretro/ibmpcbios (IBM PC version 1)
+  1215 00000072 B408                    	mov ah, 08h
+  1216                                  	; xor cx, cx		; initialise cl to 0
+  1217                                  	; Already from prologue cx = 0.
+  1218 00000074 F9                      	stc			; initialise to CY
+  1219                                   %if _QUERY_GEOMETRY_DISABLED
+  1220                                  	nop
+  1221                                  	nop			; size has to match enabled code
+  1222                                   %else
+  1223 00000075 CD13                    	int 13h			; query drive geometry
+  1224                                   %endif
+  1225 00000077 720E                    	jc @F			; apparently failed -->
+  1226 00000079 83E13F                  	and cx, 3Fh		; get sectors
+  1227 0000007C 7409                    	jz @F			; invalid (S is 1-based), don't use -->
+  1228 0000007E 894E18                  	mov [VAR(sectors_per_track)], cx
+  1229 00000081 88F1                    	mov cl, dh		; cx = maximum head number
+  1230 00000083 41                      	inc cx			; cx = number of heads (H is 0-based)
+  1231 00000084 894E1A                  	mov [VAR(heads)], cx
+  1232                                  @@:
+  1233                                  		; end of magic byte sequence for instsect
+  1234                                  %endif
+  1235                                  
+  1236                                  %if _FIX_SECTOR_SIZE
+  1237                                   %if !_FIX_SECTOR_SIZE_SKIP_CHECK
+  1238                                  	cmp word [VAR(bytes_per_sector)], _FIX_SECTOR_SIZE
+  1239                                  	mov al, 'S'
+  1240                                  	jne error
+  1241                                   %endif
+  1242                                  	mov bx, _FIX_SECTOR_SIZE >> 5
+  1243                                   %if _FIX_CLUSTER_SIZE
+  1244                                    %if !_FIX_CLUSTER_SIZE_SKIP_CHECK
+  1245                                  	cmp byte [VAR(sectors_per_cluster)], _FIX_CLUSTER_SIZE & 0FFh
+  1246                                  	mov al, 'C'
+  1247                                  	jne error
+  1248                                    %endif
+  1249                                   %endif
+  1250                                  	mov ch, 0			; ! ch = 0
+  1251                                  %else
+  1252                                  ; 16-byte paragraphs per sector
+  1253 00000087 8B5E0B                  	mov bx,[VAR(bytes_per_sector)]
+  1254 0000008A B90400                  	mov cx,4			; ! ch = 0
+  1255 0000008D D3EB                    	shr bx,cl
+  1256                                   %if _FIX_CLUSTER_SIZE
+  1257                                    %if !_FIX_CLUSTER_SIZE_SKIP_CHECK
+  1258                                  	cmp byte [VAR(sectors_per_cluster)], _FIX_CLUSTER_SIZE & 0FFh
+  1259                                  	mov al, 'C'
+  1260                                  	jne error
+  1261                                    %endif
+  1262                                   %else
+  1263                                  				; ! ch = 0
+  1264                                   %endif
+  1265 0000008F 53                      	push bx				; push into word [VAR(para_per_sector)]
+  1266                                  
+  1267                                  ; 32-byte FAT directory entries per sector
+  1268 00000090 D1EB                    	shr bx, 1			; /2 = 32-byte entries per sector
+  1269                                  %endif
+  1270                                  
+  1271                                  %if _WARN_PART_SIZE
+  1272                                   %assign num $ - skip_bpb
+  1273                                   %warning init size is num bytes
+  1274                                  %endif
+  1275                                  
+  1276                                  
+  1277                                  dirsearch_start:
+  1278                                  
+  1279                                  ; number of sectors used for root directory (store in CX)
+  1280 00000092 8B7611                  	mov si, [VAR(num_root_dir_ents)]
+  1281 00000095 89D8                    	mov ax, bx
+  1282                                  		; The ax value here is the last value of bx, which is set
+  1283                                  		;  by the shr instruction. Therefore, it cannot be higher
+  1284                                  		;  than 7FFFh, so this cwd instruction always zeros dx.
+  1285 00000097 99                      	cwd
+  1286 00000098 48                      	dec ax				; rounding up
+  1287 00000099 01F0                    	add ax, si			; from BPB
+  1288 0000009B 11D2                    	adc dx, dx			; account for overflow (dx was zero)
+  1289 0000009D F7F3                    	div bx				; get number of root sectors
+  1290 0000009F 91                      	xchg ax, cx			; cx = number of root secs, ! ah = 0
+  1291                                  
+  1292                                  ; first sector of root directory
+  1293 000000A0 8A4610                  	mov al,[VAR(num_fats)]		; ! ah = 0, hence ax = number of FATs
+  1294 000000A3 F76616                  	mul word [VAR(sectors_per_fat)]
+  1295 000000A6 03460E                  	add ax,[VAR(num_reserved_sectors)]
+  1296 000000A9 10F2                    	adc dl, dh			; account for overflow (dh was and is 0)
+  1297                                  
+  1298 000000AB 31FF                    	xor di, di
+  1299                                  
+  1300                                  ; first sector of disk data area:
+  1301 000000AD 01C1                    	add cx, ax
+  1302 000000AF 11D7                    	adc di, dx
+  1303 000000B1 894EFC                  	mov [VAR(data_start)], cx
+  1304 000000B4 897EFE                  	mov [VAR(data_start+2)], di
+  1305                                  
+  1306                                  next_dir_search:
+  1307                                  %if _ADD_SEARCH
+  1308                                  	push dx
+  1309                                  	push ax
+  1310                                  	push si
+  1311                                  %endif
+  1312                                  
+  1313                                  ; Scan root directory for file. We don't bother to check for deleted
+  1314                                  ;  entries (E5h) or entries that mark the end of the directory (00h).
+  1315                                  		; number of root entries in si here
+  1316                                  next_sect:
+  1317 000000B7 89D9                    	mov cx, bx		; entries per sector as loop counter
+  1318                                  %if ! _RELOCATE
+  1319                                   %if ADR_DIRBUF == ADR_FATBUF
+  1320 000000B9 E8AC00                  	call read_sector_dirbuf
+  1321                                   %else
+  1322                                  	mov bx, ADR_DIRBUF>>4
+  1323                                  	call read_sector
+  1324                                   %endif
+  1325                                  %else
+  1326                                  	mov bx, ADR_DIRBUF>>4
+  1327                                  	call read_sector
+  1328                                  %endif
+  1329 000000BC 89CB                    	mov bx, cx		; restore bx for next iteration later
+  1330                                  
+  1331 000000BE 31FF                    	xor di, di		; es:di-> first entry in this sector
+  1332                                  next_ent:
+  1333                                   %if DIRSEARCHSTACK_CL_FIRST
+  1334                                  	push cx			; first dirsearchstack word = entries-in-sector
+  1335                                  	push si			; other: entries total
+  1336                                   %else
+  1337 000000C0 56                      	push si
+  1338 000000C1 51                      	push cx			; second dirsearchstack word = entries-in-sector
+  1339                                   %endif
+  1340 000000C2 57                      	push di			; dirsearchstack
+  1341                                  %if _CHECK_ATTRIB && ! _ATTRIB_SAVE
+  1342                                  	test byte [es:di + deAttrib], ATTR_DIRECTORY | ATTR_VOLLABEL
+  1343                                  	jnz @F			; directory, label, or LFN entry --> (NZ)
+  1344                                  %endif
+  1345                                  %if _ADD_SEARCH
+  1346                                  	mov si, add_name
+  1347                                  filename equ $ - 2		; SMC to update to load_name later
+  1348                                  %else
+  1349 000000C3 BE[3E00]                	mov si, load_name	; ds:si-> name to match
+  1350                                  %endif
+  1351 000000C6 B90B00                  	mov cx, 11		; length of padded 8.3 FAT filename
+  1352 000000C9 F3A6                    	repe cmpsb		; check entry
+  1353                                  %if _ATTRIB_SAVE
+  1354                                   %if _CHECK_ATTRIB
+  1355                                  	jnz @F
+  1356                                  		; deAttrib == 11, right after the 11-byte name
+  1357                                  	test byte [es:di], ATTR_DIRECTORY | ATTR_VOLLABEL
+  1358                                  				; directory, label, or LFN entry ?
+  1359                                   %endif
+  1360                                  	jz found_it		; found entry -->
+  1361                                  %endif
+  1362                                  @@:
+  1363 000000CB 5F                      	pop di
+  1364                                   %if DIRSEARCHSTACK_CL_FIRST
+  1365                                  	pop si
+  1366                                  	pop cx			; pop from dirsearchstack
+  1367                                   %else
+  1368 000000CC 59                      	pop cx
+  1369 000000CD 5E                      	pop si			; pop from dirsearchstack
+  1370                                   %endif
+  1371 000000CE 8D7D20                  	lea di, [di + DIRENTRY_size]
+  1372                                  %if ! _ATTRIB_SAVE
+  1373 000000D1 7409                    	jz found_it		; found entry -->
+  1374                                  %endif
+  1375                                  
+  1376 000000D3 4E                      	dec si			; count down entire root's entries
+  1377 000000D4 E0EA                    	loopnz next_ent		; count down sector's entries (jumps iff si >0 && cx >0)
+  1378 000000D6 75DF                    	jnz next_sect		; (jumps iff si >0 && cx ==0)
+  1379                                  				; ends up here iff si ==0
+  1380                                  				;  ie all root entries checked unsuccessfully
+  1381                                  %if 0
+  1382                                  
+  1383                                  qemu prior to 2020-08 has a bug which affects the above
+  1384                                  conditionals. The bug is that if NZ is set (like when the
+  1385                                  branch to the label found_it is not taken) and then another
+  1386                                  instruction sets ZR (like the dec si at the end of the root
+  1387                                  directory) and then loopnz is used which sets cx to zero
+  1388                                  then after the loopnz FL will be NZ leading to the jnz branch
+  1389                                  to be taken. Eventually the entire load unit is traversed and
+  1390                                  qemu returns error 01h when trying to read past the end of
+  1391                                  the unit (at least for 1440 KiB diskettes).
+  1392                                  
+  1393                                  The bug can be worked around in two ways as done by lDebug:
+  1394                                  
+  1395                                  https://hg.pushbx.org/ecm/ldebug/rev/c95e2955bbca
+  1396                                  
+  1397                                  https://hg.pushbx.org/ecm/ldebug/rev/c84047f15d9c
+  1398                                  
+  1399                                  However, both cost a few bytes each. Therefore the proper
+  1400                                  fix is considered to be updating qemu. Error behaviour occurs
+  1401                                  when a file is not found. In an unlikely case, another sector
+  1402                                  in the data area may hold a match for the searched entry.
+  1403                                  Otherwise, the read eventually fails and the loader aborts
+  1404                                  with an R error (instead of the expected F error).
+  1405                                  
+  1406                                  Reference: https://bugs.launchpad.net/qemu/+bug/1888165
+  1407                                  
+  1408                                  %endif
+  1409                                  
+  1410 000000D8 B046                    	mov al,'F'	; File not 'F'ound
+  1411 000000DA EB78                    	jmp error
+  1412                                  
+  1413                                  found_it:
+  1414                                  %if _ADD_SEARCH || _LOAD_DIR_SEG
+  1415                                   %if _ATTRIB_SAVE
+  1416                                  	pop di			; es:di -> dir entry (pop from dirsearchstack)
+  1417                                   %endif
+  1418                                  	mov cx, 32
+  1419                                  	mov ax, _LOAD_DIR_SEG
+  1420                                   %if ! _ATTRIB_SAVE
+  1421                                  	sub di, cx		; es:di -> dir entry
+  1422                                   %endif
+  1423                                   %if _ADD_SEARCH
+  1424                                  	xchg ax, word [VAR(dirseg)]
+  1425                                   %endif
+  1426                                  	push ds
+  1427                                  	mov si, di
+  1428                                  	push di
+  1429                                  	 push es
+  1430                                  	 pop ds			; ds:si -> dir entry
+  1431                                  	mov es, ax
+  1432                                  	xor di, di		; es:di -> destination
+  1433                                  	rep movsb		; store dir entry
+  1434                                  	 push ds
+  1435                                  	 pop es
+  1436                                  	pop di			; restore es:di -> dir entry
+  1437                                  	pop ds
+  1438                                   %if _ADD_SEARCH
+  1439                                  %if ((load_name - start) & 0FF00h) == ((add_name - start) & 0FF00h)
+  1440                                  	mov byte [VAR(filename)], (load_name - start + 7C00h) & 255
+  1441                                  %else
+  1442                                  	mov word [VAR(filename)], load_name
+  1443                                  %endif
+  1444                                  				; update name to second iteration's
+  1445                                  %if (_LOAD_DIR_SEG & 255) != (_ADD_DIR_SEG & 255)
+  1446                                  	cmp al, _ADD_DIR_SEG & 255
+  1447                                  %elif (_LOAD_DIR_SEG) != (_ADD_DIR_SEG)
+  1448                                  	cmp ax, _ADD_DIR_SEG	; was first iteration ?
+  1449                                  %else
+  1450                                   %error Must not store directory entries to same segment
+  1451                                  %endif
+  1452                                   %if _ATTRIB_SAVE
+  1453                                  	pop si			; discard cx/si
+  1454                                  	pop si			; discard si/cx (dirsearchstack)
+  1455                                   %endif
+  1456                                  	pop si
+  1457                                  	pop ax
+  1458                                  	pop dx			; restore root start and count
+  1459                                  				;  (bx still holds entries per sector)
+  1460                                  	je next_dir_search	; jump to search load file next -->
+  1461                                   %endif
+  1462                                  	times PLACEHOLDER push bx
+  1463                                  			; push into cmdline_signature_placeholder
+  1464                                   %if _RELOCATE
+  1465                                  	push word [es:di + deClusterLow]
+  1466                                  			; (word on stack) = first cluster number
+  1467                                   %endif
+  1468                                  %else
+  1469                                   %if _DIR_ENTRY_500	; +24 bytes, probably
+  1470                                  	mov cx, 32
+  1471                                   %if _ATTRIB_SAVE
+  1472                                  	pop si		; es:si -> dir entry (pop from dirsearchstack)
+  1473                                   %else
+  1474                                  	xchg si, di
+  1475                                  	sub si, cx
+  1476                                   %endif
+  1477                                  	 push ds
+  1478                                  	 push es
+  1479                                  	push es
+  1480                                  	pop ds		; ds:si -> directory entry
+  1481                                  	xor ax, ax
+  1482                                  	mov es, ax
+  1483                                  	mov di, 500h	; es:di -> 0:500h
+  1484                                    %if _DIR_ENTRY_520
+  1485                                  	rep movsw	; move to here (two directory entries)
+  1486                                    %else
+  1487                                  	rep movsb	; move to here
+  1488                                    %endif
+  1489                                  	 pop es
+  1490                                  	 pop ds
+  1491                                  	xchg si, di	; es:di -> behind (second) directory entry
+  1492                                   %endif
+  1493                                  	times PLACEHOLDER push bx
+  1494                                  			; push into cmdline_signature_placeholder
+  1495                                  		; Push the entries per sector value into this
+  1496                                  		;  stack slot to ensure that it does not hold "CL".
+  1497                                   %if _RELOCATE
+  1498                                    %if _DIR_ENTRY_500 || !_ATTRIB_SAVE
+  1499                                  	push word [es:di + deClusterLow - DIRENTRY_size 		- (DIRENTRY_size * !!_DIR_ENTRY_520)]
+  1501                                  			; (word on stack) = first cluster number
+  1502                                    %else
+  1503                                  	push word [es:di + deClusterLow - (deName + 11)]
+  1504                                  			; (word on stack) = first cluster number
+  1505                                    %endif
+  1506                                   %endif
+  1507                                  %endif
+  1508                                  
+  1509                                  %if _WARN_PART_SIZE
+  1510                                   %assign num $ - dirsearch_start
+  1511                                   %warning dirsearch size is num bytes
+  1512                                  %endif
+  1513                                  
+  1514                                  
+  1515                                  %if _RELOCATE || _LOAD_ADR >= ADR_FREE_FROM
+  1516                                  memory_start:
+  1517                                  ; Get conventional memory size and store it
+  1518                                  		int 12h
+  1519                                  		mov cl, 6
+  1520                                  		shl ax, cl
+  1521                                   %if _RPL		; +31 bytes
+  1522                                  	xchg dx, ax
+  1523                                  	lds si, [4 * 2Fh]
+  1524                                  	add si, 3
+  1525                                  	lodsb
+  1526                                  	cmp al, 'R'
+  1527                                  	jne .no_rpl
+  1528                                  	lodsb
+  1529                                  	cmp al, 'P'
+  1530                                  	jne .no_rpl
+  1531                                  	lodsb
+  1532                                  	cmp al, 'L'
+  1533                                  	jne .no_rpl
+  1534                                  	mov ax, 4A06h
+  1535                                  	int 2Fh
+  1536                                  .no_rpl:
+  1537                                  	push ss
+  1538                                  	pop ds
+  1539                                  	xchg ax, dx
+  1540                                   %endif
+  1541                                   %if _RELOCATE
+  1542                                    %if _LOAD_NON_FAT
+  1543                                  	sub ax, (_RPL_GRACE_AREA + 20 * 1024 		+ 512 + 7C00h) >> 4
+  1545                                    %else
+  1546                                  	sub ax, (_RPL_GRACE_AREA + 20 * 1024 		+ 8192 + (8192-16) + 512 + 7C00h) >> 4
+  1548                                    %endif
+  1549                                  		; RPL grace	area preserved for RPL
+  1550                                  		; 20 KiB:	reserved for iniload
+  1551                                  		; 8 KiB:	FAT buffer
+  1552                                  		; 8 KiB - 16 B:	to allow rounding down FAT buffer position
+  1553                                  		; 512:		sector
+  1554                                  		; 7C00h:	stack and to allow addressing with 7C00h in bp
+  1555                                  		;
+  1556                                  		; Note also that by addressing the stack and sector
+  1557                                  		;  with bp at 7C00h, and insuring this subtraction doesn't
+  1558                                  		;  underflow, makes sure that we do not overwrite the IVT or
+  1559                                  		;  BDA. (However, we assume that ax is at least 60h or so.)
+  1560                                  		;
+  1561                                  		; The FAT buffer segment is masked so that the actual buffer
+  1562                                  		;  is stored on an 8 KiB boundary. This is to ensure that
+  1563                                  		;  the buffer doesn't possibly cross a 64 KiB DMA boundary.
+  1564                                  	jc .error_memory_j_CY
+  1565                                  	cmp ax, (end -start+7C00h - ADR_STACK_LOW + 15) >> 4
+  1566                                  		; This check is to ensure that the start of the destination
+  1567                                  		;  for the relocation (stack, sector) is
+  1568                                  		;  above-or-equal the end of the source for the relocation.
+  1569                                  		;  That is, to avoid overwriting any of the source with the
+  1570                                  		;  string move instruction (which for simplicity is always UP).
+  1571                                  .error_memory_j_CY:
+  1572                                  	jb error_memory
+  1573                                    %if ! _LOAD_NON_FAT
+  1574                                  	mov bx, ((8192 - 16) + 512 + 7C00h)>>4
+  1575                                  	add bx, ax
+  1576                                  ;  this is like calculating the following for the bx value:
+  1577                                  ;  ((LMA_top - 20 KiB - 8 KiB - (8 KiB - 16 B) - 512 - 7C00h) + ;	((8 KiB - 16 B) + 512 + 7C00h))>>4
+  1579                                  ;  == (LMA_top - 20 KiB - 8 KiB)>>4
+  1580                                  	and bx, ~ ((8192>>4) - 1)
+  1581                                  	mov word [VAR(fat_seg)], bx
+  1582                                    %endif
+  1583                                  
+  1584                                  	mov di, relocated
+  1585                                  	push ax
+  1586                                  	push di				; -> relocation target label relocated
+  1587                                  		; (We cannot use a near call here to push the target IP
+  1588                                  		;  because we do not control whether the ROM-BIOS loader
+  1589                                  		;  entered us at 0:7C00h or 7C0h:0. So we need to create
+  1590                                  		;  the correct offset manually here.)
+  1591                                  
+  1592                                  	mov es, ax			; => destination
+  1593                                  	mov si, sp			; ds:si = ss:_RELOCATESTART - 2 - 4
+  1594                                  	mov di, si			; es:di -> destination for stack low
+  1595                                  	mov cx, (end - (_RELOCATESTART - 2 - 4)) >> 1
+  1596                                  		; end is the top of used memory
+  1597                                  		; _RELOCATESTART is the lowest filled stack frame slot
+  1598                                  		; 2 is for the first cluster word on the stack
+  1599                                  		; 4 is for the additional slots taken by the return address
+  1600                                  	rep movsw			; relocate stack, sector
+  1601                                  	retf				; jump to relocated code
+  1602                                  
+  1603                                  %if _WARN_PART_SIZE
+  1604                                   %assign num $ - memory_start
+  1605                                   %warning memory size is num bytes
+  1606                                  %endif
+  1607                                  
+  1608                                  
+  1609                                  	readhandler
+  1610                                  
+  1611                                  	errorhandler
+  1612                                  
+  1613                                  
+  1614                                  relocated:
+  1615                                  	mov ss, ax
+  1616                                  	mov ds, ax			; relocate these
+  1617                                  	add ax, (ADR_STACK_LOW) >> 4	; (rounding down) => behind available
+  1618                                  
+  1619                                  	pop si
+  1620                                   %else
+  1621                                  	sub ax, (_RPL_GRACE_AREA + 20 * 1024) >> 4
+  1622                                  					; RPL grace area, plus
+  1623                                  					;  20 KiB reserved for iniload
+  1624                                  	jb error_memory
+  1625                                   %endif
+  1626                                  %elif _LOAD_ADR < ADR_FREE_UNTIL
+  1627                                   %if !_FIX_SECTOR_SIZE
+  1628 000000DC B8A007                  	mov ax, ADR_FREE_UNTIL >> 4	; rounding *down*
+  1629                                   %endif
+  1630                                  %else
+  1631                                   %error Load address within used memory
+  1632                                  %endif
+  1633                                  %if ! _RELOCATE && _LOAD_ADR < ADR_FREE_UNTIL && _FIX_SECTOR_SIZE
+  1634                                  	; user of last_available_sector will hardcode the value!
+  1635                                  %else
+  1636                                   %if _FIX_SECTOR_SIZE
+  1637                                  		sub ax, _FIX_SECTOR_SIZE >> 4
+  1638                                   %else
+  1639 000000DF 2B46EE                  		sub ax, [VAR(para_per_sector)]
+  1640                                   %endif
+  1641 000000E2 50                      		push ax		; push into word [VAR(last_available_sector)]
+  1642                                  %endif
+  1643                                  
+  1644                                  read_fat_start:
+  1645                                  ; get starting cluster of file
+  1646                                  %if ! _RELOCATE
+  1647                                   %if _ADD_SEARCH || _LOAD_DIR_SEG
+  1648                                  		mov si,[es:di + deClusterLow]
+  1649                                   %elif _ATTRIB_SAVE && ! _DIR_ENTRY_500
+  1650                                  		mov si,[es:di - deAttrib + deClusterLow]
+  1651                                   %else
+  1652 000000E3 268B75FA                		mov si,[es:di + deClusterLow - DIRENTRY_size 			- (DIRENTRY_size * !!_DIR_ENTRY_520)]
+  1654                                   %endif
+  1655                                  %endif
+  1656                                  %if _SET_CLUSTER
+  1657 000000E7 8976F0                  		mov word [VAR(first_cluster)], si
+  1658                                  %endif
+  1659                                  %if _SET_DI_CLUSTER
+  1660                                  		push si			; remember cluster for later
+  1661                                  %endif
+  1662                                  
+  1663                                  %if !_FAT16 && !_LOAD_NON_FAT
+  1664                                  ; Load the entire FAT into memory. This is easily feasible for FAT12,
+  1665                                  ;  as the FAT can only contain at most 4096 entries.
+  1666                                  ; (The exact condition should be "at most 4087 entries", or with a
+  1667                                  ;  specific FF7h semantic, "at most 4088 entries"; the more reliable
+  1668                                  ;  and portable alternative would be "at most 4080 entries".)
+  1669                                  ; Thus, no more than 6 KiB need to be read, even though the FAT size
+  1670                                  ;  as indicated by word[sectors_per_fat] could be much higher. The
+  1671                                  ;  first loop condition below is to correctly handle the latter case.
+  1672                                  ; (Sector size is assumed to be a power of two between 32 and 8192
+  1673                                  ;  bytes, inclusive. An 8 KiB buffer is necessary if the sector size
+  1674                                  ;  is 4 or 8 KiB, because reading the FAT can or will write to 8 KiB
+  1675                                  ;  of memory instead of only the relevant 6 KiB. This is always true
+  1676                                  ;  if the sector size is 8 KiB, and with 4 KiB sector size it is true
+  1677                                  ;  iff word[sectors_per_fat] is higher than one.)
+  1678                                  		mov di, 6 << 10		; maximum size of FAT12 to load
+  1679                                  		mov cx, [VAR(sectors_per_fat)]
+  1680                                  					; maximum size of this FS's FAT
+  1681                                  %if ! _RELOCATE && _LOAD_ADR < ADR_FREE_UNTIL && !_FIX_SECTOR_SIZE
+  1682                                  			; Under these conditions, ax here is
+  1683                                  			;  below ADR_FREE_UNTIL >> 4 so the
+  1684                                  			;  following cwd instruction zeros dx.
+  1685                                  		cwd
+  1686                                  %else
+  1687                                  		xor dx, dx
+  1688                                  %endif
+  1689                                  		mov ax, [VAR(fat_start)]; = first FAT sector
+  1690                                   %if _RELOCATE
+  1691                                  			; bx already = FAT buffer segment here
+  1692                                   %else
+  1693                                  		mov bx, ADR_FATBUF>>4
+  1694                                    %if _SET_FAT_SEG
+  1695                                  		mov word [VAR(fat_seg)], bx
+  1696                                    %endif
+  1697                                   %endif
+  1698                                  @@:
+  1699                                  		call read_sector	; read next FAT sector
+  1700                                  %if _FIX_SECTOR_SIZE
+  1701                                  		sub di, _FIX_SECTOR_SIZE
+  1702                                  %else
+  1703                                  		sub di, [VAR(bytes_per_sector)]
+  1704                                  %endif
+  1705                                  					; di = bytes still left to read
+  1706                                  		jbe @F			; if none -->
+  1707                                  					; (jbe means jump if CF || ZF)
+  1708                                  		loop @B			; if any FAT sector still remains -->
+  1709                                  @@:					; one of the limits reached; FAT read
+  1710                                  %endif
+  1711                                  
+  1712 000000EA BB0002                  		mov bx, _LOAD_ADR>>4	; => load address
+  1713                                  %if _FAT16 && !_LOAD_NON_FAT
+  1714 000000ED BFFFFF                  		mov di, -1		; = no FAT sector read yet
+  1715                                   %if _SET_FAT_SEG && _SET_FAT_SEG_NORMAL
+  1716                                  	; This is not strictly needed because a FAT sector is
+  1717                                  	;  read in any case, initialising this variable later.
+  1718 000000F0 897EF4                  		mov word [VAR(fat_sector)], di
+  1719                                   %endif
+  1720                                  %endif
+  1721                                  %if _LOAD_NON_FAT
+  1722                                   %if _SET_FAT_SEG
+  1723                                    %if _FAT16
+  1724                                  		or word [VAR(fat_sector)], -1
+  1725                                    %else
+  1726                                  		and word [VAR(fat_seg)], 0
+  1727                                    %endif
+  1728                                   %endif
+  1729                                  %endif
+  1730                                  
+  1731                                  next_cluster:
+  1732                                  ; convert 16-bit cluster value (in SI) to 32-bit LBA sector value (in DX:AX)
+  1733                                  ; and get next cluster in SI
+  1734                                  
+  1735                                  
+  1736                                  		; Converts cluster number to sector number
+  1737                                  		;  and finds next cluster in chain
+  1738                                  		;
+  1739                                  		; INP:	si = valid cluster number
+  1740                                  		;	(!_FAT16) [ADR_FATBUF] = entire FAT as read from FS
+  1741                                  		;	(_FAT16) di = currently buffered FAT sector, -1 if none
+  1742                                  		; OUT:	If unable to read a FAT sector,
+  1743                                  		;	 ! jumps to error instead of returning
+  1744                                  		;	If everything is okay,
+  1745                                  		;	 si = next cluster number (or EOC value)
+  1746                                  		;	 dx:ax = sector number
+  1747                                  		;	 (_FAT16) di = currently buffered FAT sector
+  1748                                  		; CHG:	cx
+  1749                                  
+  1750                                  %if ! _LOAD_NON_FAT
+  1751                                  ; prepare to load entry from FAT
+  1752                                  
+  1753                                  %if _FAT16
+  1754 000000F3 56                      		push si			; preserve cluster number for later
+  1755                                  
+  1756                                  ; Multiply cluster number by 2.
+  1757 000000F4 96                      		xchg ax, si
+  1758                                  		; xor dx, dx		; dx:ax = entry to load (0..FFF6h)
+  1759                                  		; add ax, ax
+  1760                                  		; adc dx, dx		; dx:ax = byte offset into FAT (0..131052)
+  1761 000000F5 99                      		cwd			; dx = FFFFh if ax >= 8000h, else = 0
+  1762 000000F6 01C0                    		add ax, ax		; ax = (2 * ax) & FFFFh
+  1763 000000F8 F7DA                    		neg dx			; dx = 1 if 2 * ax overflowed, else = 0
+  1764                                  
+  1765                                  ; Divide by sector size to split dx:ax into the remainder as the byte offset
+  1766                                  ;  into the FAT sector, and quotient as the sector offset into the FAT.
+  1767 000000FA F7760B                  		div word [VAR(bytes_per_sector)]
+  1768 000000FD 89D6                    		mov si, dx		; = byte offset in sector
+  1769                                  			; dx = byte offset into sector (0..8190)
+  1770                                  			; ax = sector offset into FAT (0..4095)
+  1771                                  
+  1772                                  ; quotient in AX is FAT sector.
+  1773                                  ; check the FAT buffer to see if this sector is already loaded
+  1774                                  ; (simple disk cache; speeds things up a little --
+  1775                                  ; actually, it speeds things up a lot)
+  1776 000000FF 39F8                    		cmp ax, di
+  1777 00000101 7410                    		je @F
+  1778 00000103 89C7                    		mov di, ax
+  1779                                   %if _SET_FAT_SEG
+  1780 00000105 8946F4                  		mov word [VAR(fat_sector)], ax
+  1781                                   %endif
+  1782                                  
+  1783                                  ; read the target FAT sector.
+  1784 00000108 53                      		push bx
+  1785                                  			; As noted above, the sector offset in ax here is
+  1786                                  			;  0..4095 (ie, 4 Ki S * 32 B/S = 128 KiB of FAT data),
+  1787                                  			;  therefore this cwd instruction always zeros dx.
+  1788 00000109 99                      		cwd
+  1789 0000010A 03460E                  		add ax, [VAR(fat_start)]
+  1790 0000010D 11D2                    		adc dx, dx		; (account for overflow)
+  1791                                   %if _RELOCATE
+  1792                                  		mov bx, word [VAR(fat_seg)]
+  1793                                  		call read_sector
+  1794                                   %else
+  1795 0000010F E85600                  		call read_sector_fatbuf
+  1796                                   %endif
+  1797 00000112 5B                      		pop bx
+  1798                                  @@:
+  1799                                  
+  1800                                  ; get 16 bits from FAT
+  1801 00000113 26AD                    		es lodsw
+  1802 00000115 96                      		xchg ax, si
+  1803 00000116 58                      		pop ax		; restore cluster number
+  1804                                  %else
+  1805                                  ; FAT12 entries are 12 bits, bytes are 8 bits. Ratio is 3 / 2,
+  1806                                  ;  so multiply cluster number by 3 first, then divide by 2.
+  1807                                  		mov ax, si		; = cluster number (up to 12 bits set)
+  1808                                  			; (remember cluster number in ax)
+  1809                                  		shl si, 1		; = 2n (up to 13 bits set)
+  1810                                  		add si, ax		; = 2n+n = 3n (up to 14 bits set)
+  1811                                  		shr si, 1		; si = byte offset into FAT (0..6129)
+  1812                                  					; CF = whether to use high 12 bits
+  1813                                   %if _RELOCATE
+  1814                                  		mov es, word [VAR(fat_seg)]
+  1815                                  		; es lodsw
+  1816                                  		; xchg ax, si
+  1817                                  		mov si, word [es:si]
+  1818                                   %else
+  1819                                  ; Use the calculated byte offset as an offset into the FAT
+  1820                                  ;  buffer, which holds all of the FAT's relevant data.
+  1821                                  		; lea si, [ADR_FATBUF + si]
+  1822                                  				; -> 16-bit word in FAT to load
+  1823                                  ; get 16 bits from FAT
+  1824                                  		; lodsw
+  1825                                  		; xchg ax, si
+  1826                                  		mov si, [ADR_FATBUF + si]
+  1827                                  				; = 16-bit word in FAT to load
+  1828                                   %endif
+  1829                                  
+  1830                                  		mov cl, 4
+  1831                                  		jc @F		; iff CY after shift -->
+  1832                                  		shl si, cl	; shift up iff even entry
+  1833                                  @@:
+  1834                                  		shr si, cl	; shift down (clears top 4 bits)
+  1835                                  
+  1836                                  			; (ax holds cluster number)
+  1837                                  %endif
+  1838                                  
+  1839                                  %else ; _LOAD_NON_FAT
+  1840                                  		mov di, _LOAD_NON_FAT
+  1841                                  	mov al, [VAR(sectors_per_cluster)]
+  1842                                  	dec ax
+  1843                                  	mov ah, 0
+  1844                                  	inc ax
+  1845                                  		mov cx, ax
+  1846                                  		mul word [VAR(bytes_per_sector)]
+  1847                                  		test dx, dx
+  1848                                  		jnz @F
+  1849                                  		cmp ax, di
+  1850                                  		mov al, 'N'
+  1851                                  		jb error
+  1852                                  @@:
+  1853                                  		xchg ax, si
+  1854                                  %endif
+  1855                                  ; adjust cluster number to make it 0-based
+  1856 00000117 48                      		dec ax
+  1857 00000118 48                      		dec ax
+  1858                                  
+  1859                                  %if ! _LOAD_NON_FAT
+  1860                                  %if _FIX_CLUSTER_SIZE
+  1861                                  		mov cx, _FIX_CLUSTER_SIZE
+  1862                                  %else
+  1863                                  ; adjusted sectors per cluster
+  1864                                  ; decode EDR-DOS's special value 0 meaning 256
+  1865 00000119 8A4E0D                  	mov cl, [VAR(sectors_per_cluster)]
+  1866 0000011C 49                      	dec cx
+  1867 0000011D B500                    	mov ch, 0
+  1868 0000011F 41                      	inc cx
+  1869                                  %endif
+  1870                                  %endif
+  1871                                  
+  1872                                  ; convert from clusters to sectors
+  1873 00000120 F7E1                    		mul cx
+  1874 00000122 0346FC                  		add ax, [VAR(data_start)]
+  1875 00000125 1356FE                  		adc dx, [VAR(data_start)+2]
+  1876                                  				; dx:ax = sector number
+  1877                                  
+  1878                                  ; xxx - this will always load an entire cluster (e.g. 64 sectors),
+  1879                                  ; even if the file is shorter than this
+  1880                                  @@:
+  1881                                   %if ! _RELOCATE && _LOAD_ADR < ADR_FREE_UNTIL && _FIX_SECTOR_SIZE
+  1882                                  		cmp bx, (ADR_FREE_UNTIL >> 4) - (_FIX_SECTOR_SIZE >> 4)
+  1883                                   %else
+  1884 00000128 3B5EEC                  		cmp bx, [VAR(last_available_sector)]
+  1885                                   %endif
+  1886                                  %if _MEMORY_CONTINUE
+  1887 0000012B 770F                    		ja @F
+  1888                                  %else
+  1889                                  		ja error_filetoobig
+  1890                                  %endif
+  1891                                  %if _FAT16 && ! _LOAD_NON_FAT
+  1892 0000012D 06                      		push es		; (must preserve ADR_FATBUF reference)
+  1893                                  %endif
+  1894 0000012E E83D00                  		call read_sector
+  1895                                  %if _FAT16 && ! _LOAD_NON_FAT
+  1896 00000131 07                      		pop es
+  1897                                  %endif
+  1898                                  %if _SET_LOAD_SEG
+  1899 00000132 895EFA                  		mov [VAR(load_seg)], bx	; => after last read data
+  1900                                  %endif
+  1901                                  %if _LOAD_NON_FAT
+  1902                                  		sub di, word [VAR(bytes_per_sector)]
+  1903                                  		ja @B
+  1904                                  %else
+  1905 00000135 E2F1                    		loop @B
+  1906                                  
+  1907                                  %if _FAT16
+  1908                                  ; FFF7h: bad cluster
+  1909                                  ; FFF8h-FFFFh: end of cluster chain
+  1910 00000137 83FEF7                  		cmp si, 0FFF7h
+  1911                                  %else
+  1912                                  ; 0FF7h: bad cluster
+  1913                                  ; 0FF8h-0FFFh: end of cluster chain
+  1914                                  		cmp si, 0FF7h
+  1915                                  %endif
+  1916 0000013A 72B7                    		jb next_cluster
+  1917                                  %endif	; _LOAD_NON_FAT
+  1918                                  @@:
+  1919                                  
+  1920                                  %if _WARN_PART_SIZE
+  1921                                   %assign num $ - read_fat_start
+  1922                                   %warning read_fat size is num bytes
+  1923                                  %endif
+  1924                                  
+  1925                                  
+  1926                                  finish_start:
+  1927                                  %if _LOAD_MIN_PARA
+  1928                                   %if ((_LOAD_ADR >> 4) + _LOAD_MIN_PARA) & 255 == 0
+  1929                                  	; If the value is divisible by 256 we can compare only the
+  1930                                  	;  high byte for the same CF result: NC iff bx >= limit.
+  1931 0000013C 80FF03                  		cmp bh, ((_LOAD_ADR >> 4) + _LOAD_MIN_PARA) >> 8
+  1932                                   %else
+  1933                                  		cmp bx, (_LOAD_ADR >> 4) + _LOAD_MIN_PARA
+  1934                                   %endif
+  1935 0000013F B045                    		mov al, 'E'
+  1936 00000141 7211                    		jb error
+  1937                                  %endif
+  1938                                  
+  1939                                  %if _TURN_OFF_FLOPPY
+  1940                                  ; turn off floppy motor
+  1941                                  		mov dx,3F2h
+  1942                                  		mov al,0
+  1943                                  		out dx,al
+  1944                                  %endif
+  1945                                  
+  1946                                  ; Set-up registers for and jump to loaded file
+  1947                                  ; Already: ss:bp-> boot sector containing BPB
+  1948                                  %if _CHECKVALUE
+  1949                                  CHECKLINEAR equ _LOAD_ADR + _CHECKOFFSET
+  1950                                   %if ! _RELOCATE && CHECKLINEAR <= (64 * 1024 - 2)
+  1951 00000143 813EFC236C44            		cmp word [CHECKLINEAR], _CHECKVALUE
+  1952                                   %else
+  1953                                  		mov ax, CHECKLINEAR >> 4
+  1954                                  		mov es, ax
+  1955                                  		cmp word [es:CHECKLINEAR & 15], _CHECKVALUE
+  1956                                   %endif
+  1957 00000149 B056                    		mov al, 'V'		; check 'V'alue mismatch
+  1958 0000014B 7507                    		jne error
+  1959                                  %endif
+  1960                                  %if _SET_DL_UNIT
+  1961                                  		mov dl, [VAR(boot_unit)]; set dl to unit
+  1962                                  %endif
+  1963                                  %if _SET_DI_CLUSTER && (_PUSH_DPT || _SET_DSSI_DPT)
+  1964                                  		pop cx
+  1965                                  %endif
+  1966                                  %if _DATASTART_HIDDEN
+  1967                                  		mov bx, [VAR(hidden_sectors + 0)]
+  1968                                  		mov ax, [VAR(hidden_sectors + 2)]
+  1969                                  		add word [VAR(data_start + 0)], bx
+  1970                                  		adc word [VAR(data_start + 2)], ax
+  1971                                  %endif
+  1972                                  %if _SET_BL_UNIT
+  1973                                   %if _SET_DL_UNIT
+  1974                                  		mov bl, dl		; set bl to unit, too
+  1975                                   %else
+  1976                                  		mov bl, [VAR(boot_unit)]; set bl to unit
+  1977                                   %endif
+  1978                                  %endif
+  1979                                  %if _PUSH_DPT || _SET_DSSI_DPT
+  1980                                   %ifn _SET_DSSI_DPT		; (implying that only _PUSH_DPT is set)
+  1981                                    %if _RELOCATE
+  1982                                  		xor ax, ax
+  1983                                  		mov es, ax
+  1984                                  		mov di, 1Eh * 4
+  1985                                  		les si, [es:di]
+  1986                                  		push es
+  1987                                  		push si
+  1988                                  		push ax
+  1989                                  		push di
+  1990                                    %else
+  1991                                  		mov di, 1Eh*4
+  1992                                  		les si, [di]		; -> original (also current) DPT
+  1993                                  		push es
+  1994                                  		push si			; original (also current) DPT address
+  1995                                  		push ss
+  1996                                  		push di			; 0000h:0078h (address of 1Eh IVT entry)
+  1997                                    %endif
+  1998                                   %else
+  1999                                    %if _RELOCATE
+  2000                                  		xor ax, ax
+  2001                                  		mov ds, ax
+  2002                                    %endif
+  2003                                  		mov di, 1Eh*4
+  2004                                  		lds si, [di]		; -> original (also current) DPT
+  2005                                    %if _PUSH_DPT
+  2006                                  		push ds
+  2007                                  		push si			; original (also current) DPT address
+  2008                                     %if _RELOCATE
+  2009                                  		push ax
+  2010                                  		push di
+  2011                                     %else
+  2012                                  		push ss
+  2013                                  		push di			; 0000h:0078h (address of 1Eh IVT entry)
+  2014                                     %endif
+  2015                                    %endif
+  2016                                   %endif
+  2017                                  %else
+  2018                                   %if _RELOCATE && (_ZERO_ES || _ZERO_DS)
+  2019                                  		xor ax, ax
+  2020                                   %endif
+  2021                                  %endif
+  2022                                  %if _RELOCATE
+  2023                                   %if _ZERO_ES
+  2024                                  		mov es, ax
+  2025                                   %endif
+  2026                                   %if _ZERO_DS
+  2027                                  		mov ds, ax
+  2028                                   %endif
+  2029                                  %endif
+  2030                                  
+  2031                                  %if _SET_AXBX_DATA
+  2032                                  		mov bx, [VAR(data_start)]
+  2033                                  		mov ax, [VAR(data_start+2)]
+  2034                                  %endif
+  2035                                  %if _SET_DI_CLUSTER
+  2036                                   %if _PUSH_DPT || _SET_DSSI_DPT
+  2037                                  		mov di, cx
+  2038                                   %else
+  2039                                  		pop di
+  2040                                   %endif
+  2041                                  %endif
+  2042                                  %if ! _RELOCATE
+  2043                                   %if _ZERO_ES
+  2044                                  		push ss
+  2045                                  		pop es
+  2046                                   %endif
+  2047                                  %endif
+  2048                                  			; ss:bp-> boot sector with BPB
+  2049 0000014D EA00040002              		jmp (_LOAD_ADR>>4)+_EXEC_SEG_ADJ:_EXEC_OFS
+  2050                                  
+  2051                                  
+  2052                                  %if _WARN_PART_SIZE
+  2053                                   %assign num $ - finish_start
+  2054                                   %warning finish size is num bytes
+  2055                                  %endif
+  2056                                  
+  2057                                  
+  2058                                  %if ! _RELOCATE
+  2059                                  	errorhandler
+   786                              <1> %if _TMPINC
+   787                              <1>  %include "error.tmp"
+     1                              <2> ; Auto-generated file, do not edit.
+     2                              <2> 
+     3                              <2> error_start:
+     4                              <2> 
+     5                              <2> read_sector.err:
+     6 00000152 B052                <2> 	mov al, 'R'	; Disk 'R'ead error
+     7                              <2> %if ! _MEMORY_CONTINUE || _RELOCATE || _LOAD_ADR >= ADR_FREE_FROM
+     8                              <2> 	db __TEST_IMM16	; (skip mov)
+     9                              <2> error_filetoobig:
+    10                              <2> error_memory:
+    11                              <2> 	mov al,'M'	; Not enough 'M'emory
+    12                              <2> %endif
+    13                              <2> 
+    14                              <2> error:
+    15                              <2> %if _RELOCATE
+    16                              <2> 	mov bx, 7
+    17                              <2> 	mov ds, bx
+    18                              <2> 	mov bh, [462h - 70h]
+    19                              <2> %else
+    20 00000154 8A3E6204            <2> 	mov bh, [462h]
+    21 00000158 B307                <2> 	mov bl, 7
+    22                              <2> %endif
+    23 0000015A B40E                <2> 	mov ah, 0Eh
+    24 0000015C CD10                <2> 	int 10h		; display character
+    25 0000015E B007                <2> 	mov al, 07h
+    26 00000160 CD10                <2> 	int 10h		; beep!
+    27                              <2> 
+    28 00000162 31C0                <2> 	xor ax, ax	; await key pressed
+    29 00000164 CD16                <2> 	int 16h
+    30                              <2> 
+    31 00000166 CD19                <2> 	int 19h		; re-start the boot process
+    32                              <2> 
+    33                              <2> %if _WARN_PART_SIZE
+    34                              <2>  %assign num $ - error_start
+    35                              <2>  %warning error size is num bytes
+    36                              <2> %endif
+   788                              <1>  [list -]
+   829                              <1> %endif
+  2060                                  
+  2061                                  	readhandler
+   834                              <1> %if _TMPINC
+   835                              <1>  %include "read.tmp"
+     1                              <2> ; Auto-generated file, do not edit.
+     2                              <2> 
+     3                              <2> read_sector_start:
+     4                              <2> 		; INP:	dx:ax = sector
+     5                              <2> 		; OUT:	only if successful
+     6                              <2> 		;	dx:ax = incremented
+     7                              <2> 		;	bx => behind read sector
+     8                              <2> 		;	es = ADR_FATBUF>>4 = ADR_DIRBUF>>4
+     9                              <2> 		; CHG:	-
+    10                              <2> %if ! _RELOCATE
+    11                              <2>  %if ADR_DIRBUF == ADR_FATBUF
+    12                              <2> read_sector_dirbuf:
+    13                              <2>  %endif
+    14                              <2>  %if _FAT16 && ! _LOAD_NON_FAT
+    15                              <2> read_sector_fatbuf:
+    16                              <2>  %endif
+    17                              <2>  %if (ADR_DIRBUF == ADR_FATBUF) || (_FAT16 && ! _LOAD_NON_FAT)
+    18 00000168 BBE007              <2> 	mov bx, ADR_FATBUF>>4
+    19                              <2>   %if _FAT16 && _SET_FAT_SEG && ! _LOAD_NON_FAT
+    20 0000016B 895EF8              <2> 	mov word [VAR(fat_seg)], bx
+    21                              <2> 		; Optimisation: Set FAT buffer segment here where
+    22                              <2> 		;  we have it ready in a register, instead of
+    23                              <2> 		;  wasting a word immediate on it. If the FAT is
+    24                              <2> 		;  never read then we do not need to set the
+    25                              <2> 		;  variable anyway, only the sector variable has
+    26                              <2> 		;  to contain a -1 to indicate it's uninitialised.
+    27                              <2> 		; If we get here from read_sector_dirbuf we will
+    28                              <2> 		;  also initialise this variable but that does not
+    29                              <2> 		;  cause any problems.
+    30                              <2>   %endif
+    31                              <2>  %endif
+    32                              <2> %endif
+    33                              <2> 
+    34                              <2> 		; Read a sector using Int13.02 or Int13.42
+    35                              <2> 		;
+    36                              <2> 		; INP:	dx:ax = sector number within partition
+    37                              <2> 		;	bx => buffer
+    38                              <2> 		;	(_LBA) ds = ss
+    39                              <2> 		; OUT:	If unable to read,
+    40                              <2> 		;	 ! jumps to error instead of returning
+    41                              <2> 		;	If sector has been read,
+    42                              <2> 		;	 dx:ax = next sector number (has been incremented)
+    43                              <2> 		;	 bx => next buffer (bx = es+word[para_per_sector])
+    44                              <2> 		;	 es = input bx
+    45                              <2> 		; CHG:	-
+    46                              <2> read_sector:
+    47 0000016E 52                  <2> 	push dx
+    48 0000016F 51                  <2> 	push cx
+    49 00000170 50                  <2> 	push ax
+    50 00000171 56                  <2> 	push si
+    51                              <2> 
+    52 00000172 8EC3                <2> 	mov es, bx	; => buffer
+    53                              <2> 
+    54                              <2> ; DX:AX==LBA sector number
+    55                              <2> ; add partition start (= number of hidden sectors)
+    56 00000174 03461C              <2> 		add ax,[VAR(hidden_sectors + 0)]
+    57 00000177 13561E              <2> 		adc dx,[VAR(hidden_sectors + 2)]
+    58                              <2>  %if (!_LBA || !_LBA_33_BIT) && _LBA_CHECK_NO_33
+    59                              <2> 	jc .err
+    60                              <2>  %endif
+    61                              <2> %if _LBA		; +70 bytes (with CHS, +63 bytes without CHS)
+    62                              <2>  %if _LBA_33_BIT
+    63 0000017A 19F6                <2> 	sbb si, si	; -1 if was CY, 0 else
+    64 0000017C F7DE                <2> 	neg si		; 1 if was CY, 0 else
+    65                              <2>  %endif
+    66 0000017E 31C9                <2> 	xor cx, cx
+    67 00000180 51                  <2> 	push cx		; highest word = 0
+    68                              <2>  %if _LBA_33_BIT
+    69 00000181 56                  <2> 	push si		; bit 32 = 1 if operating in 33-bit space
+    70                              <2>  %else
+    71                              <2> 	push cx		; second highest word = 0
+    72                              <2>  %endif
+    73 00000182 52                  <2> 	push dx
+    74 00000183 50                  <2> 	push ax		; = qword sector number
+    75 00000184 53                  <2> 	push bx
+    76 00000185 51                  <2> 	push cx		; bx => buffer
+    77 00000186 41                  <2> 	inc cx
+    78 00000187 51                  <2> 	push cx		; word number of sectors to read
+    79 00000188 B110                <2> 	mov cl, 10h
+    80 0000018A 51                  <2> 	push cx		; word size of disk address packet
+    81 0000018B 89E6                <2> 	mov si, sp	; ds:si -> disk address packet (on stack)
+    82                              <2> 
+    83                              <2>  %if _LBA_SKIP_CHECK		; -14 bytes
+    84 0000018D 8A5624              <2> 	mov dl, [VAR(boot_unit)]
+    85                              <2>  %else
+    86                              <2> 	mov ah, 41h
+    87                              <2> 	mov dl, [VAR(boot_unit)]
+    88                              <2> 	mov bx, 55AAh
+    89                              <2> 	stc
+    90                              <2> 	int 13h		; 13.41.bx=55AA extensions installation check
+    91                              <2> 	jc .no_lba
+    92                              <2> 	cmp bx, 0AA55h
+    93                              <2> 	jne .no_lba
+    94                              <2> 	shr cl, 1	; support bitmap bit 0
+    95                              <2> 	jnc .no_lba
+    96                              <2>  %endif
+    97                              <2> 
+    98                              <2> %if _LBA_RETRY
+    99                              <2>  %if _LBA_SKIP_CHECK && _LBA_SKIP_CY
+   100                              <2> 	stc
+   101                              <2>  %endif
+   102                              <2> 	mov ah, 42h
+   103                              <2> 	int 13h		; 13.42 extensions read
+   104                              <2> 	jnc .lba_done
+   105                              <2> 
+   106                              <2>  %if _RETRY_RESET
+   107                              <2> 	xor ax, ax
+   108                              <2> 	int 13h		; reset disk
+   109                              <2>  %endif
+   110                              <2> 
+   111                              <2> 		; have to reset the LBAPACKET's lpCount, as the handler may
+   112                              <2> 		;  set it to "the number of blocks successfully transferred".
+   113                              <2> 		; (in any case, the high byte is still zero.)
+   114                              <2> 	mov byte [si + 2], 1
+   115                              <2> %endif
+   116                              <2> 
+   117                              <2>  %if _LBA_SKIP_CHECK && _LBA_SKIP_CY
+   118 00000190 F9                  <2> 	stc
+   119                              <2>  %endif
+   120 00000191 B442                <2> 	mov ah, 42h
+   121 00000193 CD13                <2> 	int 13h
+   122                              <2>  %if _LBA_SKIP_CHECK && _CHS
+   123                              <2>   %if _LBA_SKIP_ANY
+   124                              <2> 	jc .no_lba
+   125                              <2>   %else
+   126 00000195 7205                <2> 	jc .lba_check_error_1
+   127                              <2>   %endif
+   128                              <2>  %else
+   129                              <2> .cy_err:
+   130                              <2> 	jc .lba_error
+   131                              <2>  %endif
+   132                              <2> 
+   133                              <2> .lba_done:
+   134                              <2> %if _CHS && _LBA_SET_TYPE
+   135                              <2> 	mov byte [bp + 2], 0Eh	; LBA-enabled FAT16 FS partition type
+   136                              <2> %endif
+   137 00000197 83C410              <2> 	add sp, 10h
+   138                              <2> %if _CHS
+   139 0000019A EB46                <2> 	jmp short .done
+   140                              <2> %endif
+   141                              <2> 
+   142                              <2> .lba_error: equ .err
+   143                              <2> 
+   144                              <2>  %if !_CHS
+   145                              <2> .no_lba: equ .err
+   146                              <2>  %else
+   147                              <2>  %if _LBA_SKIP_CHECK
+   148                              <2>   %if ! _LBA_SKIP_ANY
+   149                              <2> .lba_check_error_1:
+   150 0000019C 80FC01              <2> 	cmp ah, 1	; invalid function?
+   151 0000019F 75B1                <2> 	jne .lba_error	; no, other error -->
+   152                              <2> 			; try CHS instead
+   153                              <2>   %endif
+   154                              <2> .cy_err: equ .err
+   155                              <2>  %endif
+   156                              <2> .no_lba:
+   157 000001A1 83C408              <2> 	add sp, 8
+   158 000001A4 59                  <2> 	pop cx		; cx = low word of sector
+   159 000001A5 58                  <2> 	pop ax
+   160 000001A6 5A                  <2> 	pop dx		; dx:ax = middle two words of sector
+   161                              <2> 		; Here dx <= 1 if _LBA_33_BIT, else zero.
+   162                              <2> 		;  If dx is nonzero then the CHS calculation
+   163                              <2> 		;  should fail. If CHS sectors is equal to 1
+   164                              <2> 		;  (very unusual) then the div may fail. Else,
+   165                              <2> 		;  we will detect a cylinder > 1023 eventually.
+   166 000001A7 5E                  <2> 	pop si		; discard highest word of qword
+   167                              <2>  %endif
+   168                              <2> %endif
+   169                              <2> 
+   170                              <2> %if !_LBA
+   171                              <2> .cy_err:	equ .err
+   172                              <2> %endif
+   173                              <2> 
+   174                              <2> %if _CHS		; +70 bytes
+   175                              <2> ; dx:ax = LBA sector number, (if _LBA) cx = 0
+   176                              <2> ; divide by number of sectors per track to get sector number
+   177                              <2> ; Use 32:16 DIV instead of 64:32 DIV for 8088 compatability
+   178                              <2> ; Use two-step 32:16 divide to avoid overflow
+   179                              <2>  %if !_LBA
+   180                              <2> 			xchg cx, ax	; cx = low word of sector, clobbers ax
+   181                              <2> 			xchg ax, dx	; ax = high word of sector, clobbers dx
+   182                              <2> 			xor dx, dx	; dx:ax = high word of sector
+   183                              <2>  %else
+   184                              <2> 	; from the .no_lba popping we already have:
+   185                              <2> 	;  cx = low word of sector
+   186                              <2> 	;  dx:ax = high word of sector
+   187                              <2>  %endif
+   188 000001A8 F77618              <2> 			div word [VAR(sectors_per_track)]
+   189 000001AB 91                  <2> 			xchg cx,ax
+   190 000001AC F77618              <2> 			div word [VAR(sectors_per_track)]
+   191 000001AF 87CA                <2> 			xchg cx,dx
+   192                              <2> 
+   193                              <2> ; DX:AX=quotient, CX=remainder=sector (S) - 1
+   194                              <2> ; divide quotient by number of heads
+   195 000001B1 93                  <2> 			xchg bx, ax	; bx = low word of quotient, clobbers ax
+   196 000001B2 92                  <2> 			xchg ax, dx	; ax = high word of quotient, clobbers dx
+   197 000001B3 31D2                <2> 			xor dx, dx	; dx = 0
+   198 000001B5 F7761A              <2> 			div word [VAR(heads)]
+   199                              <2> 					; ax = high / heads, dx = high % heads
+   200 000001B8 93                  <2> 			xchg bx, ax	; bx = high / heads, ax = low quotient
+   201 000001B9 F7761A              <2> 			div word [VAR(heads)]
+   202                              <2> 
+   203                              <2> ; bx:ax=quotient=cylinder (C), dx=remainder=head (H)
+   204                              <2> ; move variables into registers for INT 13h AH=02h
+   205 000001BC 88D6                <2> 			mov dh, dl	; dh = head
+   206 000001BE 41                  <2> 			inc cx		; cl5:0 = sector
+   207 000001BF 86E8                <2> 			xchg ch, al	; ch = cylinder 7:0, al = 0
+   208 000001C1 D1E8                <2> 			shr ax, 1
+   209 000001C3 D1E8                <2> 			shr ax, 1	; al7:6 = cylinder 9:8
+   210                              <2> 	; bx has bits set iff it's > 0, indicating a cylinder >= 65536.
+   211 000001C5 08FB                <2> 			 or bl, bh	; collect set bits from bh
+   212 000001C7 08C1                <2> 			or cl, al	; cl7:6 = cylinder 9:8
+   213                              <2> 	; ah has bits set iff it was >= 4, indicating a cylinder >= 1024.
+   214 000001C9 08E3                <2> 			 or bl, ah	; collect set bits from ah
+   215 000001CB 8A5624              <2> 			mov dl,[VAR(boot_unit)] ; dl = drive
+   216                              <2> .nz_err:
+   217 000001CE 7582                <2> 			 jnz .err	; error if cylinder >= 1024 -->
+   218                              <2> 					; ! bx = 0 (for 13.02 call)
+   219                              <2> 
+   220                              <2> ; we call INT 13h AH=02h once for each sector. Multi-sector reads
+   221                              <2> ; may fail if we cross a track or 64K boundary
+   222                              <2> %if _CHS_RETRY_REPEAT
+   223 000001D0 BE1100              <2> 			mov si, _CHS_RETRY_REPEAT + 1
+   224                              <2>  %if _CHS_RETRY_NORMAL && _RETRY_RESET
+   225 000001D3 A9                  <2> 			db __TEST_IMM16	; (skip int 13h)
+   226                              <2> .loop_chs_retry_repeat:
+   227 000001D4 CD13                <2> 			int 13h		; reset disk
+   228                              <2>  %elif _RETRY_RESET
+   229                              <2> .loop_chs_retry_repeat:
+   230                              <2> 			xor ax, ax
+   231                              <2> 			int 13h		; reset disk
+   232                              <2>  %else
+   233                              <2> .loop_chs_retry_repeat:
+   234                              <2>  %endif
+   235 000001D6 4E                  <2> 			dec si		; another attempt ?
+   236 000001D7 78F5                <2> 			js .nz_err	; no -->
+   237 000001D9 B80102              <2> 			mov ax, 0201h
+   238 000001DC CD13                <2> 			int 13h		; read one sector
+   239                              <2>  %if _CHS_RETRY_NORMAL && _RETRY_RESET
+   240 000001DE 89D8                <2> 			mov ax, bx	; ax = 0
+   241                              <2>  %endif
+   242 000001E0 72F2                <2> 			jc .loop_chs_retry_repeat
+   243                              <2> 	; fall through to .done
+   244                              <2> %else
+   245                              <2> 			mov ax, 0201h
+   246                              <2>  %if _CHS_RETRY
+   247                              <2>   %if _RETRY_RESET
+   248                              <2> 	; In this case we cannot store to the stack and
+   249                              <2> 	;  pop the value at the right moment for both
+   250                              <2> 	;  cases of the "jnc .done" branch. So use the
+   251                              <2> 	;  original code to re-init ax to 0201h.
+   252                              <2> 			int 13h		; read one sector
+   253                              <2> 			jnc .done
+   254                              <2> ; reset drive
+   255                              <2> 			xor ax, ax
+   256                              <2> 			int 13h
+   257                              <2> 			mov ax, 0201h
+   258                              <2>   %else
+   259                              <2> 			push ax
+   260                              <2> 			int 13h		; read one sector
+   261                              <2> 			pop ax		; restore ax = 0201h
+   262                              <2> 			jnc .done
+   263                              <2>   %endif
+   264                              <2>  %endif
+   265                              <2> ; try read again
+   266                              <2> 			int 13h
+   267                              <2>  %if _LBA_SKIP_CHECK
+   268                              <2> 			inc bx
+   269                              <2> 			jc .nz_err
+   270                              <2>  %else
+   271                              <2> 			jc .cy_err
+   272                              <2>  %endif
+   273                              <2> %endif
+   274                              <2> 
+   275                              <2> %endif		; _CHS
+   276                              <2> 
+   277                              <2> .done:
+   278                              <2> ; increment segment
+   279 000001E2 8CC3                <2> 	mov bx, es
+   280                              <2> %if _FIX_SECTOR_SIZE
+   281                              <2> 	add bx, _FIX_SECTOR_SIZE >> 4
+   282                              <2> %else
+   283 000001E4 035EEE              <2> 	add bx, [VAR(para_per_sector)]
+   284                              <2> %endif
+   285                              <2> 
+   286 000001E7 5E                  <2> 	pop si
+   287 000001E8 58                  <2> 	pop ax
+   288 000001E9 59                  <2> 	pop cx
+   289 000001EA 5A                  <2> 	pop dx
+   290                              <2> ; increment LBA sector number
+   291 000001EB 40                  <2> 	inc ax
+   292 000001EC 7501                <2> 	jne @F
+   293 000001EE 42                  <2> 	inc dx
+   294                              <2> @@:
+   295                              <2> 
+   296 000001EF C3                  <2> 	retn
+   297                              <2> 
+   298                              <2> %if _WARN_PART_SIZE
+   299                              <2>  %assign num $ - read_sector_start
+   300                              <2>  %warning read_sector size is num bytes
+   301                              <2> %endif
+   836                              <1>  [list -]
+  1142                              <1> %endif
+  2062                                  %endif
+  2063                                  
+  2064                                  
+  2065                                  %if !_NO_LIMIT
+  2066                                  available:
+  2067 000001F0 26<rep Ch>              	_fill 508,38,start
+  2068                                  
+  2069                                  signatures:
+  2070 000001FC 0000                    	dw 0
+  2071                                  ; 2-byte magic bootsector signature
+  2072 000001FE 55AA                    	dw 0AA55h
+  2073                                  
+  2074                                  %assign num signatures-available
+  2075                                  %assign fatbits 12
+  2076                                  %if _FAT16
+  2077                                   %assign fatbits 16
+  2078                                  %endif
+  2079                                  %warning FAT%[fatbits]: num bytes still available.
+  2079          ******************       warning: FAT16: 12 bytes still available. [-w+user]
+  2080                                  %endif
+  2081                                  
+  2082                                  end:

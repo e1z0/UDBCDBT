@@ -8,33 +8,38 @@ BDATE=`date +%Y.%m.%d_%H-%M-%S` # build date
 SYS="cd" # system/cd folder (dos system)
 BLOADER=grub
 
-if [ "$1" != "" ]; then
-  echo "Custom boot loader selected: $1"
-  BLOADER=$1
+if [ ! -f "./tools/lib/ostools.sh" ];then
+  echo "Cannot find ostools.sh, should be in path: ${SCRIPT_HOME}/tools/lib/ostools.sh"
+  exit 1
 fi
 
-
-package_missing() {
-  echo ""
-  echo "$1 tool was not found on your system! You have to install $2 package using your operating system's package manager."
-  echo "On macOS use brew install $2"
-  echo "On linux use (debian/ubuntu: apt-get install $2, archlinux: pacman -S $2, fedora/redhat: yum install $2)"
-  echo "Or contact support for more information info@vintage2000.org"
-  echo ""
-}
+source "./tools/lib/ostools.sh"
+OS=$(detectos)
 
 checks() {
   if [ "$ISOTOOL" == "" ]; then
-    package_missing mkisofs dvdrtools
-    exit 1
+    if [ $OS == "linux" ]; then
+      echo "mkisofs tool was not found on your system! You have to install package using your operating system's package manager."
+      echo "Debian/Ubuntu: apt-get install genisoimage, archlinux: pacman -S cdrtools"
+      exit 1
+    elif [ $OS == "darwin" ];then
+      echo "mkisofs tool was not found on your system! You have to install package using your operating system's package manager."
+      echo "On macOS use: brew install dvdrtools"
+      exit 1
+    else
+      echo "Your operating system: $OS is not supported"
+      echo "If it's Linux or macOS and you get this error, please report a bug!"
+      exit 1
+    fi
   fi
 }
 
 runtime() {
   echo "Welcome to Ultimate DOS Boot CD creation tool v$VER. Copyright (c) 2023 e1z0."
   echo "This script will generate the final .ISO file to the directory ./OUTPUT with all the applications and data inside"
-  echo "You can add your own applications in apps/ folder in the following format that is described in app.md file"
-  echo "There are also possible to bootstrap operating systems to the hdd using bootstr/ folder and the format that is described in bootstrap.md file"
+  echo "You can add your own applications in cd/apps/ folder in the following format that is described in apptemplate.md file"
+  echo "It's possible to change the bootloader by specifying $0 grub, $0 isolinux or $0 freedos"
+  echo "Bootloader templates also can be added to cd/images/ using the following format described in loader_templates.md"
 }
 
 mkiso() {
@@ -44,6 +49,7 @@ mkiso() {
   if [ -e boot.img ]; then
     mv boot.img $SYS/images/freedos.img
   fi
+  echo "Generating iso image..."
   if [ "$BLOADER" == "freedos" ]; then
     # 1.44M floppy emulation (old method) works with 2mb of ram boots directly to freedos
     echo "freedos boot mode enabled!"
@@ -56,19 +62,30 @@ mkiso() {
        -no-emul-boot -boot-load-size 4 -boot-info-table \
        ${SYS}
   else
+    echo "standard mode enabled!"
     # grldr (grub4dos) as no-emulation bootsector on CD/DVD this method requires at least 4mb of ram
     $ISOTOOL -V UDBCD -R -b grub/grldr -no-emul-boot -boot-load-size 4 -o ./OUTPUT/${BDATE}_bootable.iso ${SYS}
   fi
   retVal=$?
   if [ $retVal -ne 0 ]; then
-    echo "Failed to build cdrom image!
-    exit 1"
+    echo "Failed to build cdrom image!"
+    exit 1
   fi
   echo "Build successfull!"
   echo "New image is located: ${BDATE}_bootable.iso"
   echo "${BDATE}_bootable.iso" > ${LATEST}
 }
 
+if [ "$1" == "--help" -o "$1" == "-h" ]; then
+  runtime
+  exit 0
+fi
+
+if [ "$1" != "" ]; then
+  echo "Custom boot loader selected: $1"
+  BLOADER=$1
+fi
+
+
 checks
-#runtime
 mkiso

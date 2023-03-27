@@ -1,0 +1,2537 @@
+     1                                  
+     2                                  %if 0
+     3                                  
+     4                                  lDOS iniload packed payload
+     5                                   by C. Masloch, 2018-2020
+     6                                  
+     7                                  Usage of the works is permitted provided that this
+     8                                  instrument is retained with the works, so that any entity
+     9                                  that uses the works is notified of this instrument.
+    10                                  
+    11                                  DISCLAIMER: THE WORKS ARE WITHOUT WARRANTY.
+    12                                  
+    13                                  
+    14                                  Includes one of several depackers, some of which are under
+    15                                  separate usage conditions. Refer to the individual depacker
+    16                                  source files for the applicable usage conditions.
+    17                                  
+    18                                  %endif
+    19                                  
+    20                                  %include "lmacros3.mac"
+     1                              <1> [list -]
+    14                              <2> [list -]
+    14                              <1> [list -]
+    21                                  
+    22                                  	struc LOADSTACKVARS, -10h
+    23 FFFFFFF0 ????????                lsvFirstCluster:	resd 1
+    24 FFFFFFF4 ????????                lsvFATSector:		resd 1
+    25 FFFFFFF8 ????                    lsvFATSeg:		resw 1
+    26 FFFFFFFA ????                    lsvLoadSeg:		resw 1
+    27 FFFFFFFC ????????                lsvDataStart:		resd 1
+    28                                  	endstruc
+    29                                  
+    30                                  	struc LOADDATA, LOADSTACKVARS - 10h
+    31 FFFFFFE0 ????                    ldMemoryTop:	resw 1
+    32 FFFFFFE2 ????                    ldLoadTop:	resw 1
+    33 FFFFFFE4 ????                    ldSectorSeg:	resw 1
+    34 FFFFFFE6 ??                      ldFATType:	resb 1
+    35 FFFFFFE7 ??                      ldHasLBA:	resb 1
+    36 FFFFFFE8 ????                    ldClusterSize:	resw 1
+    37 FFFFFFEA ????                    ldParaPerSector:resw 1
+    38 FFFFFFEC ????                    ldLoadingSeg:	resw 1
+    39 FFFFFFEE ????                    ldLoadUntilSeg:	resw 1
+    40                                  	endstruc
+    41                                  
+    42                                  
+    43                                  %ifndef _MAP
+    44                                  %elifempty _MAP
+    45                                  %else	; defined non-empty, str or non-str
+    46                                  	[map all _MAP]
+    47                                  %endif
+    48                                  
+    49                                  	defaulting
+    50                                  
+    51                                  	numdef DEBUG0		; use errordata to generate an error code
+    52                                  	numdef DEBUG1		; dump_stack_frame after an error occurred
+    53                                  	numdef DEBUG2		; dump_stack_frame before blz_depack_safe call
+    54                                  	numdef DEBUG3		; dump_stack_frame at start of blz_depack_safe
+    55                                  
+    56                                  	numdef ALLOW_OVERLAPPING,	1	; allow overlapping src and dst
+    57                                  	numdef TEST_PROGRAM,		0
+    58                                  	numdef TEST_PROGRAM_DECOMPRESSED_SIZE,		0,0
+    59                                  %if _TEST_PROGRAM && ! _TEST_PROGRAM_DECOMPRESSED_SIZE
+    60                                   %error Test program has to learn of decompressed size.
+    61                                  %endif
+    62                                  	numdef TEST_PROGRESS,	0
+    63                                  
+    64                                  	numdef EXEC_OFFSET,	0
+    65                                  	numdef EXEC_SEGMENT,	0
+    66                                  	numdef IMAGE_EXE,	0
+    67                                  %if ! _IMAGE_EXE && _TEST_PROGRAM
+    68                                   %error Test program can only be used as EXE.
+    69                                  %endif
+    70                                  	numdef IMAGE_EXE_CS,	-16	; relative-segment for CS
+    71                                  	numdef IMAGE_EXE_IP,	256 +64	; value for IP
+    72                                  		; The next two are only used if _IMAGE_EXE_AUTO_STACK is 0.
+    73                                  	numdef IMAGE_EXE_SS,	-16	; relative-segment for SS
+    74                                  	numdef IMAGE_EXE_SP,	0FFFEh	; value for SP (0 underflows)
+    75                                  	numdef IMAGE_EXE_AUTO_STACK,	0, 2048	; use stack behind image
+    76                                  		; _IMAGE_EXE_AUTO_STACK here differs from iniload's def of
+    77                                  		;  the same name. This one is only used as a flag; if non-zero,
+    78                                  		;  keep the stack given to us by iniload; if zero, set up the
+    79                                  		;  stack specified by _IMAGE_EXE_SS and _IMAGE_EXE_SP.
+    80                                  	numdef DEVICE,			0
+    81                                  	gendef DEVICE_NAME,		""
+    82                                  	numdef DEVICE_ATTRIBUTE,	8000h
+    83                                  	numdef DEVICE_ZERO_ENTRYPOINT,	0
+    84                                  
+    85                                  	numdef BRIEFLZ,		0
+    86                                  	numdef LZ4,		0
+    87                                  	numdef SNAPPY,		0
+    88                                  	numdef EXODECR,		0
+    89                                  	numdef X,		0
+    90                                  	numdef HEATSHRINK,	0
+    91                                  	numdef LZD,		0
+    92                                  	numdef LZO,		0
+    93                                  	numdef LZSA2,		0
+    94                                  	numdef APL,		0
+    95                                  	numdef BZP,		0
+    96                                  %if (!!_BRIEFLZ + !!_LZ4 + !!_SNAPPY + !!_EXODECR + !!_X + !!_HEATSHRINK 	+ !!_LZD + !!_LZO + !!_LZSA2 + !!_APL + !!_BZP) != 1
+    98                                   %fatal Exactly one compression method must be selected.
+    99                                  %endif
+   100                                  %assign ADDITIONAL_MEMORY 0
+   101                                  %if _BRIEFLZ
+   102                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.BLZ"
+   103                                  %elif _LZ4
+   104                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.LZ4"
+   105                                  %elif _SNAPPY
+   106                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.SZ"
+   107                                  %elif _EXODECR
+   108                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.EXO"
+   109                                  %elif _X
+   110                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.X"
+   111                                  %elif _HEATSHRINK
+   112                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.HS"
+   113                                  %elif _LZD
+   114                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.LZ"
+   115                                  %elif _LZO
+   116                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.LZO"
+   117                                  %elif _LZSA2
+   118                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.SA2"
+   119                                  %elif _APL
+   120                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.APL"
+   121                                  %elif _BZP
+   122                                  	strdef PAYLOAD_FILE,	"lDOSLOAD.BZP"
+   123                                  %endif
+   124                                  	numdef PAYLOAD_KERNEL_MAX_PARAS,	0, 0
+   125                                  %if _PAYLOAD_KERNEL_MAX_PARAS && ! _IMAGE_EXE
+   126                                   %error Kernel mode max paras requires building dual-mode executable
+   127                                  %endif
+   128                                  	numdef COUNTER,		0, 32
+   129                                  %if (_COUNTER - 1) & _COUNTER
+   130                                   %error COUNTER must be a power of two
+   131                                  %endif
+   132                                  
+   133                                  	strdef INILOAD_CFG, ""
+   134                                  %ifnidn _INILOAD_CFG, ""
+   135                                   %include _INILOAD_CFG
+     1                              <1> ; File auto-generated, do not edit.
+     2                              <1> strdef INILOAD_SIGNATURE, "eb"
+     3                              <1> %assign _DEVICE 1
+     4                              <1> %assign _DEVICE_ZERO_ENTRYPOINT 1
+     5                              <1> %assign _DEVICE_ATTRIBUTE 8000h
+     6                              <1> %define _DEVICE_NAME "LDEBUG$$"
+   136                                  %endif
+   137                                  
+   138                                  %if _DEVICE
+   139                                   %ifidn _DEVICE_NAME, ""
+   140                                    %error Device name must be set
+   141                                   %endif
+   142                                  %endif
+   143                                  
+   144                                  
+   145                                  	cpu 8086
+   146                                  	section INIT0 start=0 vstart=0
+   147                                  init0_start:
+   148                                  %if _DEVICE
+   149                                  		; The device header is of a fixed format.
+   150                                  		;  For our purposes, the 4-byte code for
+   151                                  		;  each the strategy entry and the
+   152                                  		;  interrupt entry is part of this format.
+   153                                  		; (DOS may read the attributes or entrypoint
+   154                                  		;  offsets before calling either, so in the inicomp
+   155                                  		;  stage we need to recreate in the entrypoints part
+   156                                  		;  exactly what the application has here.)
+   157                                  device_header:
+   158                                  .next:
+   159                                   %if _DEVICE_ZERO_ENTRYPOINT
+   160 00000000 EB3E                    	fill 2, -1, jmp strict short j_zero_entrypoint
+   161 00000002 FFFF                    	dw -1
+   162                                   %else
+   163                                  	dd -1				; link to next device
+   164                                   %endif
+   165                                  .attributes:
+   166 00000004 0080                    	dw _DEVICE_ATTRIBUTE		; attributes
+   167                                  .strategy:
+   168 00000006 [1200]                  	dw .strategy_entry		; -> strategy entry
+   169                                  .interrupt:
+   170 00000008 [1600]                  	dw .interrupt_entry		; -> interrupt entry
+   171                                  .name:
+   172 0000000A 4C44454255472424        	fill 8, 32, db _DEVICE_NAME	; character device name,
+   173                                  					;  or block device number of units
+   174                                  					;  + optional name
+   175                                  .strategy_entry:
+   176 00000012 E9DB0090                	fill 4, 90h, jmp device_entrypoint
+   177                                  .interrupt_entry:
+   178 00000016 CB90<rep 3h>            	fill 4, 90h, retf
+   179                                  %endif
+   180                                  
+   181                                  
+   182                                  %if _IMAGE_EXE || _DEVICE
+   183 0000001A 90                      	nop
+   184 0000001B 90<rep 5h>              	align 32, nop
+   185                                  init0_kernel_entry:
+   186                                  		; cs:ip = load seg : 32 here
+   187                                  %if ($ - $$) != 32
+   188                                   %error Wrong kernel mode entrypoint
+   189                                  %endif
+   190                                  %if _TEST_PROGRAM
+   191                                  @@:
+   192 00000020 CC                      	int3
+   193 00000021 FB                      	sti
+   194 00000022 F4                      	hlt
+   195 00000023 EBFB                    	jmp @B
+   196                                  %endif
+   197                                  %if ! _IMAGE_EXE
+   198                                  j_zero_entrypoint:
+   199                                  %endif
+   200 00000025 31DB                    	xor bx, bx		; 0 = kernel mode
+   201 00000027 50                      	push ax
+   202 00000028 8CC8                    	mov ax, cs
+   203 0000002A 83C040                  	add ax, (init0_end - init0_start) >> 4
+   204 0000002D 8B56E2                  	mov dx, word [ bp + ldLoadTop ]	; => after end of available space
+   205 00000030 BE6000                  	mov si, 60h		; => destination
+   206 00000033 EB71                    	jmp init0_common
+   207                                  
+   208                                   %if _IMAGE_EXE
+   209 00000035 90<rep Bh>              	align 64, nop
+   210                                  j_zero_entrypoint:
+   211                                  init0_exe_entry:
+   212                                  		; NOTE:	This part is called with ip = 256 + 64, cs = PSP.
+   213                                  %if ($ - $$) != 64
+   214                                   %error Wrong EXE mode entrypoint
+   215                                  %endif
+   216 00000040 BB0100                  	mov bx, 1		; EXE mode
+   217 00000043 50                      	push ax
+   218                                    %if _TEST_PROGRAM
+   219 00000044 BE8100                  	mov si, 81h
+   220 00000047 31D2                    	xor dx, dx
+   221 00000049 31C0                    	xor ax, ax
+   222                                  cmdline:
+   223                                  .:
+   224 0000004B AC                      	lodsb
+   225 0000004C 3C09                    	cmp al, 9
+   226 0000004E 74FB                    	je .
+   227 00000050 3C20                    	cmp al, 32
+   228 00000052 74F7                    	je .
+   229 00000054 3C0D                    	cmp al, 13
+   230 00000056 7441                    	je .end
+   231 00000058 3C30                    	cmp al, '0'
+   232 0000005A 721E                    	jb .notdigit
+   233 0000005C 3C39                    	cmp al, '9'
+   234 0000005E 771A                    	ja .notdigit
+   235                                  .digit:
+   236 00000060 2C30                    	sub al, '0'
+   237 00000062 89D1                    	mov cx, dx		; times 1
+   238 00000064 01D2                    	add dx, dx
+   239 00000066 7222                    	jc .invalid
+   240 00000068 01D2                    	add dx, dx		; times 4
+   241 0000006A 721E                    	jc .invalid
+   242 0000006C 01CA                    	add dx, cx		; times 5
+   243 0000006E 721A                    	jc .invalid
+   244 00000070 01D2                    	add dx, dx		; times 10
+   245 00000072 7216                    	jc .invalid
+   246 00000074 01C2                    	add dx, ax		; add in low digit
+   247 00000076 7212                    	jc .invalid
+   248 00000078 EBD1                    	jmp .
+   249                                  
+   250                                  .notdigit:
+   251 0000007A 3C41                    	cmp al, 'A'
+   252 0000007C 7411                    	je .a
+   253 0000007E 3C61                    	cmp al, 'a'
+   254 00000080 740D                    	je .a
+   255 00000082 3C42                    	cmp al, 'B'
+   256 00000084 740E                    	je .b
+   257 00000086 3C62                    	cmp al, 'b'
+   258 00000088 740A                    	je .b
+   259                                  .invalid:
+   260 0000008A BAFFFF                  	mov dx, -1		; invalid
+   261 0000008D EB0A                    	jmp .end
+   262                                  
+   263                                  .a:
+   264 0000008F 80E77F                  	and bh, ~ 80h
+   265 00000092 EBB7                    	jmp .
+   266                                  
+   267                                  .b:
+   268 00000094 80CF80                  	or bh, 80h
+   269 00000097 EBB2                    	jmp .
+   270                                  
+   271                                  .end:
+   272 00000099 52                      	push dx
+   273                                    %endif
+   274 0000009A 8CD2                    	mov dx, ss		; => after end of available space
+   275 0000009C 8CC8                    	mov ax, cs
+   276 0000009E 83C050                  	add ax, (256 + (init0_end - init0_start)) >> 4	; => source
+   277 000000A1 8CCE                    	mov si, cs
+   278 000000A3 83C610                  	add si, 256 >> 4	; => destination
+   279                                   %endif
+   280                                  
+   281                                  init0_common:
+   282                                  		; REM:	This part must be position-independent, as it is
+   283                                  		;	 called either with ip = init0_common (kernel mode
+   284                                  		;	 or device mode)
+   285                                  		;	 or ip = init0_common + 256 (application mode).
+   286                                  		; INP:	si => depack destination
+   287                                  		;	ax => source of payload + INIT1
+   288                                  		;	dx => behind available memory
+   289                                  		; OUT:	cs:ip -> init1_start:
+   290                                  		;	ax => INIT1
+   291                                  		;	dx => payload source
+   292                                  		;	si => depack destination
+   293                                  		;	bx = mode
+   294 000000A6 FC                      	cld
+   295                                  %if _TEST_PROGRAM
+   296 000000A7 81EA3211                	sub dx, ( (payload_end - payload) ) >> 4
+   297 000000AB 721A                    	jc .error
+   298 000000AD B9312C                  	mov cx, ( (payload_end - payload) 		+ (init1_end - init1_start) 		+ (init2_end - init2_start) 		) >> 4
+   302 000000B0 29CA                    	sub dx, cx
+   303 000000B2 7213                    	jc .error
+   304 000000B4 39C2                    	cmp dx, ax
+   305 000000B6 720F                    	jb .error
+   306                                  %else
+   307                                  	mov cx, ( (payload_end - payload) 		+ (init1_end - init1_start) 		) >> 4
+   310                                  				; cx = amount paragraphs in payload + INIT1
+   311                                  	sub dx, cx		; => destination for payload + INIT1
+   312                                  				;  (highest possible spot in available memory)
+   313                                  %endif
+   314 000000B8 56                      	push si			; preserve destination
+   315 000000B9 E82101                  	call init0_movp		; move up payload + INIT1
+   316 000000BC 5E                      	pop si
+   317                                  %else
+   318                                  	cld
+   319                                  	mov ax, cs
+   320                                  	add ax, (init0_end - init0_start) >> 4
+   321                                  	mov cx, ( (payload_end - payload) 		+ (init1_end - init1_start) 		) >> 4
+   324                                  	mov dx, word [ bp + ldLoadTop ]
+   325                                  	sub dx, cx
+   326                                  	call init0_movp
+   327                                  %endif
+   328                                  
+   329 000000BD 89D0                    	mov ax, dx		; => payload
+   330                                  %if _TEST_PROGRAM
+   331 000000BF 056E11                  	add ax, ( 		+ (payload_end - payload) 		+ (init1_end - init1_start) 		) >> 4		; => INIT2
+   335                                  %else
+   336                                  	add ax, ( 		+ (payload_end - payload) 		) >> 4		; => INIT1
+   339                                  %endif
+   340 000000C2 31C9                    	xor cx, cx
+   341 000000C4 50                      	push ax
+   342 000000C5 51                      	push cx
+   343 000000C6 CB                      	retf			; jump to relocated INIT1:init1_start
+   344                                  				;  or INIT2:init2_start
+   345                                  
+   346                                  
+   347                                  %if _TEST_PROGRAM
+   348                                  .error:
+   349 000000C7 89DF                    	mov di, bx
+   350                                  
+   351 000000C9 0E                      	push cs
+   352 000000CA 1F                      	pop ds
+   353 000000CB BA[5F03]                	mov dx, init0_msg.error_stderr + 256
+   354 000000CE B92500                  	mov cx, init0_msg.error_stderr.length
+   355 000000D1 BB0200                  	mov bx, 2
+   356 000000D4 B440                    	mov ah, 40h
+   357 000000D6 CD21                    	int 21h
+   358                                  
+   359 000000D8 F7C70080                	test di, 8000h
+   360 000000DC 750D                    	jnz @F
+   361 000000DE BA[8403]                	mov dx, init0_msg.error_stdout + 256
+   362 000000E1 B90700                  	mov cx, init0_msg.error_stdout.length
+   363 000000E4 BB0100                  	mov bx, 1
+   364 000000E7 B440                    	mov ah, 40h
+   365 000000E9 CD21                    	int 21h
+   366                                  @@:
+   367 000000EB B8FF4C                  	mov ax, 4CFFh
+   368 000000EE CD21                    	int 21h
+   369                                  %endif
+   370                                  
+   371                                  
+   372                                  %if _DEVICE
+   373                                  device_entrypoint:
+   374                                  %if _TEST_PROGRAM
+   375                                  @@:
+   376 000000F0 CC                      	int3
+   377 000000F1 FB                      	sti
+   378 000000F2 F4                      	hlt
+   379 000000F3 EBFB                    	jmp @B
+   380                                  %endif
+   381 000000F5 26807F0200              	cmp byte [es:bx + 2], 0		; command code 0 (init) ?
+   382 000000FA 7407                    	je @F
+   383                                  
+   384 000000FC 26C747030381            	mov word [es:bx + 3], 8103h	; error, done, code: unknown command
+   385 00000102 CB                      	retf
+   386                                  
+   387                                  @@:
+   388 00000103 2E830E[0000]FF          	or word [cs:device_header.next], -1
+   389 00000109 0E                      	push cs
+   390 0000010A 2EFF36[0600]            	push word [cs:device_header.strategy]
+   391                                  					; -> far return to payload's strategy
+   392 0000010F 55                      	push bp
+   393 00000110 1E                      	push ds
+   394 00000111 56                      	push si
+   395 00000112 57                      	push di
+   396 00000113 52                      	push dx
+   397 00000114 51                      	push cx
+   398 00000115 50                      	push ax
+   399 00000116 53                      	push bx
+   400 00000117 06                      	push es
+   401                                  
+   402 00000118 268B4710                	mov ax, word [es:bx + 14 + 2]
+   403 0000011C 31D2                    	xor dx, dx
+   404 0000011E B90400                  	mov cx, 4
+   405                                  @@:
+   406 00000121 D1E0                    	shl ax, 1
+   407 00000123 D1D2                    	rcl dx, 1
+   408 00000125 E2FA                    	loop @B
+   409 00000127 2603470E                	add ax, word [es:bx + 14]
+   410 0000012B 83D200                  	adc dx, 0		; dx:ax = linear address behind end
+   411                                  
+   412 0000012E B104                    	mov cl, 4
+   413                                  @@:
+   414 00000130 D1EA                    	shr dx, 1
+   415 00000132 D1D8                    	rcr ax, 1
+   416 00000134 E2FA                    	loop @B			; ax => behind end
+   417                                  
+   418 00000136 8CCF                    	mov di, cs
+   419                                  image_size: equ  ( (init0_end - init0_start) 		+ (payload_end - payload) 		+ (init1_end - init1_start) 		)
+   423 00000138 81C7AE11                	add di, image_size >> 4		; di => end of image
+   424                                  
+   425 0000013C 39F8                    	cmp ax, di			; enough memory to hold all of us ?
+   426 0000013E 7203E98A00              	jae .have_some_memory		; yes -->
+   427                                  
+   428 00000143 0E                      	push cs
+   429 00000144 1F                      	pop ds
+   430 00000145 BA[8401]                	mov dx, .msg_no_memory
+   431 00000148 B409                    	mov ah, 09h
+   432 0000014A CD21                    	int 21h
+   433                                  
+   434 0000014C B80030                  	mov ax, 3000h
+   435 0000014F CD21                    	int 21h
+   436 00000151 3C05                    	cmp al, 5
+   437 00000153 7307                    	jae @F
+   438 00000155 BA[A301]                	mov dx, .msg_dos_below_5
+   439 00000158 B409                    	mov ah, 09h
+   440 0000015A CD21                    	int 21h
+   441                                  @@:
+   442                                  
+   443 0000015C BA[CA01]                	mov dx, .msg_linebreak
+   444 0000015F B409                    	mov ah, 09h
+   445 00000161 CD21                    	int 21h
+   446                                  
+   447                                  		; tear down the stack frame and modify the request header
+   448 00000163 07                      	pop es
+   449 00000164 5B                      	pop bx
+   450 00000165 26C747030381            	mov word [es:bx + 3], 8103h	; set error, done, invalid command
+   451 0000016B 26C6470D00              	mov byte [es:bx + 13], 0	; set number of units = 0
+   452 00000170 268C4F10                	mov word [es:bx + 14 + 2], cs
+   453 00000174 2683670E00              	and word [es:bx + 14], 0	; -> after end of memory to allocate
+   454 00000179 58                      	pop ax
+   455 0000017A 59                      	pop cx
+   456 0000017B 5A                      	pop dx
+   457 0000017C 5F                      	pop di
+   458 0000017D 5E                      	pop si
+   459 0000017E 1F                      	pop ds
+   460 0000017F 5D                      	pop bp
+   461 00000180 83C404                  	add sp, 4		; discard far return to payload's strategy
+   462 00000183 CB                      	retf			; return to DOS
+   463                                  
+   464 00000184 4C6F6164206572726F-     .msg_no_memory:		ascic "Load error: Not enough memory."
+   464 0000018D 723A204E6F7420656E-
+   464 00000196 6F756768206D656D6F-
+   464 0000019F 72792E24           
+   465 000001A3 204E6F74653A20444F-     .msg_dos_below_5:	ascic " Note: DOS must be at least version 5."
+   465 000001AC 53206D757374206265-
+   465 000001B5 206174206C65617374-
+   465 000001BE 2076657273696F6E20-
+   465 000001C7 352E24             
+   466 000001CA 0D0A24                  .msg_linebreak:		ascic 13,10
+   467                                  
+   468                                  
+   469                                  .have_some_memory:
+   470 000001CD 89C2                    	mov dx, ax		; => after end of memory
+   471 000001CF BB0200                  	mov bx, 2		; device mode
+   472 000001D2 50                      	push ax
+   473 000001D3 8CC8                    	mov ax, cs
+   474 000001D5 83C040                  	add ax, (init0_end - init0_start) >> 4
+   475 000001D8 8CCE                    	mov si, cs		; => destination
+   476 000001DA E9C9FE                  	jmp init0_common
+   477                                  %endif
+   478                                  
+   479                                  
+   480                                  		; Move paragraphs
+   481                                  		;
+   482                                  		; INP:	ax => source
+   483                                  		;	dx => destination
+   484                                  		;	cx = number of paragraphs
+   485                                  		; CHG:	cx, ds, si, es, di
+   486                                  		; OUT:	ax and dx unchanged
+   487                                  		; Note:	Doesn't work correctly on HMA; doesn't always wrap to LMA either.
+   488                                  		;	Do not provide a wrapped/HMA source or destination!
+   489                                  init0_movp:
+   490 000001DD 39D0                    	cmp ax, dx		; source above destination ?
+   491 000001DF 770A                    	ja .up			; yes, move up (forwards) -->
+   492 000001E1 747B                    	je .return		; same, no need to move -->
+   493 000001E3 50                      	push ax
+   494 000001E4 01C8                    	add ax, cx		; (expected not to carry)
+   495 000001E6 39D0                    	cmp ax, dx		; end of source is above destination ?
+   496 000001E8 58                      	pop ax
+   497 000001E9 7730                    	ja .down		; yes, move from top down -->
+   498                                  	; Here, the end of source is below-or-equal the destination,
+   499                                  	;  so they do not overlap. In this case we prefer moving up.
+   500                                  
+   501                                  .up:
+   502 000001EB 50                      	push ax
+   503 000001EC 52                      	push dx
+   504                                  .uploop:
+   505 000001ED 8ED8                    	mov ds, ax
+   506 000001EF 8EC2                    	mov es, dx
+   507 000001F1 31FF                    	xor di, di
+   508 000001F3 31F6                    	xor si, si		; -> start of segment
+   509 000001F5 81E90010                	sub cx, 1000h		; 64 KiB left ?
+   510 000001F9 7610                    	jbe .uplast		; no -->
+   511 000001FB 51                      	push cx
+   512 000001FC B90080                  	mov cx, 10000h /2
+   513 000001FF F3A5                    	rep movsw		; move 64 KiB
+   514 00000201 59                      	pop cx
+   515 00000202 050010                  	add ax, 1000h
+   516 00000205 81C20010                	add dx, 1000h		; -> next segment
+   517 00000209 EBE2                    	jmp short .uploop	; proceed for more -->
+   518                                  .uplast:
+   519 0000020B 81C10010                	add cx, 1000h		; restore counter
+   520 0000020F D1E1                    	shl cx, 1
+   521 00000211 D1E1                    	shl cx, 1
+   522 00000213 D1E1                    	shl cx, 1		; *8, paragraphs to words
+   523 00000215 F3A5                    	rep movsw		; move last part
+   524 00000217 5A                      	pop dx
+   525 00000218 58                      	pop ax
+   526 00000219 EB43                    	jmp short .return
+   527                                  
+   528                                  .down:
+   529 0000021B FD                      	std			; _AMD_ERRATUM_109_WORKAROUND as below
+   530                                  .dnloop:
+   531 0000021C 81E90010                	sub cx, 1000h		; 64 KiB left ?
+   532 00000220 761A                    	jbe .dnlast		; no -->
+   533 00000222 50                      	push ax
+   534 00000223 52                      	push dx
+   535 00000224 01C8                    	add ax, cx
+   536 00000226 01CA                    	add dx, cx
+   537 00000228 8ED8                    	mov ds, ax		; -> 64 KiB not yet moved
+   538 0000022A 8EC2                    	mov es, dx
+   539 0000022C 5A                      	pop dx
+   540 0000022D 58                      	pop ax
+   541 0000022E BFFEFF                  	mov di, -2
+   542 00000231 89FE                    	mov si, di		; moved from last word down
+   543 00000233 51                      	push cx
+   544 00000234 B90080                  	mov cx, 10000h /2
+   545 00000237 F3A5                    	rep movsw		; move 64 KiB
+   546 00000239 59                      	pop cx
+   547 0000023A EBE0                    	jmp short .dnloop	; proceed for more -->
+   548                                  .dnlast:
+   549 0000023C 81C10010                	add cx, 1000h		; restore counter
+   550 00000240 D1E1                    	shl cx, 1
+   551 00000242 D1E1                    	shl cx, 1
+   552 00000244 D1E1                    	shl cx, 1		; *8, paragraphs to words
+   553 00000246 89CF                    	mov di, cx
+   554 00000248 4F                      	dec di
+   555 00000249 D1E7                    	shl di, 1		; words to offset, -> last word
+   556 0000024B 89FE                    	mov si, di
+   557 0000024D 8ED8                    	mov ds, ax
+   558 0000024F 8EC2                    	mov es, dx		; first segment correct
+   559                                  
+   560                                  
+   561                                  	numdef AMD_ERRATUM_109_WORKAROUND, 1
+   562                                  %if 0
+   563                                  
+   564                                  Jack R. Ellis pointed out this erratum:
+   565                                  
+   566                                  Quoting from https://www.amd.com/system/files/TechDocs/25759.pdf page 69:
+   567                                  
+   568                                  109   Certain Reverse REP MOVS May Produce Unpredictable Behavior
+   569                                  
+   570                                  Description
+   571                                  
+   572                                  In certain situations a REP MOVS instruction may lead to
+   573                                  incorrect results. An incorrect address size, data size
+   574                                  or source operand segment may be used or a succeeding
+   575                                  instruction may be skipped. This may occur under the
+   576                                  following conditions:
+   577                                  
+   578                                  * EFLAGS.DF=1 (the string is being moved in the reverse direction).
+   579                                  
+   580                                  * The number of items being moved (RCX) is between 1 and 20.
+   581                                  
+   582                                  * The REP MOVS instruction is preceded by some microcoded instruction
+   583                                    that has not completely retired by the time the REP MOVS begins
+   584                                    execution. The set of such instructions includes BOUND, CLI, LDS,
+   585                                    LES, LFS, LGS, LSS, IDIV, and most microcoded x87 instructions.
+   586                                  
+   587                                  Potential Effect on System
+   588                                  
+   589                                  Incorrect results may be produced or the system may hang.
+   590                                  
+   591                                  Suggested Workaround
+   592                                  
+   593                                  Contact your AMD representative for information on a BIOS update.
+   594                                  
+   595                                  %endif
+   596                                  
+   597                                  %if _AMD_ERRATUM_109_WORKAROUND
+   598 00000251 E308                    	jcxz @FF
+   599 00000253 83F914                  	cmp cx, 20
+   600 00000256 7703                    	ja @FF
+   601                                  @@:
+   602 00000258 A5                      	movsw
+   603 00000259 E2FD                    	loop @B
+   604                                  @@:
+   605                                  %endif
+   606 0000025B F3A5                    	rep movsw		; move first part
+   607 0000025D FC                      	cld
+   608                                  .return:
+   609 0000025E C3                      	retn
+   610                                  
+   611                                  
+   612                                  	section PAYLOAD align=16 follows=INIT0
+   613                                  payload:
+   614 00000000 <bin 1131Bh>            	incbin _PAYLOAD_FILE
+   615                                  .end:
+   616 0001131B 26<rep 5h>              	align 16, db 38
+   617                                  payload_end:
+   618                                  
+   619                                  
+   620                                  	section INIT1 align=16 follows=PAYLOAD vstart=0
+   621                                  init1_start:
+   622                                  		; INP:	ax = cs = INIT1
+   623                                  		;	dx = cs - (payload_end - payload) >> 4 => source data
+   624                                  		;	if kernel mode:
+   625                                  		;	 ss:bp -> LOADDATA and LOADSTACKVARS
+   626                                  		;	 ss:sp -> valid stack above [bp + ldLoadTop]
+   627                                  		;	 60h => destination
+   628                                  		;	any mode:
+   629                                  		;	 word [ss:sp] = value for ax
+   630                                  		;	 bx = 2 if device mode, 1 if EXE mode, 0 if kernel mode
+   631                                  		;	 si => destination (60h for kernel mode,
+   632                                  		;		after PSP for EXE mode,
+   633                                  		;		at device header for device mode)
+   634                                  		;		(not set if only kernel mode supported)
+   635                                  		;	 if EXE mode:
+   636                                  		;	  ss:sp -> valid stack above INIT1
+   637                                  		;	  bp = unset
+   638                                  		;	 if device mode:
+   639                                  		;	  ss:sp -> device entrypoint stack
+   640                                  		;	  holds: es, bx, ax, cx, dx, di, si, ds, bp,
+   641                                  		;		  far address of payload strategy entrypoint,
+   642                                  		;		  far return address to DOS
+   643                                  		;	  bp = unset
+   644                                  		; STT:	UP
+   645                                  		; CHG:	ax, bx, cx, dx, es, ds, si, di
+   646                                  %if _IMAGE_EXE || _DEVICE
+   647                                  	lframe
+   648 00000000 5589E5                  	lenter
+   649                                  	lvar word,	exemode		; must be bp - 2!
+   650 00000003 53                      	 push bx
+   651                                   %if ?exemode != -2
+   652                                    %error exemode variable must be directly below bp
+   653                                   %endif
+   654 00000004 56                      	push si
+   655                                  %else
+   656                                  	xor bx, bx		; always tell them it is kernel mode
+   657                                  %endif
+   658                                  
+   659                                  %if _IMAGE_EXE
+   660 00000005 8EC6                    	mov es, si		; es => destination
+   661                                  %else
+   662                                  	mov ax, 60h
+   663                                  	mov es, ax		; es => destination
+   664                                  %endif
+   665 00000007 31FF                    	xor di, di		; -> destination
+   666                                  
+   667 00000009 8EDA                    	mov ds, dx
+   668 0000000B 31F6                    	xor si, si		; -> source
+   669                                  
+   670 0000000D B91B13                  	mov cx, (payload.end - payload) & 0FFFFh
+   671                                  %if (payload.end - payload) >> 16
+   672 00000010 BA0100                  	mov dx, (payload.end - payload) >> 16	; = length of source
+   673                                  %else
+   674                                  	xor dx, dx
+   675                                  %endif
+   676                                  %if _PAYLOAD_KERNEL_MAX_PARAS
+   677                                  	mov ax, _PAYLOAD_KERNEL_MAX_PARAS
+   678                                  	test bx, bx
+   679                                  	jz @F
+   680                                  %endif
+   681 00000013 B8FFFF                  	mov ax, -1
+   682                                  @@:
+   683                                  		; INP:	ds:si -> source
+   684                                  		;	dx:cx = length of source
+   685                                  		;	es:di -> destination (below source)
+   686                                  		;	bx = EXE mode flag
+   687                                  		;	 (1 if EXE mode, 0 if kernel mode)
+   688                                  		;	 (always 0 if this is a build without EXE mode)
+   689                                  		;	if _PAYLOAD_KERNEL_MAX_PARAS:
+   690                                  		;	 ax = maximum amount in paragraphs of destination needed
+   691                                  		;	 (-1 if full source should be decompressed)
+   692                                  		;	else:
+   693                                  		;	 ax = -1
+   694                                  		; Note:	The destination reaches up to below the source.
+   695 00000016 E80201                  	call depack
+   696                                  %ifn _TEST_PROGRAM
+   697                                  	jc strict short error
+   698                                  %endif
+   699                                  %if _IMAGE_EXE
+   700 00000019 5E                      	pop si			; si
+   701                                   %if _TEST_PROGRAM
+   702 0000001A 58                      	pop ax			; (discard ?exemode, leave bx as returned)
+   703                                   %else
+   704                                  	pop bx			; ?exemode
+   705                                   %endif
+   706 0000001B 5D                      	pop bp			; bp
+   707 0000001C 58                      	pop ax			; ax
+   708                                  	lleave ctx
+   709                                  %endif
+   710                                  %if _TEST_PROGRAM
+   711 0000001D CB                      	retf
+   712 0000001E 90                      	nop
+   713                                  %endif
+   714                                  
+   715                                  %if _DEVICE
+   716 0000001F F6C302                  	test bl, 2
+   717 00000022 7411                    	jz .jmp_exe_or_kernel_mode
+   718                                  
+   719                                  .jmp_device_mode:
+   720 00000024 8EDE                    	mov ds, si
+   721 00000026 830E[0000]FF            	or word [device_header.next], -1
+   722 0000002B 07                      	pop es
+   723 0000002C 5B                      	pop bx
+   724 0000002D 58                      	pop ax
+   725 0000002E 59                      	pop cx
+   726 0000002F 5A                      	pop dx
+   727 00000030 5F                      	pop di
+   728 00000031 5E                      	pop si
+   729 00000032 1F                      	pop ds
+   730 00000033 5D                      	pop bp
+   731 00000034 CB                      	retf			; transfer to payload strategy entrypoint
+   732                                  				; still on stack: far return address to DOS
+   733                                  
+   734                                  .jmp_exe_or_kernel_mode:
+   735                                  %endif
+   736                                  
+   737                                  %if _IMAGE_EXE
+   738 00000035 F6C301                  	test bl, 1
+   739 00000038 7410                    	jz .jmp_kernel_mode
+   740                                  
+   741                                  .jmp_exe_mode:
+   742                                  %if ! _IMAGE_EXE_AUTO_STACK
+   743                                  	mov cx, cs
+   744                                  	lea dx, [si + _IMAGE_EXE_SS]
+   745                                  	push dx			; stack = relocated ss value
+   746                                  	add dx, (_IMAGE_EXE_SP + 2 + 15) >> 4
+   747                                  	cmp cx, dx		; INIT1 code is above intended stack ?
+   748                                  	jae @F			; yes -->
+   749                                  
+   750                                  	lframe
+   751                                  	lenter
+   752                                  	lvar	word, exemode
+   753                                  	 push bx
+   754                                   %if ?exemode != -2
+   755                                    %error exemode variable must be directly below bp
+   756                                   %endif
+   757                                  	mov bx, -1		; unimplemented, return error
+   758                                  	jmp error
+   759                                  	lleave ctx
+   760                                  @@:
+   761                                  	cli
+   762                                  	pop ss			; = relocated ss value
+   763                                  	mov sp, (_IMAGE_EXE_SP + 2) & 0FFFFh	; change stack
+   764                                  	sti
+   765                                  %endif
+   766                                  
+   767 0000003A 31C9                    	xor cx, cx
+   768 0000003C 51                      	push cx			; put zero on top of stack
+   769                                  
+   770                                  %if _IMAGE_EXE_IP < 256
+   771                                  	mov cl, _IMAGE_EXE_IP
+   772                                  %elif (_IMAGE_EXE_IP & 255) == 0
+   773                                  	mov ch, _IMAGE_EXE_IP >> 8
+   774                                  %else
+   775 0000003D B94001                  	mov cx, _IMAGE_EXE_IP
+   776                                  %endif
+   777                                  
+   778                                  %if _IMAGE_EXE_CS == -16
+   779 00000040 83C6F0                  	add si, -16
+   780 00000043 8EDE                    	mov ds, si
+   781 00000045 8EC6                    	mov es, si
+   782                                  %else
+   783                                  	lea dx, [si - 10h]	; => PSP
+   784                                  	mov ds, dx
+   785                                  	mov es, dx		; ds = es => PSP
+   786                                  	add si, _IMAGE_EXE_CS	; = relocated cs value
+   787                                  %endif
+   788 00000047 56                      	push si
+   789 00000048 51                      	push cx
+   790 00000049 CB                      	retf			; jump to EXE mode of image
+   791                                  
+   792                                  %endif
+   793                                  .jmp_kernel_mode:
+   794 0000004A EA20006000              	jmp 60h + _EXEC_SEGMENT:_EXEC_OFFSET
+   795                                  
+   796                                  
+   797                                  error:
+   798 0000004F 0E                      	push cs
+   799 00000050 1F                      	pop ds
+   800                                  %if _DEBUG0
+   801                                  	mov si, msg.error_begin
+   802                                  	call disp_error
+   803                                  	xchg ax, bx			; ax = error code
+   804                                  	call disp_ax_hex
+   805                                  	mov si, msg.error_end
+   806                                  %else
+   807 00000051 BE[F600]                	mov si, msg.error
+   808                                  %endif
+   809 00000054 E87D00                  	call disp_error
+   810                                  
+   811                                  %if _DEVICE
+   812 00000057 F646FE02                	test byte [bp - 2], 2
+   813 0000005B 7435                    	jz .exit_app_or_kernel
+   814                                  
+   815 0000005D 5E                      	pop si				; => device segment
+   816 0000005E 5B                      	pop bx				; mode word
+   817 0000005F 5D                      	pop bp
+   818 00000060 58                      	pop ax
+   819 00000061 8EC6                    	mov es, si
+   820 00000063 31FF                    	xor di, di			; -> device header
+   821 00000065 0E                      	 push cs
+   822 00000066 1F                      	 pop ds
+   823 00000067 BE[B000]                	mov si, device_header_copy	; -> to reset header
+   824 0000006A B91100                  	mov cx, words(device_header_copy.length)
+   825 0000006D F3A5                    	rep movsw		; overwrite device header with default
+   826                                  				;  (reset to a valid state after unsuccessful
+   827                                  				;  decompression, which may have partially
+   828                                  				;  written the header already)
+   829 0000006F 06                      	 push es
+   830 00000070 1F                      	 pop ds				; -> device segment
+   831 00000071 07                      	pop es
+   832 00000072 5B                      	pop bx
+   833 00000073 26C747030381            	mov word [es:bx + 3], 8103h	; set error, done, invalid command
+   834 00000079 26C6470D00              	mov byte [es:bx + 13], 0	; set number of units = 0
+   835 0000007E 268C5F10                	mov word [es:bx + 14 + 2], ds
+   836 00000082 2683670E00              	and word [es:bx + 14], 0	; -> after end of memory to allocate
+   837 00000087 58                      	pop ax
+   838 00000088 59                      	pop cx
+   839 00000089 5A                      	pop dx
+   840 0000008A 5F                      	pop di
+   841 0000008B 5E                      	pop si
+   842 0000008C 1F                      	pop ds
+   843 0000008D 5D                      	pop bp
+   844 0000008E 83C404                  	add sp, 4		; discard far return to payload's strategy
+   845 00000091 CB                      	retf			; return to DOS
+   846                                  
+   847                                  
+   848                                  .exit_app_or_kernel:
+   849                                  %endif
+   850                                  
+   851                                  %if _IMAGE_EXE
+   852 00000092 F646FE01                	test byte [bp - 2], 1
+   853 00000096 7405                    	jz .exit_kernel_mode
+   854                                  
+   855 00000098 B87F4C                  	mov ax, 4C7Fh
+   856 0000009B CD21                    	int 21h
+   857                                  
+   858                                  .exit_kernel_mode:
+   859                                  %endif
+   860 0000009D 31C0                    	xor ax, ax
+   861 0000009F CD16                    	int 16h
+   862 000000A1 CD19                    	int 19h
+   863                                  
+   864                                  
+   865                                  %if _DEVICE
+   866 000000A3 90<rep Dh>              	align 16
+   867                                  device_header_copy:
+   868                                  .:
+   869                                  .next:
+   870 000000B0 FFFFFFFF                	dd -1				; already initialised
+   871                                  .attributes:
+   872 000000B4 0080                    	dw _DEVICE_ATTRIBUTE
+   873                                  .strategy:
+   874 000000B6 1200                    	dw .strategy_entry - .		; -> strategy entry
+   875                                  .interrupt:
+   876 000000B8 1600                    	dw .interrupt_entry - .		; -> interrupt entry
+   877                                  .name:
+   878 000000BA 4C44454255472424        	fill 8, 32, db _DEVICE_NAME
+   879                                  .strategy_entry:
+   880 000000C2 EB0690<rep 2h>          	fill 4, 90h, jmp .set_error	; rel8 or rel16 jump, not minus .
+   881                                  .interrupt_entry:
+   882 000000C6 CB90<rep 3h>            	fill 4, 90h, retf
+   883                                  
+   884                                  .set_error:
+   885 000000CA 26C747030381            	mov word [es:bx + 3], 8103h	; set error, done, invalid command
+   886 000000D0 CB                      	retf
+   887                                  .length: equ $ - .
+   888                                  %endif
+   889                                  
+   890                                  
+   891                                  disp_error.loop:
+   892 000000D1 E80600                  	call disp_al
+   893                                  disp_error:
+   894 000000D4 AC                      	lodsb
+   895 000000D5 84C0                    	test al, al
+   896 000000D7 75F8                    	jnz .loop
+   897 000000D9 C3                      	retn
+   898                                  
+   899                                  %if _DEBUG0 || _DEBUG1 || _DEBUG2 || _DEBUG3
+   900                                  disp_ax_hex:			; ax
+   901                                  		xchg al,ah
+   902                                  		call disp_al_hex		; display former ah
+   903                                  		xchg al,ah			;  and fall trough for al
+   904                                  disp_al_hex:			; al
+   905                                  		push cx
+   906                                  		mov cl,4
+   907                                  		ror al,cl
+   908                                  		call disp_al_lownibble_hex	; display former high-nibble
+   909                                  		rol al,cl
+   910                                  		pop cx
+   911                                  						;  and fall trough for low-nibble
+   912                                  disp_al_lownibble_hex:
+   913                                  		push ax			 ; save ax for call return
+   914                                  		and al,00001111b		; high nibble must be zero
+   915                                  		add al,'0'			; if number is 0-9, now it's the correct character
+   916                                  		cmp al,'9'
+   917                                  		jna .decimalnum		 ; if we get decimal number with this, ok -->
+   918                                  		add al,7			;  otherwise, add 7 and we are inside our alphabet
+   919                                   .decimalnum:
+   920                                  		call disp_al
+   921                                  		pop ax
+   922                                  		retn
+   923                                  %endif
+   924                                  
+   925                                  disp_al:
+   926                                  %if _TEST_PROGRAM
+   927 000000DA C3                      	retn
+   928                                  %else
+   929                                  	push ax
+   930                                  %endif
+   931 000000DB 53                      	push bx
+   932 000000DC 55                      	push bp
+   933 000000DD B40E                    	mov ah, 0Eh
+   934 000000DF BB0700                  	mov bx, 7
+   935                                  %if _IMAGE_EXE || _DEVICE
+   936 000000E2 52                      	push dx
+   937                                  
+   938 000000E3 F646FE03                	test byte [bp - 2], 1 | 2
+   939 000000E7 7406                    	jz .display_kernel_mode
+   940                                  
+   941 000000E9 92                      	xchg dx, ax				; dl = input al
+   942 000000EA B402                    	mov ah, 02h
+   943 000000EC CD21                    	int 21h
+   944 000000EE A9                      	db __TEST_IMM16				; (skip int)
+   945                                  
+   946                                  .display_kernel_mode:
+   947                                  %endif
+   948 000000EF CD10                    	int 10h
+   949                                  %if _IMAGE_EXE
+   950 000000F1 5A                      	pop dx
+   951                                  %endif
+   952 000000F2 5D                      	pop bp
+   953 000000F3 5B                      	pop bx
+   954 000000F4 58                      	pop ax
+   955                                  disp_error.ret:
+   956 000000F5 C3                      	retn
+   957                                  
+   958                                  
+   959                                  msg:
+   960                                  %if _DEBUG0
+   961                                  .error_begin:	db "Load error: Decompression failure, code ",0
+   962                                  .error_end:	db "h.",13,10,0
+   963                                  %else
+   964 000000F6 4C6F6164206572726F-     .error:		db "Load error: Decompression failure.",13,10,0
+   964 000000FF 723A204465636F6D70-
+   964 00000108 72657373696F6E2066-
+   964 00000111 61696C7572652E0D0A-
+   964 0000011A 00                 
+   965                                  %endif
+   966                                  
+   967                                  
+   968                                  %assign NEED_NORMALISE_POINTER_WITH_DISPLACEMENT 1
+   969                                  %assign CHECK_POINTERS_VARIABLE_SRC 1
+   970                                  %assign CHECK_POINTERS_VARIABLE_DST 1
+   971                                  
+   972                                  		; Specific depacker's file is included within label msg.
+   973                                  		; In the file, lframe is used and lleave ctx is not used.
+   974                                  
+   975                                  %if _BRIEFLZ
+   976                                  	%include "brieflz.asm"
+   977                                  %endif
+   978                                  
+   979                                  
+   980                                  %if _LZ4
+   981                                  	%include "lz4.asm"
+   982                                  %endif
+   983                                  
+   984                                  
+   985                                  %if _SNAPPY
+   986                                  	%include "snappy.asm"
+   987                                  %endif
+   988                                  
+   989                                  
+   990                                  %if _EXODECR
+   991                                  	%include "exodecr.asm"
+   992                                  %endif
+   993                                  
+   994                                  
+   995                                  %if _X
+   996                                  	%include "x.asm"
+   997                                  %endif
+   998                                  
+   999                                  
+  1000                                  %if _HEATSHRINK
+  1001                                  	%include "heatshr.asm"
+  1002                                  %endif
+  1003                                  
+  1004                                  
+  1005                                  %if _LZD
+  1006                                  	%include "lzd.asm"
+  1007                                  %endif
+  1008                                  
+  1009                                  
+  1010                                  %if _LZO
+  1011                                  	%include "lzo.asm"
+  1012                                  %endif
+  1013                                  
+  1014                                  
+  1015                                  %if _LZSA2
+  1016                                  	%include "lzsa2.asm"
+     1                              <1> 
+     2                              <1> ; 8086 Assembly lDOS iniload payload LZSA2 depacker
+     3                              <1> ;  by C. Masloch, 2021
+     4                              <1> ;
+     5                              <1> ;  based on:
+     6                              <1> ;  decompress_small.S - space-efficient decompressor implementation for 8088
+     7                              <1> ;
+     8                              <1> ;  Copyright (C) 2019 Emmanuel Marty
+     9                              <1> ;
+    10                              <1> ;  This software is provided 'as-is', without any express or implied
+    11                              <1> ;  warranty.  In no event will the authors be held liable for any damages
+    12                              <1> ;  arising from the use of this software.
+    13                              <1> ;
+    14                              <1> ;  Permission is granted to anyone to use this software for any purpose,
+    15                              <1> ;  including commercial applications, and to alter it and redistribute it
+    16                              <1> ;  freely, subject to the following restrictions:
+    17                              <1> ;
+    18                              <1> ;  1. The origin of this software must not be misrepresented; you must not
+    19                              <1> ;     claim that you wrote the original software. If you use this software
+    20                              <1> ;     in a product, an acknowledgment in the product documentation would be
+    21                              <1> ;     appreciated but is not required.
+    22                              <1> ;  2. Altered source versions must be plainly marked as such, and must not be
+    23                              <1> ;     misrepresented as being the original software.
+    24                              <1> ;  3. This notice may not be removed or altered from any source distribution.
+    25                              <1> 
+    26                              <1> 
+    27                              <1> 	numdef COUNTER,		0, 128
+    28                              <1> %if (_COUNTER - 1) & _COUNTER
+    29                              <1>  %error COUNTER must be a power of two
+    30                              <1> %endif
+    31                              <1> 
+    32                              <1> %assign CHECK_POINTERS_VARIABLE_SRC 0
+    33                              <1> %assign CHECK_POINTERS_VARIABLE_DST 0
+    34                              <1> 
+    35                              <1> 
+    36                              <1> 		; INP:	ds:si -> source
+    37                              <1> 		;	dx:cx = length of source
+    38                              <1> 		;	es:di -> destination (below source)
+    39                              <1> 		;	if _IMAGE_EXE:
+    40                              <1> 		;	 bx = EXE mode flag (bit 0)
+    41                              <1> 		;	else:
+    42                              <1> 		;	 bx = 0
+    43                              <1> 		;	if _PAYLOAD_KERNEL_MAX_PARAS:
+    44                              <1> 		;	 ax = maximum amount in paragraphs of destination needed
+    45                              <1> 		;	 (-1 if full source should be decompressed)
+    46                              <1> 		;	else:
+    47                              <1> 		;	 ax = -1
+    48                              <1> 		; OUT:	NC if success
+    49                              <1> 		;	CY if error,
+    50                              <1> 		;	 bx = ?errordata (if _DEBUG0)
+    51                              <1> 		; CHG:	ax, (bx), cx, dx, es, ds, si, di
+    52                              <1> 		; STT:	UP
+    53                              <1> 		;
+    54                              <1> 		; Note:	The destination reaches up to below the source.
+    55                              <1> 		; Note:	The input pointers need not be normalised yet.
+    56                              <1> 		;	 Normalised means that the offset part is below 16.
+    57                              <1> depack:
+    58                              <1> 	lframe near
+    59                              <1> %if _IMAGE_EXE || _DEBUG0 || _COUNTER
+    60 0000011B 5589E5              <1> 	lenter early
+    61                              <1>  %if _IMAGE_EXE
+    62                              <1> 	lvar word,	exemode	; must be bp - 2!
+    63 0000011E 53                  <1> 	 push bx
+    64                              <1>   %if ?exemode != -2
+    65                              <1>    %error exemode variable must be directly below bp
+    66                              <1>   %endif
+    67                              <1>  %endif
+    68                              <1>  %if _DEBUG0 || _COUNTER
+    69                              <1> 	xor bx, bx
+    70                              <1>  %endif
+    71                              <1>  %if _DEBUG0
+    72                              <1> 	lvar word,	errordata
+    73                              <1> 	 push bx
+    74                              <1>  %endif
+    75                              <1> %endif
+    76                              <1> 	lvar word,	counter
+    77                              <1> %if _COUNTER
+    78                              <1> 	 push bx		; initialise counter (high byte) to zero
+    79                              <1> %endif
+    80                              <1> 	lvar dword,	length_of_source_after_block
+    81                              <1> 	lvar word,	matchlength
+    82 0000011F 8D66F6              <1> 	lenter
+    83                              <1> 
+    84 00000122 E81502              <1> 	call normalise_both_pointers
+    85                              <1> 
+    86                              <1> 	lvar dword,	src
+    87 00000125 1E                  <1> 	 push ds
+    88 00000126 56                  <1> 	 push si
+    89                              <1> 	lvar dword,	original_dst
+    90 00000127 06                  <1> 	 push es
+    91 00000128 57                  <1> 	 push di
+    92                              <1> 	lvar dword,	dst
+    93 00000129 06                  <1> 	 push es
+    94 0000012A 57                  <1> 	 push di
+    95                              <1> 	lvar dword,	length_of_source
+    96 0000012B 52                  <1> 	 push dx
+    97 0000012C 51                  <1> 	 push cx
+    98                              <1> 
+    99                              <1> %if 0 ; && _PAYLOAD_KERNEL_MAX_PARAS
+   100                              <1> 	cmp ax, -1		; no maximum specified ?
+   101                              <1> 	je @FF			; retain -1 in ax -->
+   102                              <1> 	test di, di		; do we need an additional paragraph ?
+   103                              <1> 	jz @F			; no -->
+   104                              <1> 	inc ax			; es + ax => paragraph after necessary part
+   105                              <1> @@:
+   106                              <1> 	mov dx, es
+   107                              <1> 	add ax, dx		; => paragraph after necessary part
+   108                              <1> 		; If the normalised destination pointer's segment grows
+   109                              <1> 		;  to this segment then enough has been decompressed.
+   110                              <1> d0	mov byte [bp + ?errordata], 40h
+   111                              <1> 	jc .error		; should not carry
+   112                              <1> @@:
+   113                              <1> 	lvar word,	dst_max_segment
+   114                              <1> 	 push ax
+   115                              <1> %endif
+   116                              <1> 
+   117 0000012D 1E                  <1> 	 push ds
+   118 0000012E 56                  <1> 	 push si
+   119 0000012F E86802              <1> 	call pointer_to_linear
+   120                              <1> 
+   121 00000132 89D3                <1> 	mov bx, dx
+   122 00000134 91                  <1> 	xchg cx, ax		; bx:cx = source linear
+   123                              <1> 
+   124 00000135 06                  <1> 	 push es
+   125 00000136 57                  <1> 	 push di
+   126 00000137 E86002              <1> 	call pointer_to_linear
+   127                              <1> 
+   128                              <1> %if _ALLOW_OVERLAPPING
+   129 0000013A 034EE6              <1> 	add cx, word [bp + ?length_of_source]
+   130 0000013D 135EE8              <1> 	adc bx, word [bp + ?length_of_source + 2]
+   131                              <1> 		; In case of allowing overlapping source and destination,
+   132                              <1> 		;  the ?length_of_destination variable is set to
+   133                              <1> 		;  ?src + ?length_of_source - ?dst, allowing to write to
+   134                              <1> 		;  all of the source buffer (with the checks already in place
+   135                              <1> 		;  from the default handling). Additional checks are done by
+   136                              <1> 		;  calling check_pointers_not_overlapping. This is done after
+   137                              <1> 		;  every change of ?dst to verify that the write pointer stays
+   138                              <1> 		;  below-or-equal the read pointer.
+   139                              <1> 		; This means the remaining source data may be corrupted by a
+   140                              <1> 		;  write, but nothing after the source data is written to,
+   141                              <1> 		;  so the error handling (in INIT1 after the data) still works.
+   142                              <1> %endif
+   143                              <1> 
+   144 00000140 29C1                <1> 	sub cx, ax
+   145 00000142 19D3                <1> 	sbb bx, dx		; bx:cx = source linear - destination linear
+   146                              <1> 
+   147                              <1> 	lvar dword,	length_of_destination
+   148 00000144 53                  <1> 	 push bx		; push into [bp + ?length_of_destination + 2]
+   149 00000145 51                  <1> 	 push cx		; push into [bp + ?length_of_destination]
+   150                              <1> 
+   151                              <1> %if _ALLOW_OVERLAPPING
+   152 00000146 E8DD01              <1> 	call check_pointers_not_overlapping
+   153                              <1> 		; Note:	We initially check here that the write pointer is
+   154                              <1> 		;	 low enough, ie below-or-equal the read pointer.
+   155                              <1> 		;	 Doing this check here (as well as after any
+   156                              <1> 		;	 copied match) allows us to drop the check done
+   157                              <1> 		;	 after moving literal bytes.
+   158                              <1> d0	mov byte [bp + ?errordata], 1Bh
+   159 00000149 7268                <1> 	jc .error
+   160                              <1> %endif
+   161                              <1> 
+   162 0000014B E87600              <1> 	call .lodsw
+   163 0000014E 3D7B9E              <1> 	cmp ax, 7Bh | (9Eh << 8)	; signature
+   164 00000151 7560                <1> 	jne .error
+   165 00000153 E86200              <1> 	call .lodsb
+   166 00000156 3C20                <1> 	cmp al, 1 << 5			; traits byte, check for lzsa2
+   167 00000158 7559                <1> 	jne .error
+   168                              <1> 
+   169                              <1> .loop:
+   170 0000015A E8DD01              <1> 	call normalise_both_pointers
+   171                              <1> 
+   172 0000015D 31D2                <1> 	xor dx, dx
+   173 0000015F E86200              <1> 	call .lodsw			; bits 0 to 15 of length
+   174 00000162 92                  <1> 	xchg ax, dx
+   175 00000163 E85200              <1> 	call .lodsb
+   176 00000166 A87F                <1> 	test al, 0111_1111b		; reserved bits + bit 16 of length
+   177 00000168 7549                <1> 	jnz .error			; error if nonzero -->
+   178                              <1> 
+   179 0000016A E8D401              <1> 	call normalise_dssi_pointer
+   180                              <1> 
+   181                              <1> 		; This first check is only really relevant
+   182                              <1> 		;  for uncompressed blocks.
+   183 0000016D 89FB                <1> 	mov bx, di
+   184 0000016F 01D3                <1> 	add bx, dx			; fits in destination segment ?
+   185 00000171 7240                <1> 	jc .error			;  (assuming bit 16 = 0)
+   186                              <1> 		; This second check is to insure we don't
+   187                              <1> 		;  have to normalise the source pointer
+   188                              <1> 		;  until after the end of the block.
+   189 00000173 89F3                <1> 	mov bx, si
+   190 00000175 01D3                <1> 	add bx, dx			; fits in source segment ?
+   191 00000177 723A                <1> 	jc .error
+   192                              <1> 
+   193 00000179 84C0                <1> 	test al, al			; uncompressed ?
+   194 0000017B 92                  <1> 	xchg ax, dx
+   195 0000017C 7905                <1> 	jns .compressed			; no -->
+   196                              <1> .uncompressed:
+   197 0000017E 91                  <1> 	xchg ax, cx
+   198 0000017F F3A4                <1> 	rep movsb			; copy this
+   199 00000181 EBD7                <1> 	jmp .loop
+   200                              <1> 
+   201                              <1> .compressed:
+   202 00000183 8B4EE6              <1> 	mov cx, word [bp + ?length_of_source]
+   203 00000186 8B5EE8              <1> 	mov bx, word [bp + ?length_of_source + 2]
+   204                              <1> 
+   205 00000189 85C0                <1> 	test ax, ax
+   206 0000018B 7421                <1> 	jz .end
+   207                              <1> 
+   208 0000018D 29C1                <1> 	sub cx, ax
+   209 0000018F 83DB00              <1> 	sbb bx, 0
+   210 00000192 721F                <1> 	jc .error
+   211 00000194 894EF8              <1> 	mov word [bp + ?length_of_source_after_block], cx
+   212 00000197 895EFA              <1> 	mov word [bp + ?length_of_source_after_block + 2], bx
+   213                              <1> 
+   214 0000019A 06                  <1> 	push es
+   215 0000019B 57                  <1> 	push di
+   216 0000019C E83100              <1> 	call lzsa2_decompress
+   217 0000019F 83F801              <1> 	cmp ax, 1			; CY if ax == 0
+   218 000001A2 91                  <1> 	xchg cx, ax
+   219 000001A3 19DB                <1> 	sbb bx, bx			; -1 if cx == 0, else 0
+   220 000001A5 F7DB                <1> 	neg bx				; 1 if cx == 0, else 0
+   221 000001A7 E8C101              <1> 	call normalise_pointer_with_displacement_bxcx
+   222 000001AA 5F                  <1> 	pop di
+   223 000001AB 07                  <1> 	pop es
+   224 000001AC EBAC                <1> 	jmp .loop
+   225                              <1> 
+   226                              <1> .end:
+   227 000001AE 09CB                <1> 	or bx, cx
+   228 000001B0 7501                <1> 	jnz .error
+   229                              <1> 
+   230                              <1> .ret:
+   231 000001B2 A8                  <1> 	db __TEST_IMM8		; (skip stc, NC)
+   232                              <1> .error:
+   233 000001B3 F9                  <1> 	stc
+   234                              <1> 
+   235                              <1> %if _COUNTER
+   236                              <1> 	lahf
+   237                              <1> 	mov al, 13
+   238                              <1> 	call disp_al
+   239                              <1> 	mov al, 10
+   240                              <1> 	call disp_al
+   241                              <1> 	sahf
+   242                              <1> %endif
+   243                              <1> d0	mov bx, word [bp + ?errordata]
+   244 000001B4 89EC5D              <1> 	lleave code
+   245 000001B7 C3                  <1> 	lret
+   246                              <1> 
+   247                              <1> 
+   248                              <1> 		; INP:	ds:si -> source data
+   249                              <1> 		;	?length_of_source
+   250                              <1> 		; OUT:	CY if error (source buffer too small)
+   251                              <1> 		;	NC if success,
+   252                              <1> 		;	 al = value read
+   253                              <1> 		;	 ds:si incremented (NOT normalised)
+   254                              <1> 		;	 ?length_of_source decremented
+   255                              <1> .lodsb:
+   256 000001B8 836EE601            <1> 	sub word [bp + ?length_of_source], 1
+   257 000001BC 835EE800            <1> 	sbb word [bp + ?length_of_source + 2], 0
+   258 000001C0 72F1                <1> 	jb .error
+   259 000001C2 AC                  <1> 	lodsb
+   260                              <1> .retn:
+   261 000001C3 C3                  <1> 	retn
+   262                              <1> 
+   263                              <1> 
+   264                              <1> 		; INP:	ds:si -> source data
+   265                              <1> 		;	?length_of_source
+   266                              <1> 		; OUT:	CY if error (source buffer too small)
+   267                              <1> 		;	NC if success,
+   268                              <1> 		;	 ax = value read
+   269                              <1> 		;	 ds:si incremented (NOT normalised)
+   270                              <1> 		;	 ?length_of_source decremented
+   271                              <1> .lodsw:
+   272 000001C4 836EE602            <1> 	sub word [bp + ?length_of_source], 2
+   273 000001C8 835EE800            <1> 	sbb word [bp + ?length_of_source + 2], 0
+   274 000001CC 72E5                <1> 	jb .error
+   275 000001CE AD                  <1> 	lodsw
+   276 000001CF C3                  <1> 	retn
+   277                              <1> 
+   278                              <1> 
+   279                              <1> 		; Decompress LZSA2 block
+   280                              <1> 		;
+   281                              <1> 		; INP:	ds:si -> LZSA2 block
+   282                              <1> 		;	es:di -> output buffer
+   283                              <1> 		;	?length_of_source
+   284                              <1> 		;	?length_of_source_after_block = block end target
+   285                              <1> 		;	?original_dst -> lowest valid back reference
+   286                              <1> 		; OUT:	ax = decompressed size (0 means 64 KiB)
+   287                              <1> 		;	ds:si -> behind source data
+   288                              <1> 		;	jumps to depack.error if error condition detected
+   289                              <1> 		; CHG:	all except bp
+   290                              <1> lzsa2_decompress:
+   291                              <1> .lodsb equ depack.lodsb
+   292                              <1> .lodsw equ depack.lodsw
+   293                              <1> 
+   294 000001D0 57                  <1>    push di                 ; remember decompression offset
+   295                              <1> 
+   296 000001D1 BB0001              <1>    mov bx,0100H
+   297 000001D4 8366F600            <1>    and word [bp + ?matchlength], 0
+   298                              <1> 
+   299                              <1> .decode_token_clear_cx:
+   300 000001D8 31C9                <1>    xor cx,cx
+   301                              <1> .decode_token:
+   302                              <1> %if _COUNTER
+   303                              <1> 	inc byte [bp + ?counter]
+   304                              <1> 	test byte [bp + ?counter], _COUNTER - 1
+   305                              <1> 	jnz @F
+   306                              <1> 	mov al, '.'
+   307                              <1> 	call disp_al
+   308                              <1> @@:
+   309                              <1> %endif
+   310 000001DA 8B46E6              <1> 	mov ax, word [bp + ?length_of_source]
+   311 000001DD 8B56E8              <1> 	mov dx, word [bp + ?length_of_source + 2]
+   312                              <1> 
+   313 000001E0 3956FA              <1> 	cmp word [bp + ?length_of_source_after_block + 2], dx
+   314 000001E3 7503                <1> 	jne @F
+   315 000001E5 3946F8              <1> 	cmp word [bp + ?length_of_source_after_block], ax
+   316                              <1> @@:
+   317 000001E8 7503E91501          <1> 	je .end
+   318 000001ED 77C4                <1> 	ja depack.error
+   319                              <1> 
+   320 000001EF 89C8                <1>    mov ax,cx               ; clear ah - cx is zero from above or from after rep movsb in .copy_match
+   321 000001F1 E8C4FF              <1> 	call .lodsb		; read token byte: XYZ|LL|MMMM
+   322 000001F4 89C2                <1>    mov dx,ax               ; keep token in dl
+   323                              <1>    
+   324 000001F6 2418                <1>    and al,018H             ; isolate literals length in token (LL)
+   325 000001F8 B103                <1>    mov cl,3
+   326 000001FA D2E8                <1>    shr al,cl               ; shift literals length into place
+   327                              <1> 
+   328 000001FC 3C03                <1>    cmp al,03H              ; LITERALS_RUN_LEN_V2?
+   329 000001FE 7513                <1>    jne .got_literals       ; no, we have the full literals count from the token, go copy
+   330                              <1> 
+   331 00000200 E81101              <1>    call .get_nibble        ; get extra literals length nibble
+   332 00000203 00C8                <1>    add al,cl               ; add len from token to nibble 
+   333 00000205 3C12                <1>    cmp al,012H             ; LITERALS_RUN_LEN_V2 + 15 ?
+   334 00000207 750A                <1>    jne .got_literals       ; if not, we have the full literals count, go copy
+   335                              <1> 
+   336 00000209 E8ACFF              <1> 	call .lodsb		; grab extra length byte
+   337 0000020C 0412                <1>    add al,012H             ; overflow?
+   338 0000020E 7303                <1>    jnc .got_literals       ; if not, we have the full literals count, go copy
+   339                              <1> 
+   340 00000210 E8B1FF              <1> 	call .lodsw		; grab 16-bit extra length
+   341                              <1> 
+   342                              <1> .got_literals:
+   343 00000213 91                  <1>    xchg cx,ax
+   344 00000214 294EE6              <1> 	sub word [bp + ?length_of_source], cx
+   345 00000217 835EE800            <1> 	sbb word [bp + ?length_of_source + 2], 0
+   346 0000021B 7296                <1> 	jb depack.error
+   347 0000021D 294EE2              <1> 	sub word [bp + ?length_of_destination], cx
+   348 00000220 835EE400            <1> 	sbb word [bp + ?length_of_destination + 2], 0
+   349 00000224 728D                <1> 	jb depack.error
+   350 00000226 F3A4                <1>    rep movsb               ; copy cx literals from ds:si to es:di
+   351                              <1> 
+   352 00000228 52                  <1> 	push dx
+   353 00000229 50                  <1> 	push ax
+   354 0000022A 8B46E6              <1> 	mov ax, word [bp + ?length_of_source]
+   355 0000022D 8B56E8              <1> 	mov dx, word [bp + ?length_of_source + 2]
+   356                              <1> 
+   357 00000230 3956FA              <1> 	cmp word [bp + ?length_of_source_after_block + 2], dx
+   358 00000233 7503                <1> 	jne @F
+   359 00000235 3946F8              <1> 	cmp word [bp + ?length_of_source_after_block], ax
+   360                              <1> @@:
+   361 00000238 58                  <1> 	pop ax
+   362 00000239 5A                  <1> 	pop dx
+   363 0000023A 7503E9C300          <1> 	je .end
+   364 0000023F 7603E96FFF          <1> 	ja depack.error
+   365                              <1> 
+   366 00000244 F6C2C0              <1>    test dl,0C0h            ; check match offset mode in token (X bit)
+   367 00000247 7819                <1>    js .rep_match_or_large_offset
+   368                              <1> 
+   369                              <1>    ;;cmp dl,040H             ; check if this is a 5 or 9-bit offset (Y bit)
+   370                              <1>                            ; discovered via the test with bit 6 set
+   371 00000249 91                  <1>    xchg cx,ax              ; clear ah - cx is zero from the rep movsb above
+   372 0000024A 7508                <1>    jne .offset_9_bit
+   373                              <1> 
+   374                              <1>                            ; 5 bit offset
+   375 0000024C 80FA20              <1>    cmp dl,020H             ; test bit 5
+   376 0000024F E8B500              <1>    call .get_nibble_x
+   377 00000252 EB0A                <1>    jmp short .dec_offset_top
+   378                              <1> 
+   379                              <1> .offset_9_bit:             ; 9 bit offset
+   380 00000254 E861FF              <1> 	call .lodsb		; get 8 bit offset from stream in A
+   381 00000257 FECC                <1>    dec ah                  ; set offset bits 15-8 to 1
+   382 00000259 F6C220              <1>    test dl,020H            ; test bit Z (offset bit 8)
+   383 0000025C 741F                <1>    je .get_match_length
+   384                              <1> .dec_offset_top:
+   385 0000025E FECC                <1>    dec ah                  ; clear bit 8 if Z bit is clear
+   386                              <1>                            ; or set offset bits 15-8 to 1
+   387 00000260 EB1B                <1>    jmp short .get_match_length
+   388                              <1> 
+   389                              <1> .rep_match_or_large_offset:
+   390                              <1>    ;;cmp dl,0c0H             ; check if this is a 13-bit offset or a 16-bit offset/rep match (Y bit)
+   391 00000262 7A0C                <1>    jpe .rep_match_or_16_bit
+   392                              <1> 
+   393                              <1>                            ; 13 bit offset
+   394                              <1> 
+   395 00000264 80FAA0              <1>    cmp dl,0A0H             ; test bit 5 (knowing that bit 7 is also set)
+   396 00000267 86E0                <1>    xchg ah,al
+   397 00000269 E89B00              <1>    call .get_nibble_x
+   398 0000026C 2C02                <1>    sub al,2                ; substract 512
+   399 0000026E EB08                <1>    jmp short .get_match_length_1
+   400                              <1> 
+   401                              <1> .rep_match_or_16_bit:
+   402 00000270 F6C220              <1>    test dl,020H            ; test bit Z (offset bit 8)
+   403 00000273 750B                <1>    jne .repeat_match       ; rep-match
+   404                              <1> 
+   405                              <1>                            ; 16 bit offset
+   406 00000275 E840FF              <1> 	call .lodsb		; Get 2-byte match offset
+   407                              <1> 
+   408                              <1> .get_match_length_1:
+   409 00000278 86E0                <1>    xchg ah,al
+   410 0000027A E83BFF              <1> 	call .lodsb		; load match offset bits 0-7
+   411                              <1> 
+   412                              <1> .get_match_length:
+   413 0000027D 8746F6              <1> 	xchg word [bp + ?matchlength], ax
+   414                              <1> 			; bp: offset
+   415                              <1> .repeat_match:
+   416 00000280 92                  <1>    xchg ax,dx              ; ax: original token
+   417 00000281 2407                <1>    and al,07H              ; isolate match length in token (MMM)
+   418 00000283 0402                <1>    add al,2                ; add MIN_MATCH_SIZE_V2
+   419                              <1> 
+   420 00000285 3C09                <1>    cmp al,09H              ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2?
+   421 00000287 7518                <1>    jne .got_matchlen       ; no, we have the full match length from the token, go copy
+   422                              <1> 
+   423 00000289 E88800              <1>    call .get_nibble        ; get extra literals length nibble
+   424 0000028C 00C8                <1>    add al,cl               ; add len from token to nibble 
+   425 0000028E 3C18                <1>    cmp al,018H             ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2 + 15?
+   426 00000290 750F                <1>    jne .got_matchlen       ; no, we have the full match length from the token, go copy
+   427                              <1> 
+   428 00000292 E823FF              <1> 	call .lodsb		; grab extra length byte
+   429 00000295 0418                <1>    add al,018H             ; overflow?
+   430 00000297 7308                <1>    jnc .got_matchlen       ; if not, we have the entire length
+   431 00000299 7503E915FF          <1> 	je depack.error		; detect EOD code
+   432                              <1> 
+   433 0000029E E823FF              <1> 	call .lodsw		; grab 16-bit length
+   434                              <1> 
+   435                              <1> .got_matchlen:
+   436 000002A1 91                  <1>    xchg cx,ax              ; copy match length into cx
+   437 000002A2 1E                  <1>    push ds                 ; save ds:si (current pointer to compressed data)
+   438 000002A3 96                  <1>    xchg si,ax          
+   439 000002A4 06                  <1>    push es
+   440 000002A5 1F                  <1>    pop ds
+   441 000002A6 89FE                <1> 	mov si, di
+   442 000002A8 0376F6              <1> 	add si, word [bp + ?matchlength]
+   443                              <1> 			; ds:si now points at back reference in output data
+   444 000002AB 7225                <1> 	jc @FF		; simple case branches here -->
+   445 000002AD 53                  <1> 	push bx
+   446 000002AE 51                  <1> 	push cx
+   447 000002AF 8B4EF6              <1> 	mov cx, word [bp + ?matchlength]
+   448 000002B2 BBFFFF              <1> 	mov bx, -1
+   449 000002B5 06                  <1> 	 push es
+   450 000002B6 57                  <1> 	 push di
+   451 000002B7 E8B100              <1> 	call normalise_pointer_with_displacement_bxcx
+   452 000002BA 5E                  <1> 	 pop si
+   453 000002BB 5B                  <1> 	 pop bx
+   454 000002BC 7203E9F2FE          <1> 	jnc depack.error
+   455 000002C1 3B5EF0              <1> 	cmp bx, word [bp + ?original_dst + 2]
+   456 000002C4 7503                <1> 	jne @F
+   457 000002C6 3B76EE              <1> 	cmp si, word [bp + ?original_dst]
+   458                              <1> @@:
+   459 000002C9 7303E9E5FE          <1> 	jb depack.error
+   460 000002CE 8EDB                <1> 	mov ds, bx
+   461 000002D0 59                  <1> 	pop cx
+   462 000002D1 5B                  <1> 	pop bx
+   463                              <1> @@:
+   464 000002D2 294EE2              <1> 	sub word [bp + ?length_of_destination], cx
+   465 000002D5 835EE400            <1> 	sbb word [bp + ?length_of_destination + 2], 0
+   466 000002D9 7303E9D5FE          <1> 	jb depack.error
+   467 000002DE F3A4                <1>    rep movsb               ; copy match
+   468 000002E0 96                  <1>    xchg si,ax              ; restore ds:si
+   469 000002E1 1F                  <1>    pop ds
+   470                              <1> %if _ALLOW_OVERLAPPING
+   471 000002E2 53                  <1> 	push bx
+   472 000002E3 85FF                <1> 	test di, di
+   473 000002E5 740C                <1> 	jz .zero
+   474 000002E7 E83C00              <1> 	call check_pointers_not_overlapping
+   475                              <1> .waszero:
+   476 000002EA 5B                  <1> 	pop bx
+   477 000002EB 7303E9C3FE          <1> 	jc depack.error
+   478 000002F0 E9E5FE              <1> 	jmp .decode_token_clear_cx
+   479                              <1> 				; go decode another token
+   480                              <1> 
+   481                              <1> .zero:
+   482 000002F3 06                  <1> 	push es
+   483 000002F4 8CC3                <1> 	mov bx, es		; => our block
+   484 000002F6 81C30010            <1> 	add bx, 1000h		; => next 64 KiB block
+   485 000002FA 8EC3                <1> 	mov es, bx		; es:di -> after our block
+   486 000002FC E82700              <1> 	call check_pointers_not_overlapping
+   487 000002FF 07                  <1> 	pop es
+   488 00000300 EBE8                <1> 	jmp .waszero
+   489                              <1> %else
+   490                              <1> 	jmp .decode_token
+   491                              <1> 				; go decode another token
+   492                              <1> %endif
+   493                              <1> 
+   494                              <1> .end:
+   495 00000302 58                  <1>    pop ax                  ; retrieve the original decompression offset
+   496 00000303 97                  <1>    xchg di,ax              ; compute decompressed size
+   497 00000304 29F8                <1>    sub ax,di
+   498 00000306 C3                  <1>    ret                     ; done
+   499                              <1> 
+   500                              <1> .get_nibble_x:
+   501 00000307 F5                  <1>    cmc                     ; carry set if bit 4 was set
+   502 00000308 D0D8                <1>    rcr al,1
+   503 0000030A E80700              <1>    call .get_nibble        ; get nibble for offset bits 0-3
+   504 0000030D 08C8                <1>    or al,cl                ; merge nibble
+   505 0000030F D0C0                <1>    rol al,1
+   506 00000311 34E1                <1>    xor al,0E1H             ; set offset bits 7-5 to 1
+   507 00000313 C3                  <1>    ret
+   508                              <1> 
+   509                              <1> .get_nibble:
+   510 00000314 F6DF                <1>    neg bh                  ; nibble ready?
+   511 00000316 7905                <1>    jns .has_nibble
+   512                              <1>    
+   513 00000318 93                  <1>    xchg bx,ax
+   514 00000319 E89CFE              <1> 	call .lodsb		; load two nibbles
+   515 0000031C 93                  <1>    xchg bx,ax
+   516                              <1> 
+   517                              <1> .has_nibble:
+   518 0000031D B104                <1>    mov cl,4                ; swap 4 high and low bits of nibble
+   519 0000031F D2CB                <1>    ror bl,cl
+   520 00000321 B10F                <1>    mov cl,0FH
+   521 00000323 20D9                <1>    and cl,bl
+   522 00000325 C3                  <1>    ret
+  1017                                  %endif
+  1018                                  
+  1019                                  
+  1020                                  %if _APL
+  1021                                  	%include "apl.asm"
+  1022                                  %endif
+  1023                                  
+  1024                                  
+  1025                                  %if _BZP
+  1026                                  	%include "bzp.asm"
+  1027                                  %endif
+  1028                                  
+  1029                                  
+  1030                                  %if _ALLOW_OVERLAPPING
+  1031                                  		; INP:	?src, ?dst
+  1032                                  		; OUT:	CY if error (?src < ?dst)
+  1033                                  		;	NC if success
+  1034                                  		; CHG:	ax, bx, cx, dx
+  1035                                  check_pointers_not_overlapping:
+  1036                                  %if CHECK_POINTERS_VARIABLE_DST
+  1037                                  	 push word [bp + ?dst + 2]
+  1038                                  	 push word [bp + ?dst]
+  1039                                  %else
+  1040 00000326 06                      	 push es
+  1041 00000327 57                      	 push di
+  1042                                  %endif
+  1043 00000328 E86F00                  	call pointer_to_linear
+  1044                                  
+  1045 0000032B 91                      	xchg cx, ax
+  1046 0000032C 87DA                    	xchg bx, dx			; bx:cx = linear ?dst after write
+  1047                                  
+  1048                                  %if CHECK_POINTERS_VARIABLE_SRC
+  1049                                  	 push word [bp + ?src + 2]
+  1050                                  	 push word [bp + ?src]
+  1051                                  %else
+  1052 0000032E 1E                      	 push ds
+  1053 0000032F 56                      	 push si
+  1054                                  %endif
+  1055 00000330 E86700                  	call pointer_to_linear		; dx:ax = linear ?src before next read
+  1056                                  
+  1057 00000333 39DA                    	cmp dx, bx			; ?src >= ?dst ?
+  1058 00000335 7502                    	jne @F
+  1059 00000337 39C8                    	cmp ax, cx
+  1060                                  @@:
+  1061                                  					; (CY) if error (src < dst)
+  1062                                  					; (NC) if no error
+  1063 00000339 C3                      	retn
+  1064                                  %endif
+  1065                                  
+  1066                                  	; This leaves the lframe context created within the
+  1067                                  	;  specific depacker's file. The above function
+  1068                                  	;  check_pointers_not_overlapping uses the frame.
+  1069                                  	lleave ctx
+  1070                                  
+  1071                                  
+  1072                                  		; INP:	ds:si = pointer
+  1073                                  		;	es:di = pointer
+  1074                                  		; OUT:	ds:si normalised
+  1075                                  		;	es:di normalised
+  1076                                  normalise_both_pointers:
+  1077 0000033A 06                      	 push es
+  1078 0000033B 57                      	 push di
+  1079 0000033C E80A00                  	call normalise_pointer
+  1080 0000033F 5F                      	 pop di
+  1081 00000340 07                      	 pop es
+  1082                                  
+  1083                                  normalise_dssi_pointer:
+  1084 00000341 1E                      	 push ds
+  1085 00000342 56                      	 push si
+  1086 00000343 E80300                  	call normalise_pointer
+  1087 00000346 5E                      	 pop si
+  1088 00000347 1F                      	 pop ds
+  1089 00000348 C3                      	retn
+  1090                                  
+  1091                                  
+  1092                                  		; INP:	word [ss:sp + 2] = segment
+  1093                                  		;	word [ss:sp] = offset
+  1094                                  		;
+  1095                                  		; Note:	Does not work correctly with pointers that point to
+  1096                                  		;	 a HMA location. Do not use then!
+  1097                                  normalise_pointer:
+  1098                                  %if NEED_NORMALISE_POINTER_WITH_DISPLACEMENT
+  1099                                  	lframe near
+  1100                                  	lpar word,	segment
+  1101                                  	lpar word,	offset
+  1102                                  	lpar_return
+  1103 00000349 5589E5                  	lenter
+  1104                                  
+  1105 0000034C 837E040F                	cmp word [bp + ?offset], 15
+  1106 00000350 7617                    	jbe .ret
+  1107                                  
+  1108 00000352 53                      	push bx
+  1109 00000353 51                      	push cx
+  1110                                  
+  1111 00000354 31DB                    	xor bx, bx
+  1112 00000356 31C9                    	xor cx, cx
+  1113 00000358 FF7606                  	 push word [bp + ?segment]
+  1114 0000035B FF7604                  	 push word [bp + ?offset]
+  1115 0000035E E80A00                  	call normalise_pointer_with_displacement_bxcx
+  1116 00000361 8F4604                  	 pop word [bp + ?offset]
+  1117 00000364 8F4606                  	 pop word [bp + ?segment]
+  1118                                  
+  1119 00000367 59                      	pop cx
+  1120 00000368 5B                      	pop bx
+  1121                                  .ret:
+  1122 00000369 5D                      	lleave
+  1123 0000036A C3                      	lret
+  1124                                  
+  1125                                  
+  1126                                  		; INP:	word [ss:sp + 2] = segment
+  1127                                  		;	word [ss:sp] = offset
+  1128                                  		;	bx:cx = add/sub displacement
+  1129                                  		; OUT:	CY if the displacement carries
+  1130                                  		;	NC if not
+  1131                                  normalise_pointer_with_displacement_bxcx:
+  1132                                  %endif
+  1133                                  	lframe near
+  1134                                  	lpar word,	segment
+  1135                                  	lpar word,	offset
+  1136                                  	lpar_return
+  1137 0000036B 5589E5                  	lenter
+  1138                                  
+  1139                                  %ifn NEED_NORMALISE_POINTER_WITH_DISPLACEMENT
+  1140                                  	cmp word [bp + ?offset], 15
+  1141                                  	jbe .ret
+  1142                                  %endif
+  1143                                  
+  1144 0000036E 50                      	push ax
+  1145 0000036F 51                      	push cx
+  1146 00000370 52                      	push dx
+  1147                                  
+  1148 00000371 FF7606                  	 push word [bp + ?segment]
+  1149 00000374 FF7604                  	 push word [bp + ?offset]
+  1150 00000377 E82000                  	call pointer_to_linear
+  1151                                  
+  1152                                  %if NEED_NORMALISE_POINTER_WITH_DISPLACEMENT
+  1153                                  	; push bx
+  1154                                  	; 				; sign-extend cx into bx:cx
+  1155                                  	; cmp cx, 8000h			; CY if < 8000h (NC if negative)
+  1156                                  	; cmc				; NC if positive
+  1157                                  	; sbb bx, bx			; 0 if was NC, -1 if was CY
+  1158                                  
+  1159 0000037A 01C1                    	add cx, ax
+  1160 0000037C 11DA                    	adc dx, bx			; dx:cx = dx:ax + bx:cx
+  1161                                  	; pop bx
+  1162 0000037E 9F                      	lahf				; ah = flags
+  1163                                  %else
+  1164                                  	xchg ax, cx
+  1165                                  %endif
+  1166                                  
+  1167                                  %if 0
+  1168                                  		; Adds in HMA support for this function. Not currently used.
+  1169                                  	cmp dx, 10h			; dx:ax >= 10_0000h ?
+  1170                                  	jb @F				; no, linear-to-pointer normally -->
+  1171                                  	; ja .error
+  1172                                  
+  1173                                  	add cx, 10h
+  1174                                  	; jc .error
+  1175                                  	mov word [bp + ?offset], cx
+  1176                                  	or word [bp + ?segment], -1
+  1177                                  	jmp .return
+  1178                                  @@:
+  1179                                  %endif
+  1180                                  
+  1181 0000037F 53                      	push bx
+  1182 00000380 89CB                    	mov bx, cx
+  1183 00000382 83E10F                  	and cx, 15
+  1184 00000385 894E04                  	mov word [bp + ?offset], cx
+  1185                                  
+  1186 00000388 B104                    	mov cl, 4
+  1187                                  @@:
+  1188 0000038A D1EA                    	shr dx, 1
+  1189 0000038C D1DB                    	rcr bx, 1
+  1190 0000038E E2FA                    	loop @B
+  1191                                  
+  1192 00000390 895E06                  	mov word [bp + ?segment], bx
+  1193 00000393 5B                      	pop bx
+  1194                                  
+  1195                                  	; test dx, dx
+  1196                                  	; jnz .error
+  1197                                  
+  1198                                  .return:
+  1199                                  
+  1200                                  %if NEED_NORMALISE_POINTER_WITH_DISPLACEMENT
+  1201 00000394 9E                      	sahf				; restore flags from ah
+  1202                                  %endif
+  1203 00000395 5A                      	pop dx
+  1204 00000396 59                      	pop cx
+  1205 00000397 58                      	pop ax
+  1206                                  %ifn NEED_NORMALISE_POINTER_WITH_DISPLACEMENT
+  1207                                  .ret:
+  1208                                  %endif
+  1209 00000398 5D                      	lleave
+  1210 00000399 C3                      	lret
+  1211                                  
+  1212                                  
+  1213                                  		; INP:	word [ss:sp + 2] = segment
+  1214                                  		;	word [ss:sp] = offset
+  1215                                  		; OUT:	dx:ax = linear address
+  1216                                  pointer_to_linear:
+  1217                                  	lframe near
+  1218                                  	lpar word,	segment
+  1219                                  	lpar word,	offset
+  1220 0000039A 5589E5                  	lenter
+  1221                                  
+  1222 0000039D 8B4606                  	mov ax, word [bp + ?segment]
+  1223 000003A0 31D2                    	xor dx, dx
+  1224 000003A2 51                      	push cx
+  1225 000003A3 B90400                  	mov cx, 4
+  1226                                  @@:
+  1227 000003A6 D1E0                    	shl ax, 1
+  1228 000003A8 D1D2                    	rcl dx, 1
+  1229 000003AA E2FA                    	loop @B
+  1230                                  
+  1231 000003AC 034604                  	add ax, word [bp + ?offset]
+  1232 000003AF 11CA                    	adc dx, cx			; cx = 0 here
+  1233 000003B1 59                      	pop cx
+  1234                                  
+  1235 000003B2 5D                      	lleave
+  1236 000003B3 C20400                  	lret
+  1237                                  
+  1238                                  
+  1239 000003B6 90<rep Ah>              	align 16
+  1240                                  init1_end:
+  1241                                  
+  1242                                  
+  1243                                  	section INIT0
+  1244                                  %if _TEST_PROGRAM
+  1245                                  init0_msg:
+  1246 0000025F 4572726F723A204E6F-     .error_stderr:	db "Error: Not enough memory allocated.",13,10
+  1246 00000268 7420656E6F75676820-
+  1246 00000271 6D656D6F727920616C-
+  1246 0000027A 6C6F63617465642E0D-
+  1246 00000283 0A                 
+  1247                                  .error_stderr.length: equ $ - .error_stderr
+  1248 00000284 3131323538              .error_stdout:	_autodigits paras(_TEST_PROGRAM_DECOMPRESSED_SIZE 				+ (payload_end - payload) 				+ (init1_end - init1_start) 				+ ADDITIONAL_MEMORY 				)
+  1253 00000289 0D0A                    		db 13,10
+  1254                                  .error_stdout.length: equ $ - .error_stdout
+  1255                                  
+  1256 0000028B 90<rep 175h>            	align 1024
+  1257                                  %if ($ - $$) != 1024
+  1258                                   %error Wrong INIT0 size
+  1259                                  %endif
+  1260                                  %endif
+  1261                                  
+  1262                                  	align 16
+  1263                                  init0_end:
+  1264                                  
+  1265                                  
+  1266                                  %assign num (init1_end - init1_start) + (init0_end - init0_start)
+  1267                                  %if _BRIEFLZ
+  1268                                  %define which iniblz
+  1269                                  %elif _LZ4
+  1270                                  %define which inilz4
+  1271                                  %elif _SNAPPY
+  1272                                  %define which inisz
+  1273                                  %elif _EXODECR
+  1274                                  %define which iniexo
+  1275                                  %elif _X
+  1276                                  %define which inix
+  1277                                  %elif _HEATSHRINK
+  1278                                  %define which inihs
+  1279                                  %elif _LZD
+  1280                                  %define which inilz
+  1281                                  %elif _LZO
+  1282                                  %define which inilzo
+  1283                                  %elif _LZSA2
+  1284                                  %define which inilzsa2
+  1285                                  %elif _APL
+  1286                                  %define which iniapl
+  1287                                  %elif _BZP
+  1288                                  %define which inibzp
+  1289                                  %endif
+  1290                                  %warning which: num bytes used for depacker
+  1290          ******************       warning: inilzsa2: 1984 bytes used for depacker [-w+user]
+  1291                                  
+  1292                                  
+  1293                                  %if _TEST_PROGRAM
+  1294                                  	section INIT2 align=16 follows=INIT1 vstart=0
+  1295                                  init2_start:
+  1296                                  		; si => after PSP
+  1297                                  		; cs => INIT2
+  1298                                  		; psp, free, payload, init1, init2, payload space, stack
+  1299                                  		;
+  1300                                  		; The correct allocation for the test program
+  1301                                  		;  is image size (init0, payload, init1, init2)
+  1302                                  		;  minus init0 plus compressed payload size
+  1303                                  		;  plus decompressed size plus stack. For
+  1304                                  		;  simplicity, init0 subtraction may be skipped.
+  1305                                  
+  1306                                  		; ss:sp -> word amount repetitions, word ax
+  1307                                  		; bx = 1 if A test, 8001h if B test
+  1308 00000000 53                      	push bx
+  1309                                  
+  1310                                  	lframe 0
+  1311                                  	lpar word,	repetitions
+  1312                                  	lpar word,	whichtest
+  1313 00000001 5589E5                  	lenter
+  1314                                  
+  1315 00000004 8B5604                  	mov dx, word [bp + ?repetitions]
+  1316 00000007 83FAFF                  	cmp dx, -1
+  1317 0000000A 7509                    	jne @F
+  1318                                  
+  1319                                  .cmdline_error:
+  1320                                  %if _DEBUG0
+  1321                                  	mov bx, -1
+  1322                                  %endif
+  1323 0000000C BA[9F02]                	mov dx, init2_msg.cmdline_error
+  1324 0000000F B92400                  	mov cx, init2_msg.cmdline_error.length
+  1325 00000012 E95B01                  	jmp init2_error
+  1326                                  
+  1327                                  
+  1328                                  @@:
+  1329 00000015 F6460380                	testopt [bp + ?whichtest], 8000h
+  1330 00000019 7406                    	jz .a
+  1331                                  .b:
+  1332 0000001B 85D2                    	test dx, dx
+  1333 0000001D 74ED                    	jz .cmdline_error
+  1334 0000001F EB04                    	jmp @F
+  1335                                  
+  1336                                  .a:
+  1337 00000021 85D2                    	test dx, dx
+  1338 00000023 75E7                    	jnz .cmdline_error
+  1339                                  @@:
+  1340                                  
+  1341 00000025 8CCA                    	mov dx, cs
+  1342 00000027 81C2C31A                	add dx, (init2_end - init2_start) >> 4
+  1343                                  				; => payload saving area
+  1344 0000002B 8CC8                    	mov ax, cs
+  1345 0000002D 2D6E11                  	sub ax, ( (init1_end - init1_start) 		+ (payload_end - payload) 		) >> 4		; => payload source for first run
+  1348 00000030 B93211                  	mov cx, (payload_end - payload) >> 4
+  1349 00000033 E89402                  	call init2_movp		; copy payload to payload saving area
+  1350                                  		; We save away the payload here because a failure
+  1351                                  		;  to decompress generally overwrites part of that
+  1352                                  		;  payload which was used as source.
+  1353                                  
+  1354 00000036 89C2                    	mov dx, ax		; dx => payload source to use
+  1355 00000038 8CC8                    	mov ax, cs
+  1356 0000003A 83E83C                  	sub ax, (init1_end - init1_start) >> 4
+  1357                                  				; ax => INIT1
+  1358 0000003D BB0100                  	mov bx, 1		; say we're in EXE mode
+  1359 00000040 52                      	push dx
+  1360 00000041 50                      	push ax
+  1361 00000042 56                      	push si			; si => target
+  1362 00000043 0E                      	 push cs
+  1363 00000044 E8EA00                  	 call .transfer		; call decompression
+  1364 00000047 5E                      	pop si
+  1365 00000048 58                      	pop ax
+  1366 00000049 5A                      	pop dx
+  1367                                  		; Returns here after decompression.
+  1368                                  		; CY if error.
+  1369 0000004A 7309                    	jnc @F
+  1370                                  
+  1371 0000004C BA[F001]                	mov dx, init2_msg.initial_error
+  1372 0000004F B93C00                  	mov cx, init2_msg.initial_error.length
+  1373 00000052 E91B01                  	jmp init2_error
+  1374                                  
+  1375                                  @@:
+  1376                                  	numdef INCLUDE_UNCOMPRESSED
+  1377                                  	numdef WRITE_WRONG_FILE
+  1378                                  %if _INCLUDE_UNCOMPRESSED
+  1379                                  payload_uncompressed_size equ payload_uncompressed.end - payload_uncompressed
+  1380                                  
+  1381 00000055 E8DF00                  	call checkdecompressed
+  1382 00000058 7409                    	je @F
+  1383                                  
+  1384                                  %if _WRITE_WRONG_FILE
+  1385                                  	call writefiles
+  1386                                  %endif
+  1387                                  
+  1388                                  %if _DEBUG0
+  1389                                  	mov bx, -1
+  1390                                  %endif
+  1391 0000005A BA[2C02]                	mov dx, init2_msg.initial_error_2
+  1392 0000005D B93C00                  	mov cx, init2_msg.initial_error_2.length
+  1393 00000060 E90D01                  	jmp init2_error
+  1394                                  
+  1395                                  @@:
+  1396                                  %endif
+  1397                                  
+  1398                                  	lvar word,	upperbound
+  1399 00000063 52                      	 push dx
+  1400                                  	lvar word,	lowerbound
+  1401 00000064 56                      	 push si
+  1402                                  	lvar word,	current_init1
+  1403 00000065 50                      	 push ax
+  1404                                  
+  1405                                  %if _TEST_PROGRESS
+  1406 00000066 BA[E501]                	mov dx, init2_msg.progress.1
+  1407 00000069 B90700                  	mov cx, init2_msg.progress.1.length
+  1408                                  .loop:
+  1409 0000006C 0E                      	push cs
+  1410 0000006D 1F                      	pop ds
+  1411 0000006E BB0200                  	mov bx, 2
+  1412 00000071 B440                    	mov ah, 40h
+  1413 00000073 CD21                    	int 21h
+  1414                                  %else
+  1415                                  .loop:
+  1416                                  %endif
+  1417                                  
+  1418 00000075 8B56FE                  	mov dx, [bp + ?upperbound]
+  1419                                  
+  1420 00000078 F6460380                	testopt [bp + ?whichtest], 8000h
+  1421 0000007C 7419                    	jz @F
+  1422                                  
+  1423 0000007E FF4E04                  	dec word [bp + ?repetitions]
+  1424 00000081 751E                    	jnz .test_b_skip_bound
+  1425                                  
+  1426                                  %if _TEST_PROGRESS
+  1427 00000083 0E                      	push cs
+  1428 00000084 1F                      	pop ds
+  1429 00000085 BA[EE01]                	mov dx, init2_msg.progress.linebreak
+  1430 00000088 B90200                  	mov cx, init2_msg.progress.linebreak.length
+  1431 0000008B BB0200                  	mov bx, 2
+  1432 0000008E B440                    	mov ah, 40h
+  1433 00000090 CD21                    	int 21h
+  1434                                  %endif
+  1435 00000092 B8004C                  	mov ax, 4C00h
+  1436 00000095 CD21                    	int 21h
+  1437                                  
+  1438                                  
+  1439                                  @@:
+  1440 00000097 2B56FC                  	sub dx, [bp + ?lowerbound]
+  1441 0000009A 746C                    	jz .found
+  1442 0000009C D1EA                    	shr dx, 1
+  1443                                  		; Rounding down, so that we never retry upper bound.
+  1444                                  		;  The upper bound is known to be working.
+  1445 0000009E 0356FC                  	add dx, [bp + ?lowerbound]
+  1446                                  
+  1447                                  .test_b_skip_bound:
+  1448 000000A1 52                      	push dx
+  1449 000000A2 81C23211                	add dx, (payload_end - payload) >> 4
+  1450 000000A6 8B46FA                  	mov ax, [bp + ?current_init1]
+  1451 000000A9 B93C00                  	mov cx, (init1_end - init1_start) >> 4
+  1452 000000AC E81B02                  	call init2_movp
+  1453 000000AF 8956FA                  	mov [bp + ?current_init1], dx
+  1454 000000B2 5A                      	pop dx
+  1455                                  
+  1456 000000B3 8CC8                    	mov ax, cs
+  1457 000000B5 05C31A                  	add ax, (init2_end - init2_start) >> 4
+  1458                                  				; => payload in saving area
+  1459 000000B8 B93211                  	mov cx, (payload_end - payload) >> 4
+  1460 000000BB E80C02                  	call init2_movp		; copy payload from payload saving area
+  1461                                  
+  1462                                  		; dx => source
+  1463 000000BE 8B46FA                  	mov ax, [bp + ?current_init1]
+  1464 000000C1 BB0100                  	mov bx, 1
+  1465 000000C4 52                      	push dx
+  1466 000000C5 56                      	push si
+  1467 000000C6 0E                      	 push cs
+  1468 000000C7 E86700                  	 call .transfer
+  1469 000000CA 5E                      	pop si
+  1470 000000CB 5A                      	pop dx
+  1471                                  		; Returns here after decompression.
+  1472                                  		; CY if error.
+  1473 000000CC 7312                    	jnc @F
+  1474                                  
+  1475 000000CE F6460380                	testopt [bp + ?whichtest], 8000h
+  1476 000000D2 7511                    	jnz .test_b_fail
+  1477                                  
+  1478                                  		; error: this attempt is one below the new lower bound
+  1479 000000D4 42                      	inc dx
+  1480 000000D5 8956FC                  	mov word [bp + ?lowerbound], dx
+  1481                                  
+  1482                                  %if _TEST_PROGRESS
+  1483 000000D8 BA[EC01]                	mov dx, init2_msg.progress.fail
+  1484 000000DB B90100                  	mov cx, init2_msg.progress.fail.length
+  1485                                  %endif
+  1486 000000DE EB8C                    	jmp .loop
+  1487                                  
+  1488                                  @@:
+  1489                                  %if _INCLUDE_UNCOMPRESSED
+  1490 000000E0 E85400                  	call checkdecompressed
+  1491 000000E3 7417                    	je @F
+  1492                                  
+  1493                                  %if _WRITE_WRONG_FILE
+  1494                                  	call writefiles
+  1495                                  %endif
+  1496                                  
+  1497                                  .test_b_fail:
+  1498                                  %if _TEST_PROGRESS
+  1499 000000E5 0E                      	push cs
+  1500 000000E6 1F                      	pop ds
+  1501 000000E7 BA[EE01]                	mov dx, init2_msg.progress.linebreak
+  1502 000000EA B90200                  	mov cx, init2_msg.progress.linebreak.length
+  1503 000000ED BB0200                  	mov bx, 2
+  1504 000000F0 B440                    	mov ah, 40h
+  1505 000000F2 CD21                    	int 21h
+  1506                                  %endif
+  1507                                  %if _DEBUG0
+  1508                                  	mov bx, -2
+  1509                                  %endif
+  1510 000000F4 BA[6802]                	mov dx, init2_msg.subsequent_error_2
+  1511 000000F7 B93700                  	mov cx, init2_msg.subsequent_error_2.length
+  1512 000000FA EB74                    	jmp init2_error
+  1513                                  
+  1514                                  @@:
+  1515                                  %endif
+  1516                                  		; success: this attempt is the new upper bound
+  1517 000000FC 8956FE                  	mov word [bp + ?upperbound], dx
+  1518                                  %if _TEST_PROGRESS
+  1519 000000FF BA[ED01]                	mov dx, init2_msg.progress.success
+  1520 00000102 B90100                  	mov cx, init2_msg.progress.success.length
+  1521                                  %endif
+  1522 00000105 E964FF                  	jmp .loop
+  1523                                  
+  1524                                  .found:
+  1525                                  %if _TEST_PROGRESS
+  1526 00000108 0E                      	push cs
+  1527 00000109 1F                      	pop ds
+  1528 0000010A BA[EE01]                	mov dx, init2_msg.progress.linebreak
+  1529 0000010D B90200                  	mov cx, init2_msg.progress.linebreak.length
+  1530 00000110 BB0200                  	mov bx, 2
+  1531 00000113 B440                    	mov ah, 40h
+  1532 00000115 CD21                    	int 21h
+  1533                                  %endif
+  1534 00000117 8B46FE                  	mov ax, word [bp + ?upperbound]
+  1535 0000011A 29F0                    	sub ax, si		; = how many paragraphs in buffer before source
+  1536 0000011C 056E11                  	add ax, paras( (init1_end - init1_start) 			+ (payload_end - payload) )
+  1538                                  				; = how many paragraphs needed for process
+  1539 0000011F E87A00                  	call init2_disp_ax_dec
+  1540 00000122 B00D                    	mov al, 13
+  1541 00000124 E86A00                  	call init2_disp_al
+  1542 00000127 B00A                    	mov al, 10
+  1543 00000129 E86500                  	call init2_disp_al
+  1544 0000012C B8004C                  	mov ax, 4C00h
+  1545 0000012F CD21                    	int 21h
+  1546                                  
+  1547                                  
+  1548                                  .transfer:
+  1549 00000131 31FF                    	xor di, di
+  1550 00000133 57                      	push di			; dummy ax value on stack
+  1551 00000134 50                      	push ax			; INIT1 segment
+  1552 00000135 57                      	push di			; zero = init1_start
+  1553 00000136 CB                      	retf
+  1554                                  
+  1555                                  
+  1556                                  
+  1557                                  %if _INCLUDE_UNCOMPRESSED
+  1558                                  
+  1559                                  
+  1560                                  %if _WRITE_WRONG_FILE
+  1561                                  writefiles:
+  1562                                  	push cs
+  1563                                  	pop ds
+  1564                                  	mov dx, init2_msg.wrong_file_name
+  1565                                  	xor cx, cx
+  1566                                  	mov ah, 3Ch
+  1567                                  	int 21h
+  1568                                  	jc .notfile
+  1569                                  
+  1570                                  	mov bx, ax
+  1571                                  	mov cx, payload_uncompressed_size >> 4
+  1572                                  	xor dx, dx
+  1573                                  .loopfile:
+  1574                                  	mov ds, si
+  1575                                  	mov ah, 40h
+  1576                                  	push cx
+  1577                                  	mov cx, 16
+  1578                                  	int 21h
+  1579                                  	pop cx
+  1580                                  	inc si
+  1581                                  	loop .loopfile
+  1582                                  
+  1583                                  	mov ds, si
+  1584                                  	mov cx, payload_uncompressed_size & 15
+  1585                                  	mov ah, 40h
+  1586                                  	int 21h
+  1587                                  
+  1588                                  	mov ah, 3Eh
+  1589                                  	int 21h
+  1590                                  
+  1591                                  .notfile:
+  1592                                  
+  1593                                  	push cs
+  1594                                  	pop ds
+  1595                                  	mov dx, init2_msg.wrong_file_name2
+  1596                                  	xor cx, cx
+  1597                                  	mov ah, 3Ch
+  1598                                  	int 21h
+  1599                                  	jc .notfile2
+  1600                                  
+  1601                                  	mov bx, ax
+  1602                                  	mov cx, payload_uncompressed_size >> 4
+  1603                                  	mov si, cs
+  1604                                  	add si, (payload_uncompressed - init2_start) >> 4
+  1605                                  	xor dx, dx
+  1606                                  .loopfile2:
+  1607                                  	mov ds, si
+  1608                                  	mov ah, 40h
+  1609                                  	push cx
+  1610                                  	mov cx, 16
+  1611                                  	int 21h
+  1612                                  	pop cx
+  1613                                  	inc si
+  1614                                  	loop .loopfile2
+  1615                                  
+  1616                                  	mov ds, si
+  1617                                  	mov cx, payload_uncompressed_size & 15
+  1618                                  	mov ah, 40h
+  1619                                  	int 21h
+  1620                                  
+  1621                                  	mov ah, 3Eh
+  1622                                  	int 21h
+  1623                                  
+  1624                                  .notfile2:
+  1625                                  	retn
+  1626                                  %endif
+  1627                                  
+  1628                                  		; INP:	si => decompressed image
+  1629                                  		; OUT:	ZR if matching
+  1630                                  		;	NZ if mismatching
+  1631                                  		; CHG:	es, ds, di, bx, cx
+  1632                                  		; STT:	UP
+  1633                                  checkdecompressed:
+  1634 00000137 50                      	push ax
+  1635 00000138 52                      	push dx
+  1636 00000139 56                      	push si
+  1637                                  %if _PAYLOAD_KERNEL_MAX_PARAS
+  1638                                  	mov cx, _PAYLOAD_KERNEL_MAX_PARAS
+  1639                                  	mov bx, 0
+  1640                                  %else
+  1641 0000013A B98C1A                  	mov cx, payload_uncompressed_size >> 4
+  1642 0000013D BB0000                  	mov bx, payload_uncompressed_size & 15
+  1643                                  %endif
+  1644 00000140 8CCF                    	mov di, cs
+  1645 00000142 83C736                  	add di, (payload_uncompressed - init2_start) >> 4
+  1646 00000145 E319                    	jcxz .end
+  1647                                  .loop:
+  1648 00000147 51                      	push cx
+  1649 00000148 B90800                  	mov cx, 8
+  1650 0000014B 8EDE                    	mov ds, si
+  1651 0000014D 8EC7                    	mov es, di
+  1652 0000014F 46                      	inc si
+  1653 00000150 47                      	inc di
+  1654 00000151 56                      	push si
+  1655 00000152 57                      	push di
+  1656 00000153 31F6                    	xor si, si
+  1657 00000155 31FF                    	xor di, di
+  1658 00000157 F3A7                    	repe cmpsw
+  1659 00000159 5F                      	pop di
+  1660 0000015A 5E                      	pop si
+  1661 0000015B 59                      	pop cx
+  1662 0000015C 750E                    	jne .ret
+  1663 0000015E E2E7                    	loop .loop
+  1664                                  .end:
+  1665 00000160 8EDE                    	mov ds, si
+  1666 00000162 8EC7                    	mov es, di
+  1667 00000164 31F6                    	xor si, si
+  1668 00000166 31FF                    	xor di, di		; (ZR)
+  1669 00000168 89D9                    	mov cx, bx
+  1670 0000016A F3A6                    	repe cmpsb
+  1671                                  .ret:
+  1672 0000016C 5E                      	pop si
+  1673 0000016D 5A                      	pop dx
+  1674 0000016E 58                      	pop ax
+  1675 0000016F C3                      	retn
+  1676                                  %endif
+  1677                                  
+  1678                                  
+  1679                                  init2_error:
+  1680                                  %if _DEBUG0
+  1681                                  	push bx
+  1682                                  %endif
+  1683 00000170 0E                      	push cs
+  1684 00000171 1F                      	pop ds
+  1685 00000172 BB0200                  	mov bx, 2
+  1686 00000175 B440                    	mov ah, 40h
+  1687 00000177 CD21                    	int 21h
+  1688                                  
+  1689                                  %if _DEBUG0
+  1690                                  	mov dx, init2_msg.rc
+  1691                                  	mov cx, init2_msg.rc.length
+  1692                                  	mov bx, 2
+  1693                                  	mov ah, 40h
+  1694                                  	int 21h
+  1695                                  	pop ax
+  1696                                  	call init2_error_disp_ax_hex
+  1697                                  	mov dx, init2_msg.linebreak
+  1698                                  	mov cx, init2_msg.linebreak.length
+  1699                                  	mov bx, 2
+  1700                                  	mov ah, 40h
+  1701                                  	int 21h
+  1702                                  %endif
+  1703                                  
+  1704 00000179 F6460380                	testopt [bp + ?whichtest], 8000h
+  1705 0000017D 750D                    	jnz @F
+  1706                                  
+  1707 0000017F BA[C302]                	mov dx, init2_msg.error_stdout
+  1708 00000182 B90700                  	mov cx, init2_msg.error_stdout.length
+  1709 00000185 BB0100                  	mov bx, 1
+  1710 00000188 B440                    	mov ah, 40h
+  1711 0000018A CD21                    	int 21h
+  1712                                  @@:
+  1713 0000018C B8FF4C                  	mov ax, 4CFFh
+  1714 0000018F CD21                    	int 21h
+  1715                                  
+  1716                                  	lleave ctx
+  1717                                  
+  1718                                  
+  1719                                  %if _DEBUG0
+  1720                                  init2_error_disp_ax_hex:	; ax
+  1721                                  		xchg al,ah
+  1722                                  		call init2_error_disp_al_hex	; display former ah
+  1723                                  		xchg al,ah			;  and fall trough for al
+  1724                                  init2_error_disp_al_hex:	; al
+  1725                                  		push cx
+  1726                                  		mov cl,4
+  1727                                  		ror al,cl
+  1728                                  		call init2_error_disp_al_lownibble_hex
+  1729                                  						; display former high-nibble
+  1730                                  		rol al,cl
+  1731                                  		pop cx
+  1732                                  						;  and fall trough for low-nibble
+  1733                                  init2_error_disp_al_lownibble_hex:
+  1734                                  		push ax			 ; save ax for call return
+  1735                                  		and al,00001111b		; high nibble must be zero
+  1736                                  		add al,'0'			; if number is 0-9, now it's the correct character
+  1737                                  		cmp al,'9'
+  1738                                  		jna .decimalnum		 ; if we get decimal number with this, ok -->
+  1739                                  		add al,7			;  otherwise, add 7 and we are inside our alphabet
+  1740                                   .decimalnum:
+  1741                                  		call init2_error_disp_al
+  1742                                  		pop ax
+  1743                                  		retn
+  1744                                  
+  1745                                  
+  1746                                  init2_error_disp_al:
+  1747                                  	push dx
+  1748                                  	push cx
+  1749                                  	push bx
+  1750                                  	push ax
+  1751                                  	mov dx, sp
+  1752                                  	push ds
+  1753                                  	 push ss
+  1754                                  	 pop ds
+  1755                                  	mov cx, 1
+  1756                                  	mov bx, 2
+  1757                                  	mov ah, 40h
+  1758                                  	int 21h
+  1759                                  	pop ds
+  1760                                  	pop ax
+  1761                                  	pop bx
+  1762                                  	pop cx
+  1763                                  	pop dx
+  1764                                  	retn
+  1765                                  %endif
+  1766                                  
+  1767                                  
+  1768                                  init2_disp_al:
+  1769 00000191 52                      	push dx
+  1770 00000192 50                      	push ax
+  1771 00000193 88C2                    	mov dl, al
+  1772 00000195 B402                    	mov ah, 2
+  1773 00000197 CD21                    	int 21h
+  1774 00000199 58                      	pop ax
+  1775 0000019A 5A                      	pop dx
+  1776 0000019B C3                      	retn
+  1777                                  
+  1778                                  
+  1779                                  		; Display number in ax decimal
+  1780                                  		;
+  1781                                  		; INP:	ax = number
+  1782                                  		; OUT:	displayed using Int21.02
+  1783                                  		; CHG:	none
+  1784                                  init2_disp_ax_dec:			; ax (no leading zeros)
+  1785 0000019C 53                      		push bx
+  1786 0000019D 31DB                    		xor bx, bx
+  1787                                  .pushax:
+  1788 0000019F 52                      		push dx
+  1789 000001A0 50                      		push ax
+  1790 000001A1 08DB                    		or bl, bl
+  1791 000001A3 7405                    		jz .nobl
+  1792 000001A5 80EB05                  		sub bl, 5
+  1793 000001A8 F6DB                    		neg bl
+  1794                                  .nobl:
+  1795 000001AA 51                      		push cx
+  1796 000001AB B91027                  		mov cx, 10000
+  1797 000001AE E81B00                  		call .divide_out
+  1798 000001B1 B9E803                  		mov cx, 1000
+  1799 000001B4 E81500                  		call .divide_out
+  1800 000001B7 B96400                  		mov cx, 100
+  1801 000001BA E80F00                  		call .divide_out
+  1802 000001BD B10A                    		mov cl, 10
+  1803 000001BF E80A00                  		call .divide_out
+  1804                                  							; (Divisor 1 is useless)
+  1805 000001C2 0430                    		add al, '0'
+  1806 000001C4 E8CAFF                  		call init2_disp_al
+  1807 000001C7 59                      		pop cx
+  1808 000001C8 58                      		pop ax
+  1809 000001C9 5A                      		pop dx
+  1810 000001CA 5B                      		pop bx					; Caller's register
+  1811 000001CB C3                      		retn
+  1812                                  
+  1813                                  
+  1814                                  		; INP:	ax = number
+  1815                                  		;	cx = divisor
+  1816                                  		; OUT:	ax = remainder of operation
+  1817                                  		;	result displayed
+  1818                                  .divide_out:
+  1819 000001CC 52                      		push dx
+  1820 000001CD 31D2                    		xor dx, dx
+  1821 000001CF F7F1                    		div cx				; 0:ax / cx
+  1822 000001D1 52                      		push dx				; remainder
+  1823 000001D2 FECB                    		dec bl
+  1824 000001D4 7503                    		jnz .nobl2
+  1825 000001D6 80CF01                  		or bh, 1
+  1826                                  .nobl2:
+  1827 000001D9 08C7                    		or bh, al
+  1828 000001DB 7405                    		jz .leadingzero
+  1829 000001DD 0430                    		add al, '0'
+  1830 000001DF E8AFFF                  		call init2_disp_al		; display result
+  1831                                   .leadingzero:
+  1832 000001E2 58                      		pop ax				; remainder
+  1833 000001E3 5A                      		pop dx
+  1834 000001E4 C3                      		retn
+  1835                                  
+  1836                                  
+  1837                                  init2_msg:
+  1838                                  %if _TEST_PROGRESS
+  1839 000001E5 496E666F3A2031          .progress.1:		db "Info: 1"
+  1840                                  .progress.1.length: equ $ - .progress.1
+  1841 000001EC 46                      .progress.fail:		db "F"
+  1842                                  .progress.fail.length: equ $ - .progress.fail
+  1843 000001ED 53                      .progress.success:	db "S"
+  1844                                  .progress.success.length: equ $ - .progress.success
+  1845 000001EE 0D0A                    .progress.linebreak:	db 13,10
+  1846                                  .progress.linebreak.length: equ $ - .progress.linebreak
+  1847                                  %endif
+  1848                                  %if _WRITE_WRONG_FILE
+  1849                                  .wrong_file_name:	asciz "WRONG.BIN"
+  1850                                  .wrong_file_name2:	asciz "WRONG2.BIN"
+  1851                                  %endif
+  1852 000001F0 4572726F723A205465-     .initial_error:	db "Error: Test program failed to decompress with full buffer."
+  1852 000001F9 73742070726F677261-
+  1852 00000202 6D206661696C656420-
+  1852 0000020B 746F206465636F6D70-
+  1852 00000214 726573732077697468-
+  1852 0000021D 2066756C6C20627566-
+  1852 00000226 6665722E           
+  1853 0000022A 0D0A                    .linebreak:	db 13,10
+  1854                                  .initial_error.length: equ $ - .initial_error
+  1855                                  .linebreak.length: equ $ - .linebreak
+  1856                                  %if _DEBUG0
+  1857                                  .rc:	db "Error: Failure code="
+  1858                                  .rc.length: equ $ - .rc
+  1859                                  %endif
+  1860                                  %if _INCLUDE_UNCOMPRESSED
+  1861 0000022C 4572726F723A205465-     .initial_error_2:	db "Error: Test program decompressed wrongly with full buffer.",13,10
+  1861 00000235 73742070726F677261-
+  1861 0000023E 6D206465636F6D7072-
+  1861 00000247 65737365642077726F-
+  1861 00000250 6E676C792077697468-
+  1861 00000259 2066756C6C20627566-
+  1861 00000262 6665722E0D0A       
+  1862                                  .initial_error_2.length: equ $ - .initial_error_2
+  1863 00000268 4572726F723A205465-     .subsequent_error_2:	db "Error: Test program decompressed wrongly during test.",13,10
+  1863 00000271 73742070726F677261-
+  1863 0000027A 6D206465636F6D7072-
+  1863 00000283 65737365642077726F-
+  1863 0000028C 6E676C792064757269-
+  1863 00000295 6E6720746573742E0D-
+  1863 0000029E 0A                 
+  1864                                  .subsequent_error_2.length: equ $ - .subsequent_error_2
+  1865                                  %endif
+  1866 0000029F 4572726F723A20496E-     .cmdline_error:	db "Error: Invalid command line input.",13,10
+  1866 000002A8 76616C696420636F6D-
+  1866 000002B1 6D616E64206C696E65-
+  1866 000002BA 20696E7075742E0D0A 
+  1867                                  .cmdline_error.length: equ $ - .cmdline_error
+  1868 000002C3 3131323538              .error_stdout:	_autodigits paras(_TEST_PROGRAM_DECOMPRESSED_SIZE 				+ (payload_end - payload) 				+ (init1_end - init1_start) 				+ ADDITIONAL_MEMORY 				)
+  1873 000002C8 0D0A                    		db 13,10
+  1874                                  .error_stdout.length: equ $ - .error_stdout
+  1875                                  
+  1876                                  
+  1877                                  		; Move paragraphs
+  1878                                  		;
+  1879                                  		; INP:	ax => source
+  1880                                  		;	dx => destination
+  1881                                  		;	cx = number of paragraphs
+  1882                                  		; CHG:	-
+  1883                                  		; OUT:	ax and dx unchanged
+  1884                                  		; Note:	Doesn't work correctly on HMA; doesn't always wrap to LMA either.
+  1885                                  		;	Do not provide a wrapped/HMA source or destination!
+  1886                                  init2_movp:
+  1887 000002CA 51                      	push cx
+  1888 000002CB 1E                      	push ds
+  1889 000002CC 56                      	push si
+  1890 000002CD 06                      	push es
+  1891 000002CE 57                      	push di
+  1892                                  
+  1893 000002CF 39D0                    	cmp ax, dx		; source above destination ?
+  1894 000002D1 770A                    	ja .up			; yes, move up (forwards) -->
+  1895 000002D3 747B                    	je .return		; same, no need to move -->
+  1896 000002D5 50                      	push ax
+  1897 000002D6 01C8                    	add ax, cx		; (expected not to carry)
+  1898 000002D8 39D0                    	cmp ax, dx		; end of source is above destination ?
+  1899 000002DA 58                      	pop ax
+  1900 000002DB 7730                    	ja .down		; yes, move from top down -->
+  1901                                  	; Here, the end of source is below-or-equal the destination,
+  1902                                  	;  so they do not overlap. In this case we prefer moving up.
+  1903                                  
+  1904                                  .up:
+  1905 000002DD 50                      	push ax
+  1906 000002DE 52                      	push dx
+  1907                                  .uploop:
+  1908 000002DF 8ED8                    	mov ds, ax
+  1909 000002E1 8EC2                    	mov es, dx
+  1910 000002E3 31FF                    	xor di, di
+  1911 000002E5 31F6                    	xor si, si		; -> start of segment
+  1912 000002E7 81E90010                	sub cx, 1000h		; 64 KiB left ?
+  1913 000002EB 7610                    	jbe .uplast		; no -->
+  1914 000002ED 51                      	push cx
+  1915 000002EE B90080                  	mov cx, 10000h /2
+  1916 000002F1 F3A5                    	rep movsw		; move 64 KiB
+  1917 000002F3 59                      	pop cx
+  1918 000002F4 050010                  	add ax, 1000h
+  1919 000002F7 81C20010                	add dx, 1000h		; -> next segment
+  1920 000002FB EBE2                    	jmp short .uploop	; proceed for more -->
+  1921                                  .uplast:
+  1922 000002FD 81C10010                	add cx, 1000h		; restore counter
+  1923 00000301 D1E1                    	shl cx, 1
+  1924 00000303 D1E1                    	shl cx, 1
+  1925 00000305 D1E1                    	shl cx, 1		; *8, paragraphs to words
+  1926 00000307 F3A5                    	rep movsw		; move last part
+  1927 00000309 5A                      	pop dx
+  1928 0000030A 58                      	pop ax
+  1929 0000030B EB43                    	jmp short .return
+  1930                                  
+  1931                                  .down:
+  1932 0000030D FD                      	std			; _AMD_ERRATUM_109_WORKAROUND as below
+  1933                                  .dnloop:
+  1934 0000030E 81E90010                	sub cx, 1000h		; 64 KiB left ?
+  1935 00000312 761A                    	jbe .dnlast		; no -->
+  1936 00000314 50                      	push ax
+  1937 00000315 52                      	push dx
+  1938 00000316 01C8                    	add ax, cx
+  1939 00000318 01CA                    	add dx, cx
+  1940 0000031A 8ED8                    	mov ds, ax		; -> 64 KiB not yet moved
+  1941 0000031C 8EC2                    	mov es, dx
+  1942 0000031E 5A                      	pop dx
+  1943 0000031F 58                      	pop ax
+  1944 00000320 BFFEFF                  	mov di, -2
+  1945 00000323 89FE                    	mov si, di		; moved from last word down
+  1946 00000325 51                      	push cx
+  1947 00000326 B90080                  	mov cx, 10000h /2
+  1948 00000329 F3A5                    	rep movsw		; move 64 KiB
+  1949 0000032B 59                      	pop cx
+  1950 0000032C EBE0                    	jmp short .dnloop	; proceed for more -->
+  1951                                  .dnlast:
+  1952 0000032E 81C10010                	add cx, 1000h		; restore counter
+  1953 00000332 D1E1                    	shl cx, 1
+  1954 00000334 D1E1                    	shl cx, 1
+  1955 00000336 D1E1                    	shl cx, 1		; *8, paragraphs to words
+  1956 00000338 89CF                    	mov di, cx
+  1957 0000033A 4F                      	dec di
+  1958 0000033B D1E7                    	shl di, 1		; words to offset, -> last word
+  1959 0000033D 89FE                    	mov si, di
+  1960 0000033F 8ED8                    	mov ds, ax
+  1961 00000341 8EC2                    	mov es, dx		; first segment correct
+  1962                                  
+  1963                                  		; Refer to comment in init0_movp.
+  1964                                  %if _AMD_ERRATUM_109_WORKAROUND
+  1965 00000343 E308                    	jcxz @FF
+  1966 00000345 83F914                  	cmp cx, 20
+  1967 00000348 7703                    	ja @FF
+  1968                                  @@:
+  1969 0000034A A5                      	movsw
+  1970 0000034B E2FD                    	loop @B
+  1971                                  @@:
+  1972                                  %endif
+  1973 0000034D F3A5                    	rep movsw		; move first part
+  1974 0000034F FC                      	cld
+  1975                                  .return:
+  1976 00000350 5F                      	pop di
+  1977 00000351 07                      	pop es
+  1978 00000352 5E                      	pop si
+  1979 00000353 1F                      	pop ds
+  1980 00000354 59                      	pop cx
+  1981 00000355 C3                      	retn
+  1982                                  
+  1983                                  
+  1984 00000356 90<rep Ah>              	align 16
+  1985                                  
+  1986                                  	strdef UNCOMPRESSED_FILE, "lDOSLOAD.BIN"
+  1987                                  %if _INCLUDE_UNCOMPRESSED
+  1988                                  payload_uncompressed:
+  1989 00000360 <bin 1A8C0h>            	incbin _UNCOMPRESSED_FILE
+  1990                                  .end:
+  1991 0001AC20 26                      	db 38
+  1992 0001AC21 26<rep Fh>              	align 16, db 38
+  1993                                  %endif
+  1994                                  init2_end:
+  1995                                  %endif
+  1996                                  

@@ -1,0 +1,131 @@
+
+- NASM Map file ---------------------------------------------------------------
+
+Source file:  ../../ldosboot/boot.asm
+Output file:  ../tmp/boot16.bin
+
+-- Program origin -------------------------------------------------------------
+
+00007C00
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart            Start             Stop              Length    Class     Name
+            7C00              7C00              7E00  00000200  progbits  .text
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:                 200
+start:                 7C00
+align:     not defined
+follows:   not defined
+vstart:                7C00
+valign:    not defined
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+00007A00  ADR_STACK_LOW
+00007E00  ADR_DIRBUF
+00007E00  ADR_FATBUF
+00007E00  ADR_END
+00009E00  ADR_FREE_FROM
+00007A00  ADR_FREE_UNTIL
+00000000  DIRENTRY
+00000000  deName
+00000008  deExt
+0000000B  deAttrib
+00000014  deClusterHigh
+00000016  deTime
+00000018  deDate
+0000001A  deClusterLow
+0000001C  deSize
+00000020  DIRENTRY_size
+00000001  ATTR_READONLY
+00000002  ATTR_HIDDEN
+00000004  ATTR_SYSTEM
+00000008  ATTR_VOLLABEL
+00000010  ATTR_DIRECTORY
+00000020  ATTR_ARCHIVE
+00007BF0  ADR_STACK_START
+000023FC  CHECKLINEAR
+
+
+---- Section .text ------------------------------------------------------------
+
+Real              Virtual           Name
+            7C00              7C00  start
+            7BFC              7BFC  data_start
+            7BFA              7BFA  load_seg
+            7BF8              7BF8  fat_seg
+            7BF4              7BF4  fat_sector
+            7BF0              7BF0  first_cluster
+            7BEE              7BEE  para_per_sector
+            7BEC              7BEC  last_available_sector
+            7BEC              7BEC  lowest_variable
+            7C03              7C03  oem_id
+            7C03              7C03  ..@139.data
+            7C0B              7C0B  bytes_per_sector
+            7C0D              7C0D  sectors_per_cluster
+            7C0E              7C0E  fat_start
+            7C0E              7C0E  num_reserved_sectors
+            7C10              7C10  num_fats
+            7C11              7C11  num_root_dir_ents
+            7C13              7C13  total_sectors
+            7C15              7C15  media_id
+            7C16              7C16  sectors_per_fat
+            7C18              7C18  sectors_per_track
+            7C1A              7C1A  heads
+            7C1C              7C1C  hidden_sectors
+            7C20              7C20  total_sectors_large
+            7C24              7C24  boot_unit
+            7C26              7C26  ext_bpb_signature
+            7C27              7C27  serial_number
+            7C2B              7C2B  volume_label
+            7C2B              7C2B  ..@141.data
+            7C36              7C36  filesystem_identifier
+            7C36              7C36  ..@143.data
+            7C3E              7C3E  load_name
+            7C3E              7C3E  ..@145.data
+            7C46              7C46  ..@147.data
+            7C49              7C49  skip_bpb
+            7C6F              7C6F  ..@.@@.1.0
+            7C87              7C87  ..@.@@.1.1
+            7C92              7C92  dirsearch_start
+            7CB7              7CB7  next_dir_search
+            7CB7              7CB7  next_sect
+            7CC0              7CC0  next_ent
+            7CCB              7CCB  ..@.@@.1.2
+            7CDC              7CDC  found_it
+            7CE3              7CE3  read_fat_start
+            7CF3              7CF3  next_cluster
+            7D13              7D13  ..@.@@.1.3
+            7D28              7D28  ..@.@@.1.4
+            7D3C              7D3C  ..@.@@.1.5
+            7D3C              7D3C  finish_start
+            7D52              7D52  error_start
+            7D52              7D52  read_sector.err
+            7D54              7D54  error
+            7D68              7D68  read_sector_start
+            7D68              7D68  read_sector_dirbuf
+            7D68              7D68  read_sector_fatbuf
+            7D6E              7D6E  read_sector
+            7D97              7D97  read_sector.lba_done
+            7D52              7D52  read_sector.lba_error
+            7D9C              7D9C  read_sector.lba_check_error_1
+            7D52              7D52  read_sector.cy_err
+            7DA1              7DA1  read_sector.no_lba
+            7DCE              7DCE  read_sector.nz_err
+            7DD4              7DD4  read_sector.loop_chs_retry_repeat
+            7DE2              7DE2  read_sector.done
+            7DEF              7DEF  ..@.@@.1.6
+            7DF0              7DF0  available
+            7DFC              7DFC  signatures
+            7E00              7E00  end
+

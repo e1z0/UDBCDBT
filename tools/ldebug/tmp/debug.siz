@@ -1,0 +1,6 @@
+  113664 bytes (100.00%), method             none
+   86016 bytes ( 75.67%), method              lz4
+   70656 bytes ( 62.16%), method              lzd
+   74752 bytes ( 65.76%), method          exodecr
+   74240 bytes ( 65.31%), method              apl
+   76800 bytes ( 67.56%), method            lzsa2

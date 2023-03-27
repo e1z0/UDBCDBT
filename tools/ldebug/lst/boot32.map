@@ -1,0 +1,199 @@
+
+- NASM Map file ---------------------------------------------------------------
+
+Source file:  ../../ldosboot/boot32.asm
+Output file:  ../tmp/boot32.bin
+
+-- Program origin -------------------------------------------------------------
+
+00007C00
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart            Start             Stop              Length    Class     Name
+            7C00              7C00              8000  00000400  progbits  .text
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:                 400
+start:                 7C00
+align:                   10
+follows:   not defined
+vstart:                7C00
+valign:    not defined
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+00007A00  ADR_STACK_LOW
+00007E00  ADR_FSIBOOT
+00008000  ADR_FATBUF
+0000A000  ADR_DIRBUF
+0000C000  ADR_FREE
+00000000  FSINFO
+00000000  FSINFO.signature1
+00000004  FSINFO.reserved1
+00000004  FSINFO.fsiboot
+000001E4  FSINFO.signature2
+000001E8  FSINFO.numberfree
+000001EC  FSINFO.nextfree
+000001F0  FSINFO.reserved2
+000001FC  FSINFO.signature3
+00000200  FSINFO_size
+00000000  FSIBOOTG
+00000000  FSIBOOTG.signature
+00000008  FSIBOOTG.fsicode
+000001DE  FSIBOOTG.dirsearch
+000001E0  FSIBOOTG_size
+00000000  DIRENTRY
+00000000  deName
+00000008  deExt
+0000000B  deAttrib
+0000000C  dePlusSize
+00000014  deClusterHigh
+00000016  deTime
+00000018  deDate
+0000001A  deClusterLow
+0000001C  deSize
+00000020  DIRENTRY_size
+00000001  ATTR_READONLY
+00000002  ATTR_HIDDEN
+00000004  ATTR_SYSTEM
+00000008  ATTR_VOLLABEL
+00000010  ATTR_DIRECTORY
+00000020  ATTR_ARCHIVE
+00007BF0  ADR_STACK_START
+000023FC  CHECKLINEAR
+
+
+---- Section .text ------------------------------------------------------------
+
+Real              Virtual           Name
+            7C00              7C00  start
+            7BFC              7BFC  data_start
+            7BFA              7BFA  load_seg
+            7BF8              7BF8  fat_seg
+            7BF4              7BF4  fat_sector
+            7BF0              7BF0  first_cluster
+            7BEE              7BEE  para_per_sector
+            7BEC              7BEC  entries_per_sector
+            7BEA              7BEA  last_available_sector
+            7BE8              7BE8  adj_sectors_per_cluster
+            7BE6              7BE6  paras_left
+            7BE6              7BE6  lowest_variable
+            7C03              7C03  oem_id
+            7C03              7C03  ..@126.data
+            7C0B              7C0B  bytes_per_sector
+            7C0D              7C0D  sectors_per_cluster
+            7C0E              7C0E  fat_start
+            7C0E              7C0E  num_reserved_sectors
+            7C10              7C10  num_fats
+            7C11              7C11  num_root_dir_ents
+            7C13              7C13  total_sectors
+            7C15              7C15  media_id
+            7C16              7C16  sectors_per_fat
+            7C18              7C18  sectors_per_track
+            7C1A              7C1A  heads
+            7C1C              7C1C  hidden_sectors
+            7C20              7C20  total_sectors_large
+            7C24              7C24  sectors_per_fat_large
+            7C28              7C28  fsflags
+            7C2A              7C2A  fsversion
+            7C2C              7C2C  root_cluster
+            7C30              7C30  fsinfo_sector
+            7C32              7C32  backup_sector
+            7C40              7C40  boot_unit
+            7C42              7C42  ext_bpb_signature
+            7C43              7C43  serial_number
+            7C47              7C47  volume_label
+            7C47              7C47  ..@128.data
+            7C52              7C52  filesystem_identifier
+            7C52              7C52  ..@130.data
+            7C5A              7C5A  fsiboot_table
+            7C5A              7C5A  fsiboot_table.error
+            7C5C              7C5C  fsiboot_table.success
+            7C5E              7C5E  fsiboot_table.memory_full
+            7C60              7C60  fsiboot_table.read_sector
+            7C62              7C62  fsiboot_table.dirbuf
+            7C64              7C64  fsiboot_table.writedirentry
+            7C66              7C66  fsiboot_table.filename
+            7C68              7C68  fsiboot_table.minpara
+            7C6A              7C6A  fsiboot_table.loadseg
+            7C6C              7C6C  fsiboot_table.load_name
+            7C6C              7C6C  ..@134.data
+            7C74              7C74  ..@136.data
+            7C77              7C77  fsiboot_name
+            7C77              7C77  ..@138.data
+            7C7F              7C7F  skip_bpb
+            7CA5              7CA5  ..@.@@.1.0
+            7CBD              7CBD  ..@.@@.1.1
+            7CC8              7CC8  load_fsiboot
+            7CD8              7CD8  ..@.@@.1.2
+            7CE0              7CE0  ..@.@@.1.3
+            7CE8              7CE8  load_fsiboot.loaded
+            7D00              7D00  finish_start
+            7D00              7D00  writedirentry
+            7DAD              7DAD  writedirentry.loaddir
+            7D00              7D00  load_finish_mc
+            7D02              7D02  load_finish
+            7D11              7D11  error_start
+            7D11              7D11  error_fsiboot
+            7D14              7D14  read_sector.err
+            7D16              7D16  error
+            7D2A              7D2A  read_sector
+            7D58              7D58  read_sector.err_CY
+            7D58              7D58  read_sector.err_2
+            7D5A              7D5A  read_sector.lba_done
+            7D14              7D14  read_sector.lba_error
+            7D5F              7D5F  read_sector.no_lba
+            7D8C              7D8C  read_sector.nz_err
+            7D92              7D92  read_sector.loop_chs_retry_repeat
+            7DA0              7DA0  read_sector.done
+            7DAD              7DAD  ..@.@@.1.4
+            7DAD              7DAD  read_sector.retn
+            7DAE              7DAE  available
+            7DFC              7DFC  signatures
+            7E00              7E00  end
+            7E00              7E00  fsiboot
+            7E04              7E04  fsiboot.signature
+            7E04              7E04  ..@153.data
+            7E0C              7E0C  fsiboot.start
+            7E46              7E46  fsiboot.CY_fsiboot_error_badchain
+            7E5C              7E5C  found_load_file
+            7E88              7E88  ..@.@@.1.5
+            7E92              7E92  found_load_file.large_file
+            7E95              7E95  ..@.@@.1.6
+            7EA6              7EA6  ..@CY_2_fsiboot_error_badchain
+            7EA8              7EA8  next_load_cluster
+            7EAD              7EAD  ..@.@@.1.7
+            7EBD              7EBD  ..@.@@.1.8
+            7EDB              7EDB  ..@.@@.1.9
+            7EE3              7EE3  dirsearch
+            7EEC              7EEC  ..@CY_3_fsiboot_error_badchain
+            7EEE              7EEE  next_root_clust
+            7EF3              7EF3  next_root_sect
+            7F00              7F00  next_ent
+            7F15              7F15  ..@.@@.1.10
+            7F27              7F27  file_not_found
+            7F2A              7F2A  fsiboot_error_badchain
+            7F2C              7F2C  fsiboot_error
+            7F2F              7F2F  clust_to_first_sector
+            7F4B              7F4B  ..@CY_fsiboot_error_badchain
+            7F4E              7F4E  check_enough
+            7F54              7F54  check_enough.in_bx
+            7F5C              7F5C  found_it
+            7F63              7F63  clust_next
+            7F87              7F87  ..@.@@.1.11
+            7F9F              7F9F  ..@.@@.1.12
+            7FA9              7FA9  check_clust
+            7FBB              7FBB  ..@.@@.1.13
+            7FBD              7FBD  fsinfo_available
+            7FE2              7FE2  dirsearch_entrypoint
+            8000              8000  end_after_fsiboot
+

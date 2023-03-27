@@ -1,0 +1,55 @@
+test_d_b_bit calls:
+=== aa.asm
+aa01:			want D bit
+=== dd.asm
+lastddd:		want limit
+dd_with_sym.loop_no_cx:	want limit
+dd_header_or_trailer:	want limit
+dd11:			want limit
+dd_display_offset:	want limit
+=== debug.asm
+getcseipbyte:		want D bit
+setcseipbyte:		want D bit
+writemem:		? limit for now (comment needs adjusting)
+readmem:		? limit for now
+=== ee.asm
+ee2:			want limit
+ee112_priorbyte:	want limit
+ee_nextbyte:		want limit
+=== expr.asm
+getofsforbx:		? want limit
+getrange gr3.notlength:	? want limit
+=== rr.asm
+rr1_memory.writeprompt:	want limit
+rr1_read_mem_dxax:	want limit
+rr1_mem_set:		want limit
+dumpvars.mode:		want D bit
+=== run.asm
+gg_list.loop:		want D bit
+gg5.pp3:		want D bit
+adjust_cseip_after_breakpoint:	want D bit
+getlinear.do_not_use_test:	split into 3 functions
+tt1.pp3:		want D bit
+traceone.notdpmientry:	want B bit
+pp_fix32bitflags:	want D bit
+pp11:			want D bit
+pp16:			want D bit
+=== ss.asm
+sss.386display:		want limit
+=== symbols.asm
+zz_add.poisoned:	always 32 bit
+=== uu.asm
+disasm.preserve_condmsg_and_disrepeatcount:	want D bit
+dop_stack_common:	want B bit
+
+bCSAttr
+bAddr32
+	run.asm: parseql unneeded?
+
+readmem
+writemem
+
+getaddr
+getrange
+getlinear
+getlinearaddr

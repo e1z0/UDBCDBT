@@ -6,19 +6,19 @@
 <-- BACK
         <default.pcm
 
-Necromancers Commander
-        %cdrom%\apps\necro\ndn.com
-        mpause
-        /
 DOS Navigator
         %cdrom%\apps\dosnav\dn.com
         mpause
         /
-Norton Commander
-        %cdrom%\apps\nc\nc.exe
-        mpause
-        /
 Volcov commander
         %cdrom%\apps\vc\vc.com
+        mpause
+        /
+Necromancers Commander
+        %cdrom%\apps\necro\ndn.com
+        mpause
+        /
+Norton Commander
+        %cdrom%\apps\nc\nc.exe
         mpause
         /

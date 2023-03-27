@@ -1,0 +1,27 @@
+syntax: regexp
+(?i)\.bin$
+(?i)\.map$
+(?i)\.lst$
+(?i)\.tmp$
+(?i)\.img$
+(?i)\.cfg$
+(?i)\.sys$
+(?i)\.com$
+(?i)\.dos$
+(?i)\.script$
+^doc/ldosboot\.7$
+^doc/ldosboot\.chm$
+^doc/ldosboot\.cnt$
+^doc/ldosboot\.hlp$
+^doc/ldosboot\.htm$
+^doc/ldosboot\.info$
+^doc/ldosboot\.info-1$
+^doc/ldosboot\.pdf$
+^doc/ldosboot\.ps$
+^doc/ldosboot\.txt$
+^doc/screvid\.src$
+^test/result
+^test/autoexec\.bat$
+^test/ovr\.sh$
+^test/qemu-monitor$
+\.swp$

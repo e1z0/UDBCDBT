@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# Usage of the works is permitted provided that this
+# instrument is retained with the works, so that any entity
+# that uses the works is notified of this instrument.
+#
+# DISCLAIMER: THE WORKS ARE WITHOUT WARRANTY.
+
+# Builds mktables. gcc is used.
+# This step is only required if one of the following files were modified:
+# 1) instr.set
+# 2) instr.key
+# 3) instr.ord
+# 4) mktables.c
+
+gcc -xc MKTABLES.C -o mktables -Wno-write-strings -DOMIT_VOLATILE_VOID

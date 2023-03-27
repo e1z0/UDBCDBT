@@ -1,0 +1,6 @@
+declare -x use_build_bimg="0"
+declare -x use_build_bootable="1"
+declare -x use_build_decomp_test="1"
+declare -x use_build_inicheck="0"
+declare -x use_build_qimg="0"
+declare -x use_build_shim="0"

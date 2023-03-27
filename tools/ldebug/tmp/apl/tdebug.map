@@ -1,0 +1,352 @@
+
+- NASM Map file ---------------------------------------------------------------
+
+Source file:  ../../inicomp/inicomp.asm
+Output file:  ../tmp/apl/tdebug.big
+
+-- Program origin -------------------------------------------------------------
+
+00000000
+
+-- Sections (summary) ---------------------------------------------------------
+
+Vstart            Start             Stop              Length    Class     Name
+               0                 0                 0  00000000  progbits  .text
+               0                 0               400  00000400  progbits  INIT0
+             400               400             10D20  00010920  progbits  PAYLOAD
+               0             10D20             11090  00000370  progbits  INIT1
+               0             11090             2BCC0  0001AC30  progbits  INIT2
+
+-- Sections (detailed) --------------------------------------------------------
+
+---- Section .text ------------------------------------------------------------
+
+class:     progbits
+length:                   0
+start:                    0
+align:     not defined
+follows:   not defined
+vstart:                   0
+valign:    not defined
+vfollows:  not defined
+
+---- Section INIT0 ------------------------------------------------------------
+
+class:     progbits
+length:                 400
+start:                    0
+align:                  400
+follows:   not defined
+vstart:                   0
+valign:    not defined
+vfollows:  not defined
+
+---- Section PAYLOAD ----------------------------------------------------------
+
+class:     progbits
+length:               10920
+start:                  400
+align:                   10
+follows:   INIT0
+vstart:                 400
+valign:    not defined
+vfollows:  not defined
+
+---- Section INIT1 ------------------------------------------------------------
+
+class:     progbits
+length:                 370
+start:                10D20
+align:                   10
+follows:   PAYLOAD
+vstart:                   0
+valign:    not defined
+vfollows:  not defined
+
+---- Section INIT2 ------------------------------------------------------------
+
+class:     progbits
+length:               1AC30
+start:                11090
+align:                   10
+follows:   INIT1
+vstart:                   0
+valign:    not defined
+vfollows:  not defined
+
+-- Symbols --------------------------------------------------------------------
+
+---- No Section ---------------------------------------------------------------
+
+Value     Name
+FFFFFFFFFFFFFFF0  LOADSTACKVARS
+FFFFFFFFFFFFFFF0  lsvFirstCluster
+FFFFFFFFFFFFFFF4  lsvFATSector
+FFFFFFFFFFFFFFF8  lsvFATSeg
+FFFFFFFFFFFFFFFA  lsvLoadSeg
+FFFFFFFFFFFFFFFC  lsvDataStart
+00000010  LOADSTACKVARS_size
+FFFFFFFFFFFFFFE0  LOADDATA
+FFFFFFFFFFFFFFE0  ldMemoryTop
+FFFFFFFFFFFFFFE2  ldLoadTop
+FFFFFFFFFFFFFFE4  ldSectorSeg
+FFFFFFFFFFFFFFE6  ldFATType
+FFFFFFFFFFFFFFE7  ldHasLBA
+FFFFFFFFFFFFFFE8  ldClusterSize
+FFFFFFFFFFFFFFEA  ldParaPerSector
+FFFFFFFFFFFFFFEC  ldLoadingSeg
+FFFFFFFFFFFFFFEE  ldLoadUntilSeg
+00000010  LOADDATA_size
+00011090  image_size
+00000000  init1_start._..@98.lframe_?frame_bp
+FFFFFFFFFFFFFFFE  init1_start._..@98.lframe_?exemode
+00000021  device_header_copy.length
+00000000  depack._..@122.lframe_?frame_bp
+00000002  depack._..@122.lframe_?frame_ip
+FFFFFFFFFFFFFFFE  depack._..@122.lframe_?exemode
+FFFFFFFFFFFFFFFC  depack._..@122.lframe_?gamma_high_word
+FFFFFFFFFFFFFFFA  depack._..@122.lframe_?distance_high_word
+FFFFFFFFFFFFFFF6  depack._..@122.lframe_?src
+FFFFFFFFFFFFFFF2  depack._..@122.lframe_?original_dst
+FFFFFFFFFFFFFFEE  depack._..@122.lframe_?dst
+FFFFFFFFFFFFFFEA  depack._..@122.lframe_?length_of_source
+FFFFFFFFFFFFFFE6  depack._..@122.lframe_?length_of_destination
+00000000  normalise_pointer._..@176.lframe_?frame_bp
+00000002  normalise_pointer._..@176.lframe_?frame_ip
+00000006  normalise_pointer._..@176.lframe_?segment
+00000004  normalise_pointer._..@176.lframe_?offset
+00000000  normalise_pointer_with_displacement_bxcx._..@197.lframe_?frame_bp
+00000002  normalise_pointer_with_displacement_bxcx._..@197.lframe_?frame_ip
+00000006  normalise_pointer_with_displacement_bxcx._..@197.lframe_?segment
+00000004  normalise_pointer_with_displacement_bxcx._..@197.lframe_?offset
+00000000  pointer_to_linear._..@220.lframe_?frame_bp
+00000002  pointer_to_linear._..@220.lframe_?frame_ip
+00000006  pointer_to_linear._..@220.lframe_?segment
+00000004  pointer_to_linear._..@220.lframe_?offset
+00000025  init0_msg.error_stderr.length
+00000007  init0_msg.error_stdout.length
+00000000  init2_start._..@251.lframe_?frame_bp
+00000004  init2_start._..@251.lframe_?repetitions
+00000002  init2_start._..@251.lframe_?whichtest
+00008000  ..@265.num
+0001A8C0  payload_uncompressed_size
+FFFFFFFFFFFFFFFE  init2_start._..@251.lframe_?upperbound
+FFFFFFFFFFFFFFFC  init2_start._..@251.lframe_?lowerbound
+FFFFFFFFFFFFFFFA  init2_start._..@251.lframe_?current_init1
+00008000  ..@287.num
+00008000  ..@291.num
+00008000  ..@297.num
+00000007  init2_msg.progress.1.length
+00000001  init2_msg.progress.fail.length
+00000001  init2_msg.progress.success.length
+00000002  init2_msg.progress.linebreak.length
+0000003C  init2_msg.initial_error.length
+00000002  init2_msg.linebreak.length
+0000003C  init2_msg.initial_error_2.length
+00000037  init2_msg.subsequent_error_2.length
+00000024  init2_msg.cmdline_error.length
+00000007  init2_msg.error_stdout.length
+
+
+---- Section INIT0 ------------------------------------------------------------
+
+Real              Virtual           Name
+               0                 0  init0_start
+               0                 0  device_header
+               0                 0  device_header.next
+               0                 0  ..@57.data
+               4                 4  device_header.attributes
+               6                 6  device_header.strategy
+               8                 8  device_header.interrupt
+               A                 A  device_header.name
+               A                 A  ..@59.data
+              12                12  device_header.strategy_entry
+              12                12  ..@61.data
+              16                16  device_header.interrupt_entry
+              16                16  ..@63.data
+              20                20  init0_kernel_entry
+              20                20  ..@.@@.1.0
+              40                40  j_zero_entrypoint
+              40                40  init0_exe_entry
+              4B                4B  cmdline
+              4B                4B  cmdline.
+              60                60  cmdline.digit
+              7A                7A  cmdline.notdigit
+              8A                8A  cmdline.invalid
+              8F                8F  cmdline.a
+              94                94  cmdline.b
+              99                99  cmdline.end
+              A6                A6  init0_common
+              C7                C7  init0_common.error
+              EB                EB  ..@.@@.1.1
+              F0                F0  device_entrypoint
+              F0                F0  ..@.@@.1.2
+             103               103  ..@.@@.1.3
+             121               121  ..@.@@.1.4
+             130               130  ..@.@@.1.5
+             15C               15C  ..@.@@.1.6
+             184               184  device_entrypoint.msg_no_memory
+             1A3               1A3  device_entrypoint.msg_dos_below_5
+             1CA               1CA  device_entrypoint.msg_linebreak
+             1CD               1CD  device_entrypoint.have_some_memory
+             1DD               1DD  init0_movp
+             1EB               1EB  init0_movp.up
+             1ED               1ED  init0_movp.uploop
+             20B               20B  init0_movp.uplast
+             21B               21B  init0_movp.down
+             21C               21C  init0_movp.dnloop
+             23C               23C  init0_movp.dnlast
+             258               258  ..@.@@.1.7
+             25B               25B  ..@.@@.1.8
+             25E               25E  init0_movp.return
+             25F               25F  init0_msg
+             25F               25F  init0_msg.error_stderr
+             284               284  init0_msg.error_stdout
+             400               400  init0_end
+
+---- Section PAYLOAD ----------------------------------------------------------
+
+Real              Virtual           Name
+             400               400  payload
+           10D1E             10D1E  payload.end
+           10D20             10D20  payload_end
+
+---- Section INIT1 ------------------------------------------------------------
+
+Real              Virtual           Name
+           10D20                 0  init1_start
+           10D23                 3  init1_start._..@98.lenter
+           10D36                16  ..@.@@.1.9
+           10D3D                1D  init1_start._..@98.lleave
+           10D44                24  init1_start.jmp_device_mode
+           10D55                35  init1_start.jmp_exe_or_kernel_mode
+           10D5A                3A  init1_start.jmp_exe_mode
+           10D6A                4A  init1_start.jmp_kernel_mode
+           10D6F                4F  error
+           10DB2                92  error.exit_app_or_kernel
+           10DBD                9D  error.exit_kernel_mode
+           10DD0                B0  device_header_copy
+           10DD0                B0  device_header_copy.
+           10DD0                B0  device_header_copy.next
+           10DD4                B4  device_header_copy.attributes
+           10DD6                B6  device_header_copy.strategy
+           10DD8                B8  device_header_copy.interrupt
+           10DDA                BA  device_header_copy.name
+           10DDA                BA  ..@114.data
+           10DE2                C2  device_header_copy.strategy_entry
+           10DE2                C2  ..@116.data
+           10DE6                C6  device_header_copy.interrupt_entry
+           10DE6                C6  ..@118.data
+           10DEA                CA  device_header_copy.set_error
+           10DF1                D1  disp_error.loop
+           10DF4                D4  disp_error
+           10DFA                DA  disp_al
+           10E0F                EF  disp_al.display_kernel_mode
+           10E15                F5  disp_error.ret
+           10E16                F6  msg
+           10E16                F6  msg.error
+           10E3B               11B  depack
+           10E3E               11E  depack._..@122.lenter
+           10E75               155  depack.literal
+           10E93               173  depack.next_command_after_literal
+           10E96               176  depack.next_command
+           10EB3               193  depack.not_repmatch
+           10EE3               1C3  depack.increase_len_by2
+           10EEA               1CA  depack.increase_len_by1
+           10EF1               1D1  depack.got_len
+           10EFF               1DF  depack.match_loop
+           10F12               1F2  depack.match_copy
+           10F23               203  depack.get_match_pointer
+           10F3E               21E  ..@.@@.1.10
+           10F46               226  depack.match_last
+           10F54               234  depack.checkoverlap
+           10F61               241  depack.get_gamma2
+           10F67               247  depack.gamma2_loop
+           10F6D               24D  depack.other
+           10F8B               26B  depack.short_literal
+           10FA8               288  depack.write_zero
+           10FC1               2A1  depack.done
+           10FCA               2AA  depack.error
+           10FCF               2AF  depack.lodsb
+           10FDC               2BC  depack.get_dibits
+           10FE6               2C6  depack.get_bit
+           10FF1               2D1  depack.got_bit
+           10FF2               2D2  check_pointers_not_overlapping
+           11005               2E5  ..@.@@.1.11
+           11006               2E6  check_pointers_not_overlapping._..@122.lleave
+           11006               2E6  normalise_both_pointers
+           1100D               2ED  normalise_dssi_pointer
+           11015               2F5  normalise_pointer
+           11018               2F8  normalise_pointer._..@176.lenter
+           11035               315  normalise_pointer.ret
+           11036               316  normalise_pointer._..@176.lleave
+           11037               317  normalise_pointer_with_displacement_bxcx
+           1103A               31A  normalise_pointer_with_displacement_bxcx._..@197.lenter
+           11056               336  ..@.@@.1.12
+           11060               340  normalise_pointer_with_displacement_bxcx.return
+           11065               345  normalise_pointer_with_displacement_bxcx._..@197.lleave
+           11066               346  pointer_to_linear
+           11069               349  pointer_to_linear._..@220.lenter
+           11072               352  ..@.@@.1.13
+           1107F               35F  pointer_to_linear._..@220.lleave
+           11090               370  init1_end
+
+---- Section INIT2 ------------------------------------------------------------
+
+Real              Virtual           Name
+           11090                 0  init2_start
+           11094                 4  init2_start._..@251.lenter
+           1109C                 C  init2_start.cmdline_error
+           110A5                15  ..@.@@.1.14
+           110AB                1B  init2_start.b
+           110B1                21  init2_start.a
+           110B5                25  ..@.@@.1.15
+           110E5                55  ..@.@@.1.16
+           110F3                63  ..@.@@.1.17
+           110FC                6C  init2_start.loop
+           11127                97  ..@.@@.1.18
+           11131                A1  init2_start.test_b_skip_bound
+           11170                E0  ..@.@@.1.19
+           11175                E5  init2_start.test_b_fail
+           1118C                FC  ..@.@@.1.20
+           11198               108  init2_start.found
+           111C1               131  init2_start.transfer
+           111C7               137  checkdecompressed
+           111D7               147  checkdecompressed.loop
+           111F0               160  checkdecompressed.end
+           111FC               16C  checkdecompressed.ret
+           11200               170  init2_error
+           1121C               18C  ..@.@@.1.21
+           11221               191  init2_error._..@251.lleave
+           11221               191  init2_disp_al
+           1122C               19C  init2_disp_ax_dec
+           1122F               19F  init2_disp_ax_dec.pushax
+           1123A               1AA  init2_disp_ax_dec.nobl
+           1125C               1CC  init2_disp_ax_dec.divide_out
+           11269               1D9  init2_disp_ax_dec.nobl2
+           11272               1E2  init2_disp_ax_dec.leadingzero
+           11275               1E5  init2_msg
+           11275               1E5  init2_msg.progress.1
+           1127C               1EC  init2_msg.progress.fail
+           1127D               1ED  init2_msg.progress.success
+           1127E               1EE  init2_msg.progress.linebreak
+           11280               1F0  init2_msg.initial_error
+           112BA               22A  init2_msg.linebreak
+           112BC               22C  init2_msg.initial_error_2
+           112F8               268  init2_msg.subsequent_error_2
+           1132F               29F  init2_msg.cmdline_error
+           11353               2C3  init2_msg.error_stdout
+           1135A               2CA  init2_movp
+           1136D               2DD  init2_movp.up
+           1136F               2DF  init2_movp.uploop
+           1138D               2FD  init2_movp.uplast
+           1139D               30D  init2_movp.down
+           1139E               30E  init2_movp.dnloop
+           113BE               32E  init2_movp.dnlast
+           113DA               34A  ..@.@@.1.22
+           113DD               34D  ..@.@@.1.23
+           113E0               350  init2_movp.return
+           113F0               360  payload_uncompressed
+           2BCB0             1AC20  payload_uncompressed.end
+           2BCC0             1AC30  init2_end
+

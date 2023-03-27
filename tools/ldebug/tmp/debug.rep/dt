@@ -1,0 +1,17 @@
+-D__DATE__="2023-03-23"
+-D__TIME__="23:40:07"
+-D__DATE_NUM__=20230323
+-D__TIME_NUM__=234007
+-D__UTC_DATE__="2023-03-23"
+-D__UTC_TIME__="22:40:07"
+-D__UTC_DATE_NUM__=20230323
+-D__UTC_TIME_NUM__=224007
+-D__POSIX_TIME__=1679611207
+-D_REVISIONID='hg e6235646427d (3895 ancestors)'
+-D_REVISIONID_LMACROS='Uses lmacros:  Revision ID hg 99b01fa65007 (153 ancestors)',13,10
+-D_REVISIONID_INSTSECT=''
+-D_REVISIONID_SYMSNIP=''
+-D_REVISIONID_SCANPTAB='Uses scanptab: Revision ID hg 0e53081c1531 (10 ancestors)',13,10
+-D_REVISIONID_INICOMP='Uses inicomp:  Revision ID hg 7b9eafdaf126 (537 ancestors)',13,10
+-D_REVISIONID_INICHECK='Uses inicheck: Revision ID hg 5d45af55d9cd (55 ancestors)',13,10
+-D_REVISIONID_LDOSBOOT='Uses ldosboot: Revision ID hg 798e0b02fedc (706 ancestors)',13,10

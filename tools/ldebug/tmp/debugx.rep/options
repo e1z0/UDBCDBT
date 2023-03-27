@@ -1,0 +1,3 @@
+declare -x INICOMP_METHOD="lz4 lzd exodecr apl lzsa2"
+declare -x INICOMP_WINNER="lzsa2"
+declare -x build_options="-D_PM"

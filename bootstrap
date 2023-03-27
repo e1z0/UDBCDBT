@@ -1,27 +1,44 @@
-#!/bin/bash
-# Work of this script was derived from the project https://github.com/codercowboy/freedosbootdisks
-# Copyright (c) Jason Baker (jason@onejasonforsale.com)
-# Adapted by e1z0 (c) 2023 e1z0@vintage2000.org
+#!/bin/bash -e
+# macOS part of this script was derived from the project https://github.com/codercowboy/freedosbootdisks Copyright (c) Jason Baker (jason@onejasonforsale.com)
+# (c) 2023 e1z0 (e1z0@vintage2000.org)
 
 
 SCRIPT_HOME="`dirname ${BASH_SOURCE[0]}`"
 BUILD_HOME="${SCRIPT_HOME}/tmp"
 SOURCE_BOOT_DISK="${SCRIPT_HOME}/tools/lib/v86.freedos.boot.disk.img"
-FILE=${SCRIPT_HOME}/boot.img
+FILE="${SCRIPT_HOME}/boot.img"
 VOLUME_LABEL=FDOSBSTRP
 FILE_SIZE="1.4MB"
 FORMAT=1440
 SECTOR_SIZE="512"
 SECTOR_COUNT=$((FORMAT * 2))
 TMP_BOOT_SECTOR="${BUILD_HOME}/bootsector.tmp"
-
+TMP_LOOP="${BUILD_HOME}/tmploop"
+NASM=$(which nasm)
 
 if [ ! -f "${SCRIPT_HOME}/tools/lib/hexlib.sh" ]; then
   echo "Cannot find hexlib.sh, should be in path: ${SCRIPT_HOME}/tools/lib/hexlib.sh"
   exit 1
 fi
 
+if [ ! -f "${SCRIPT_HOME}/tools/lib/ostools.sh" ];then
+  echo "Cannot find ostools.sh, should be in path: ${SCRIPT_HOME}/tools/lib/ostools.sh"
+  exit 1
+fi
+
 source "${SCRIPT_HOME}/tools/lib/hexlib.sh"
+source "${SCRIPT_HOME}/tools/lib/ostools.sh"
+OS=$(detectos)
+
+if [ "$OS" == "linux" ]; then
+  if [ "$NASM" == "" ]; then
+    echo "NASM assembler compiler was not found on your system"
+    echo "You can install it by issuing these commands:"
+    echo "Debian/Ubuntu: sudo apt-get install nasm"
+    echo "Archlinux: pacman -S nasm"
+    exit 1
+  fi
+fi
 
 # changes a boot sector property
 # arg 1: mode: SECTOR_SIZE or SECTOR_COUNT
@@ -55,38 +72,79 @@ change_boot_sector_property() {
 	replace_bytes "${DECIMAL_ADDRESS}" "${HEX_BYTES_REVERSED}" "${3}"
 }
 
+# Code init here
+
 if ! [ -d "$BUILD_HOME" ]; then
   mkdir "$BUILD_HOME"
 fi
-echo "Creating temp boot sector: ${TMP_BOOT_SECTOR}"
-dd if="${SOURCE_BOOT_DISK}" of="${TMP_BOOT_SECTOR}" bs=512 count=1
-#fix the sector size and count in the boot sector
-echo "Fixing sector size and count in the boot sector..."
-change_boot_sector_property SECTOR_SIZE "${SECTOR_SIZE}" "${TMP_BOOT_SECTOR}"
-change_boot_sector_property SECTOR_COUNT "${SECTOR_COUNT}" "${TMP_BOOT_SECTOR}"
-echo "Creating ${FILE_SIZE} FreeDOS boot disk with ${SECTOR_COUNT} sectors, sector size is ${SECTOR_SIZE}, file: ${FILE}"
-dd if=/dev/zero of="${FILE}" bs=${SECTOR_SIZE} count=${SECTOR_COUNT}
-newfs_msdos -B "${TMP_BOOT_SECTOR}" -v "${VOLUME_LABEL}" -f ${FORMAT} -b 1024 -S ${SECTOR_SIZE} -r 1 -F 12 "${FILE}"
+
+if [ "$OS" == "darwin" ]; then
+  echo "Creating temp boot sector: ${TMP_BOOT_SECTOR}"
+  dd if="${SOURCE_BOOT_DISK}" of="${TMP_BOOT_SECTOR}" bs=512 count=1
+  #fix the sector size and count in the boot sector
+  echo "Fixing sector size and count in the boot sector..."
+  change_boot_sector_property SECTOR_SIZE "${SECTOR_SIZE}" "${TMP_BOOT_SECTOR}"
+  change_boot_sector_property SECTOR_COUNT "${SECTOR_COUNT}" "${TMP_BOOT_SECTOR}"
+  echo "Creating ${FILE_SIZE} FreeDOS boot disk with ${SECTOR_COUNT} sectors, sector size is ${SECTOR_SIZE}, file: ${FILE}"
+  dd if=/dev/zero of="${FILE}" bs=${SECTOR_SIZE} count=${SECTOR_COUNT}
+  newfs_msdos -B "${TMP_BOOT_SECTOR}" -v "${VOLUME_LABEL}" -f ${FORMAT} -b 1024 -S ${SECTOR_SIZE} -r 1 -F 12 "${FILE}"
+elif [ "$OS" == "linux" ]; then
+ $NASM -I tools/lmacros/ -I tools/ldosboot/ tools/ldosboot/boot.asm -D_COMPAT_FREEDOS -D_QUERY_GEOMETRY=0 -D_LBA=0 -D_USE_PART_INFO=0 -o "${BUILD_HOME}/boot.bin"
+ retVal=$?
+ if [ $retVal -ne 0 ]; then
+    echo "Error when compiling boot sector!"
+    exit 1
+ fi
+ $NASM -I tools/lmacros/ -I tools/bootimg/ tools/bootimg/bootimg.asm -D_BOOTFILE="${BUILD_HOME}/boot.bin" -D_PAYLOADFILE="::rename,'tools/ldebug/bin/ldebugu.com','KERNEL.SYS'" -o "${FILE}"
+ retVal=$?
+ if [ $retVal -ne 0 ]; then
+    echo "Error when compiling floppy image!"
+    exit 1
+ fi
+fi
 echo "Copying boot disk contents from ${SCRIPT_HOME}/boot"
-hdiutil attach "${FILE}"
+if [ "$OS" == "darwin" ]; then
+  hdiutil attach "${FILE}"
+elif [ "$OS" == "linux" ]; then
+  if [ ! -d "$TMP_LOOP" ]; then
+     mkdir "$TMP_LOOP"
+  fi
+  sudo mount -o loop "${FILE}" "${TMP_LOOP}"
+fi
 retVal=$?
 if [ $retVal -ne 0 ]; then
     echo "Error attaching volume, try later.."
     exit 1
 fi
-cp -r "${SCRIPT_HOME}/boot/" "/Volumes/${VOLUME_LABEL}"
+if [ "$OS" == "darwin" ]; then 
+  cp -r "${SCRIPT_HOME}/boot/" "/Volumes/${VOLUME_LABEL}"
+elif [ "$OS" == "linux" ]; then
+  sudo cp "${SCRIPT_HOME}/boot/COMMAND.COM" "${TMP_LOOP}/"
+  sudo cp "${SCRIPT_HOME}/boot/KERNEL.SYS" "${TMP_LOOP}/"
+  sudo cp "${SCRIPT_HOME}/boot/fdauto.bat" "${TMP_LOOP}/"
+  sudo cp "${SCRIPT_HOME}/boot/fdconfig.sys" "${TMP_LOOP}/"
+  sudo cp "${SCRIPT_HOME}/boot/setup.bat" "${TMP_LOOP}/"
+  sudo cp -r "${SCRIPT_HOME}/boot/freedos" "${TMP_LOOP}"
+fi
 # remove dot files
 echo "Removing dot files..."
-find "/Volumes/${VOLUME_LABEL}" -name "._*" -delete
-rm -Rf "/Volumes/${VOLUME_LABEL}/.fseventsd/"
-echo "Ejecting disk..."
-hdiutil eject "/Volumes/${VOLUME_LABEL}/"
+if [ "$OS" == "darwin" ]; then
+  find "/Volumes/${VOLUME_LABEL}" -name "._*" -delete
+  rm -Rf "/Volumes/${VOLUME_LABEL}/.fseventsd/"
+  echo "Ejecting disk..."
+  hdiutil eject "/Volumes/${VOLUME_LABEL}/"
+elif [ "$OS" == "linux" ]; then
+  find "${TMP_LOOP}" -name "._*" -delete
+  echo "Unmounting media..."
+  sudo umount "${TMP_LOOP}"
+fi
 retVal=$?
 if [ $retVal -ne 0 ]; then
-    echo "Unable to de-attach volume, continuing..."
+    echo "Unable to de-attach volume, exiting..."
+    exit 1
 fi
 echo "Finished creating boot diskette image: ${FILE}"
 echo "Cleaning..."
 if [ -d "$BUILD_HOME" ]; then
-  rm -r "$BUILD_HOME"    
-fi 
+  rm -r "$BUILD_HOME"
+fi
