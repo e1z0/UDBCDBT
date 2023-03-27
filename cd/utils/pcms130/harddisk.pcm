@@ -6,32 +6,25 @@
 <-- BACK
         <default.pcm
 
-HDD Regenerator
+Active Kill Disk
         %cdrom%
-        cd \apps\hddreg
-        hddreg.exe 
-        echo Program executed: hddreg.exe  Path: \apps\hddreg
+        cd \apps\killdisk
+        killdisk.exe 
+        echo Program executed: killdisk.exe  Path: \apps\killdisk
         mpause
         /
-Paragon Mount Every
+Maxtor / Quantum PowerMax
         %cdrom%
-        cd \apps\pmount
-        ndmount.bat 
-        echo Program executed: ndmount.bat  Path: \apps\pmount
+        cd \apps\maxtor
+        powermax.exe 
+        echo Program executed: powermax.exe  Path: \apps\maxtor
         mpause
         /
-DRevitalize (Bad Sec)
+ExcelStor's ESTest
         %cdrom%
-        cd \apps\drevital
-        drev.exe 
-        echo Program executed: drev.exe  Path: \apps\drevital
-        mpause
-        /
-HDD Erase
-        %cdrom%
-        cd \apps\hdderase
-        hdderase.exe 
-        echo Program executed: hdderase.exe  Path: \apps\hdderase
+        cd \apps\estest
+        estest.exe 
+        echo Program executed: estest.exe  Path: \apps\estest
         mpause
         /
 Hard Disk Sentinel
@@ -48,18 +41,60 @@ Toshiba Hard Disk Diagnostic
         echo Program executed: tdmenu.exe  Path: \apps\toshiba
         mpause
         /
-HDD S.M.A.R.T. Viewer
+WDClear (Erase Prog)
         %cdrom%
-        cd \apps\smartudm
-        smartudm.exe 
-        echo Program executed: smartudm.exe  Path: \apps\smartudm
+        cd \apps\western
+        wdclear.exe 
+        echo Program executed: wdclear.exe  Path: \apps\western
         mpause
         /
-Active Kill Disk
+Gateway GwScan
         %cdrom%
-        cd \apps\killdisk
-        killdisk.exe 
-        echo Program executed: killdisk.exe  Path: \apps\killdisk
+        cd \apps\gateway
+        gwscan.exe 
+        echo Program executed: gwscan.exe  Path: \apps\gateway
+        mpause
+        /
+HDD Erase
+        %cdrom%
+        cd \apps\hdderase
+        hdderase.exe 
+        echo Program executed: hdderase.exe  Path: \apps\hdderase
+        mpause
+        /
+Western Digital DLG
+        %cdrom%
+        cd \apps\western
+        DLGDIAG5.EXE 
+        echo Program executed: DLGDIAG5.EXE  Path: \apps\western
+        mpause
+        /
+IBM-Hitachi DFT
+        %cdrom%
+        cd \apps\hitachi
+        dft.exe 
+        echo Program executed: dft.exe  Path: \apps\hitachi
+        mpause
+        /
+Victoria
+        %cdrom%
+        cd \apps\victoria
+        victoria.exe 
+        echo Program executed: victoria.exe  Path: \apps\victoria
+        mpause
+        /
+DRevitalize (Bad Sec)
+        %cdrom%
+        cd \apps\drevital
+        drev.exe 
+        echo Program executed: drev.exe  Path: \apps\drevital
+        mpause
+        /
+Fujitsu HDD Diagnostics
+        %cdrom%
+        cd \apps\fujitsu
+        fjdt.exe 
+        echo Program executed: fjdt.exe  Path: \apps\fujitsu
         mpause
         /
 Seagate SeaTools
@@ -76,32 +111,18 @@ Samsung HDD Utility
         echo Program executed: shdiag.exe  Path: \apps\samsung
         mpause
         /
-ExcelStor's ESTest
+Paragon Mount Every
         %cdrom%
-        cd \apps\estest
-        estest.exe 
-        echo Program executed: estest.exe  Path: \apps\estest
+        cd \apps\pmount
+        ndmount.bat /l
+        echo Program executed: ndmount.bat /l Path: \apps\pmount
         mpause
         /
-Western Digital DLG
+HDD S.M.A.R.T. Viewer
         %cdrom%
-        cd \apps\western
-        DLGDIAG5.EXE 
-        echo Program executed: DLGDIAG5.EXE  Path: \apps\western
-        mpause
-        /
-Fujitsu HDD Diagnostics
-        %cdrom%
-        cd \apps\fujitsu
-        fjdt.exe 
-        echo Program executed: fjdt.exe  Path: \apps\fujitsu
-        mpause
-        /
-Gateway GwScan
-        %cdrom%
-        cd \apps\gateway
-        gwscan.exe 
-        echo Program executed: gwscan.exe  Path: \apps\gateway
+        cd \apps\smartudm
+        smartudm.exe 
+        echo Program executed: smartudm.exe  Path: \apps\smartudm
         mpause
         /
 Norton Ghost
@@ -111,38 +132,10 @@ Norton Ghost
         echo Program executed: ghost.exe  Path: \apps\ghost
         mpause
         /
-WDClear (Erase Prog)
-        %cdrom%
-        cd \apps\western
-        wdclear.exe 
-        echo Program executed: wdclear.exe  Path: \apps\western
-        mpause
-        /
 MHDD
         %cdrom%
         cd \apps\mhdd
         mhdd.exe 
         echo Program executed: mhdd.exe  Path: \apps\mhdd
-        mpause
-        /
-IBM-Hitachi DFT
-        %cdrom%
-        cd \apps\hitachi
-        dft.exe 
-        echo Program executed: dft.exe  Path: \apps\hitachi
-        mpause
-        /
-Maxtor / Quantum PowerMax
-        %cdrom%
-        cd \apps\maxtor
-        powermax.exe 
-        echo Program executed: powermax.exe  Path: \apps\maxtor
-        mpause
-        /
-Victoria
-        %cdrom%
-        cd \apps\victoria
-        victoria.exe 
-        echo Program executed: victoria.exe  Path: \apps\victoria
         mpause
         /

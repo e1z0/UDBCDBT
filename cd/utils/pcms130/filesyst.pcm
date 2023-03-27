@@ -6,20 +6,6 @@
 <-- BACK
         <default.pcm
 
-NTFS for Dos
-        %cdrom%
-        cd \apps\ntfs4dos
-        ntfsdos.exe 
-        echo Program executed: ntfsdos.exe  Path: \apps\ntfs4dos
-        mpause
-        /
-NTFS Pro
-        %cdrom%
-        cd \apps\ntfspro
-        ntfspro.exe 
-        echo Program executed: ntfspro.exe  Path: \apps\ntfspro
-        mpause
-        /
 Active NTFS Reader
         %cdrom%
         cd \apps\readntfs

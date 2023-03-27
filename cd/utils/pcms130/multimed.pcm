@@ -6,17 +6,17 @@
 <-- BACK
         <default.pcm
 
-MPXP166D
-        %cdrom%
-        cd \apps\mpxp166d
-        mpxplay.exe 
-        echo Program executed: mpxplay.exe  Path: \apps\mpxp166d
-        mpause
-        /
 QuickView Pro
         %cdrom%
         cd \apps\quickvie
         qv.exe 
         echo Program executed: qv.exe  Path: \apps\quickvie
+        mpause
+        /
+MPXP166D
+        %cdrom%
+        cd \apps\mpxp166d
+        mpxplay.exe 
+        echo Program executed: mpxplay.exe  Path: \apps\mpxp166d
         mpause
         /

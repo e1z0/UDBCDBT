@@ -1,6 +1,6 @@
 @echo off
 rem initialize path
-SET PATH=%cdrom%\bin;%srdisk1%:\pcmenu;%path%
+SET PATH=%cdrom%\bin;%srdisk1%:\;%srdisk1%:\pcmenu;%path%
 SET PCMENU=%SRDISK1%:\pcmenu
 ECHO.
 ECHO.

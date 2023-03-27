@@ -9,6 +9,8 @@ stuff
 .hg
 /cd/apps/*
 !/cd/apps/apps.ini
+!/cd/apps/network
 /cd/images/*
 !/cd/images/*.ini
+!/cd/images/freedos.img
 experiment

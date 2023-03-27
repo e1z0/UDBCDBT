@@ -6,27 +6,6 @@
 <-- BACK
         <default.pcm
 
-XOSL Boot Manager
-        %cdrom%
-        cd \apps\xosl
-        install.exe 
-        echo Program executed: install.exe  Path: \apps\xosl
-        mpause
-        /
-MBR Utility
-        %cdrom%
-        cd \apps\mbrutil
-        mbrd.exe 
-        echo Program executed: mbrd.exe  Path: \apps\mbrutil
-        mpause
-        /
-MBRWizard
-        %cdrom%
-        cd \apps\mbrwizd
-        mbrwizd.exe 
-        echo Program executed: mbrwizd.exe  Path: \apps\mbrwizd
-        mpause
-        /
 MBR Tool
         %cdrom%
         cd \apps\mbrtool
@@ -48,6 +27,20 @@ DISKMAN4
         echo Program executed: diskman4.exe  Path: \apps\diskman4
         mpause
         /
+MBR Save & Restore
+        %cdrom%
+        cd \apps\bootsave
+        bootsave.com 
+        echo Program executed: bootsave.com  Path: \apps\bootsave
+        mpause
+        /
+MBRWizard
+        %cdrom%
+        cd \apps\mbrwizd
+        mbrwizd.exe 
+        echo Program executed: mbrwizd.exe  Path: \apps\mbrwizd
+        mpause
+        /
 Boot Partition
         %cdrom%
         cd \apps\bootpart
@@ -55,17 +48,24 @@ Boot Partition
         echo Program executed: bootpart.exe  Path: \apps\bootpart
         mpause
         /
+MBR Utility
+        %cdrom%
+        cd \apps\mbrutil
+        mbrd.exe 
+        echo Program executed: mbrd.exe  Path: \apps\mbrutil
+        mpause
+        /
+XOSL Boot Manager
+        %cdrom%
+        cd \apps\xosl
+        install.exe 
+        echo Program executed: install.exe  Path: \apps\xosl
+        mpause
+        /
 BootFix Utility
         %cdrom%
         cd \apps\bootfix
         bootfix.com 
         echo Program executed: bootfix.com  Path: \apps\bootfix
-        mpause
-        /
-MBR Save & Restore
-        %cdrom%
-        cd \apps\bootsave
-        bootsave.com 
-        echo Program executed: bootsave.com  Path: \apps\bootsave
         mpause
         /

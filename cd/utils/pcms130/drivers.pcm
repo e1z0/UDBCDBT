@@ -13,11 +13,25 @@ DosLFN-LongFilenames
         echo Program executed: doslfn.com  Path: \
         mpause
         /
+NTFS Pro
+        %cdrom%
+        cd \apps\ntfspro
+        ntfspro.exe 
+        echo Program executed: ntfspro.exe  Path: \apps\ntfspro
+        mpause
+        /
 Dos USB Support
         %cdrom%
         cd \apps\loadusb
         loadusb.bat 
         echo Program executed: loadusb.bat  Path: \apps\loadusb
+        mpause
+        /
+NTFS for Dos
+        %cdrom%
+        cd \apps\ntfs4dos
+        ntfsdos.exe 
+        echo Program executed: ntfsdos.exe  Path: \apps\ntfs4dos
         mpause
         /
 Iomega Guest Driver

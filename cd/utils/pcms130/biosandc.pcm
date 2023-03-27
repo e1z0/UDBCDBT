@@ -6,11 +6,11 @@
 <-- BACK
         <default.pcm
 
-!BIOS
+Award DMI Configuration Utility
         %cdrom%
-        cd \apps\ibios
-        ibios.exe 
-        echo Program executed: ibios.exe  Path: \apps\ibios
+        cd \apps\dmicfg
+        dmicfg.exe 
+        echo Program executed: dmicfg.exe  Path: \apps\dmicfg
         mpause
         /
 BIOS Utility
@@ -20,11 +20,11 @@ BIOS Utility
         echo Program executed: bios.exe  Path: \apps\bios
         mpause
         /
-BIOS Cracker
+!BIOS
         %cdrom%
-        cd \apps\cmospwd
-        cmospwd.exe 
-        echo Program executed: cmospwd.exe  Path: \apps\cmospwd
+        cd \apps\ibios
+        ibios.exe 
+        echo Program executed: ibios.exe  Path: \apps\ibios
         mpause
         /
 UniFlash
@@ -34,11 +34,11 @@ UniFlash
         echo Program executed: UNIFLASH.EXE  Path: \apps\uniflash
         mpause
         /
-Award DMI Configuration Utility
+BIOS Cracker
         %cdrom%
-        cd \apps\dmicfg
-        dmicfg.exe 
-        echo Program executed: dmicfg.exe  Path: \apps\dmicfg
+        cd \apps\cmospwd
+        cmospwd.exe 
+        echo Program executed: cmospwd.exe  Path: \apps\cmospwd
         mpause
         /
 CMOS Save & Restore

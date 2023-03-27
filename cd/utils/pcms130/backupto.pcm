@@ -6,11 +6,11 @@
 <-- BACK
         <default.pcm
 
-COPYR.DMA
+Partition Saver
         %cdrom%
-        cd \apps\copyr
-        copyr.exe 
-        echo Program executed: copyr.exe  Path: \apps\copyr
+        cd \apps\savepart
+        savepart.exe 
+        echo Program executed: savepart.exe  Path: \apps\savepart
         mpause
         /
 Image for DOS
@@ -20,11 +20,11 @@ Image for DOS
         echo Program executed: image.exe  Path: \apps\img4dos
         mpause
         /
-Partition Saver
+COPYR.DMA
         %cdrom%
-        cd \apps\savepart
-        savepart.exe 
-        echo Program executed: savepart.exe  Path: \apps\savepart
+        cd \apps\copyr
+        copyr.exe 
+        echo Program executed: copyr.exe  Path: \apps\copyr
         mpause
         /
 CopyWipe

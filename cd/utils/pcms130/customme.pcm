@@ -6,13 +6,6 @@
 <-- BACK
         <default.pcm
 
-Drive Image(ImgCntr)
-        %cdrom%
-        cd \apps\pqdi
-        pqdi.exe 
-        echo Program executed: pqdi.exe  Path: \apps\pqdi
-        mpause
-        /
 Mini Windows 98
         %cdrom%
         cd \apps\win98

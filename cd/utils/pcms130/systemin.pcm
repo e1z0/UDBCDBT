@@ -6,11 +6,11 @@
 <-- BACK
         <default.pcm
 
-PCI & AGP Info Tool
+CPU Identif. Utililty
         %cdrom%
-        cd \apps\pci32
-        pci.exe 
-        echo Program executed: pci.exe  Path: \apps\pci32
+        cd \apps\cpuid
+        CHKCPU.EXE 
+        echo Program executed: CHKCPU.EXE  Path: \apps\cpuid
         mpause
         /
 Navratil System Info
@@ -20,18 +20,18 @@ Navratil System Info
         echo Program executed: nssi.exe  Path: \apps\nssi
         mpause
         /
-CPU Identif. Utililty
-        %cdrom%
-        cd \apps\cpuid
-        CHKCPU.EXE 
-        echo Program executed: CHKCPU.EXE  Path: \apps\cpuid
-        mpause
-        /
 SysChk - System info
         %cdrom%
         cd \apps\syschk
         syschk.exe 
         echo Program executed: syschk.exe  Path: \apps\syschk
+        mpause
+        /
+PCI & AGP Info Tool
+        %cdrom%
+        cd \apps\pci32
+        pci.exe 
+        echo Program executed: pci.exe  Path: \apps\pci32
         mpause
         /
 HWiNFO
@@ -48,17 +48,17 @@ CTIA CPU Information
         echo Program executed: ctia.exe  Path: \apps\ctia
         mpause
         /
-Astra System Info
-        %cdrom%
-        cd \apps\astra
-        astra.exe 
-        echo Program executed: astra.exe  Path: \apps\astra
-        mpause
-        /
 System Analyser
         %cdrom%
         cd \apps\systeman
         sa53s.com 
         echo Program executed: sa53s.com  Path: \apps\systeman
+        mpause
+        /
+Astra System Info
+        %cdrom%
+        cd \apps\astra
+        astra.exe 
+        echo Program executed: astra.exe  Path: \apps\astra
         mpause
         /

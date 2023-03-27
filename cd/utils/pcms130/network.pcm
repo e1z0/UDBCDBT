@@ -13,11 +13,11 @@ InterLnk LPT1 Support
         echo Program executed: loadsys.exe /ss /od \apps\interlnk\interlnk.exe /drives:5 /lpt1 /noprinter Path: \bin
         mpause
         /
-FastLynx
+Univ. TCP/IP Network
         %cdrom%
-        cd \apps\fastlynx
-        fx.exe 
-        echo Program executed: fx.exe  Path: \apps\fastlynx
+        cd \apps\network
+        script.bat 
+        echo Program executed: script.bat  Path: \apps\network
         mpause
         /
 InterLnk COM1 Support
@@ -27,10 +27,10 @@ InterLnk COM1 Support
         echo Program executed: loadsys.exe /ss /od \apps\interlnk\interlnk.exe /drives:5 /com1 /noprinter Path: \bin
         mpause
         /
-Univ. TCP/IP Network
+FastLynx
         %cdrom%
-        cd \apps\network
-        script.bat 
-        echo Program executed: script.bat  Path: \apps\network
+        cd \apps\fastlynx
+        fx.exe 
+        echo Program executed: fx.exe  Path: \apps\fastlynx
         mpause
         /

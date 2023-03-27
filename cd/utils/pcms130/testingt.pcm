@@ -6,11 +6,11 @@
 <-- BACK
         <default.pcm
 
-Test Hard Disk Drive
+System Speed Test
         %cdrom%
-        cd \apps\testhdd
-        testhdd.com 
-        echo Program executed: testhdd.com  Path: \apps\testhdd
+        cd \apps\speedsys
+        speedsys.exe 
+        echo Program executed: speedsys.exe  Path: \apps\speedsys
         mpause
         /
 Video Memory Stress
@@ -20,11 +20,18 @@ Video Memory Stress
         echo Program executed: VMTCE.EXE  Path: \apps\videotes
         mpause
         /
-System Speed Test
+CPU-Video-Disk Test
         %cdrom%
-        cd \apps\speedsys
-        speedsys.exe 
-        echo Program executed: speedsys.exe  Path: \apps\speedsys
+        cd \apps\test
+        test.exe 
+        echo Program executed: test.exe  Path: \apps\test
+        mpause
+        /
+Test Hard Disk Drive
+        %cdrom%
+        cd \apps\testhdd
+        testhdd.com 
+        echo Program executed: testhdd.com  Path: \apps\testhdd
         mpause
         /
 PC-Check
@@ -32,12 +39,5 @@ PC-Check
         cd \apps\pccheck
         pccheck.exe 
         echo Program executed: pccheck.exe  Path: \apps\pccheck
-        mpause
-        /
-CPU-Video-Disk Test
-        %cdrom%
-        cd \apps\test
-        test.exe 
-        echo Program executed: test.exe  Path: \apps\test
         mpause
         /
