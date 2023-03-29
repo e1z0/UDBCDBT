@@ -1,0 +1,43 @@
+
+.t=Testing Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+Test Hard Disk Drive
+        %cdrom%
+        cd \apps\testhdd
+        testhdd.com 
+        echo Program executed: testhdd.com  Path: \apps\testhdd
+        mpause
+        /
+Video Memory Stress
+        %cdrom%
+        cd \apps\videotes
+        VMTCE.EXE 
+        echo Program executed: VMTCE.EXE  Path: \apps\videotes
+        mpause
+        /
+System Speed Test
+        %cdrom%
+        cd \apps\speedsys
+        speedsys.exe 
+        echo Program executed: speedsys.exe  Path: \apps\speedsys
+        mpause
+        /
+PC-Check
+        %cdrom%
+        cd \apps\pccheck
+        pccheck.exe 
+        echo Program executed: pccheck.exe  Path: \apps\pccheck
+        mpause
+        /
+CPU-Video-Disk Test
+        %cdrom%
+        cd \apps\test
+        test.exe 
+        echo Program executed: test.exe  Path: \apps\test
+        mpause
+        /

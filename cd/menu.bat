@@ -35,6 +35,7 @@ goto start
 :grub
 ECHO Running grub...
 %cdrom%
+cd \
 \grub\grub.exe --config-file="#@\grub\menu.lst"
 goto start
 :shutdown                      

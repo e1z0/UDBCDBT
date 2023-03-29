@@ -1,0 +1,22 @@
+
+.t=Recovery Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+TestDisk
+        %cdrom%
+        cd \apps\testdisk
+        testdisk.exe 
+        echo Program executed: testdisk.exe  Path: \apps\testdisk
+        mpause
+        /
+PhotoRec
+        %cdrom%
+        cd \apps\testdisk
+        photorec.exe 
+        echo Program executed: photorec.exe  Path: \apps\testdisk
+        mpause
+        /

@@ -7,6 +7,16 @@
         <default.pcm
 
 MPXP166D
-        %cdrom%\apps\mpxp166d\mpxplay.exe
+        %cdrom%
+        cd \apps\mpxp166d
+        mpxplay.exe 
+        echo Program executed: mpxplay.exe  Path: \apps\mpxp166d
+        mpause
+        /
+QuickView Pro
+        %cdrom%
+        cd \apps\quickvie
+        qv.exe 
+        echo Program executed: qv.exe  Path: \apps\quickvie
         mpause
         /

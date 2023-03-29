@@ -1,0 +1,50 @@
+
+.t=BIOS and CMOS Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+!BIOS
+        %cdrom%
+        cd \apps\ibios
+        ibios.exe 
+        echo Program executed: ibios.exe  Path: \apps\ibios
+        mpause
+        /
+BIOS Utility
+        %cdrom%
+        cd \apps\bios
+        bios.exe 
+        echo Program executed: bios.exe  Path: \apps\bios
+        mpause
+        /
+BIOS Cracker
+        %cdrom%
+        cd \apps\cmospwd
+        cmospwd.exe 
+        echo Program executed: cmospwd.exe  Path: \apps\cmospwd
+        mpause
+        /
+UniFlash
+        %cdrom%
+        cd \apps\uniflash
+        UNIFLASH.EXE 
+        echo Program executed: UNIFLASH.EXE  Path: \apps\uniflash
+        mpause
+        /
+Award DMI Configuration Utility
+        %cdrom%
+        cd \apps\dmicfg
+        dmicfg.exe 
+        echo Program executed: dmicfg.exe  Path: \apps\dmicfg
+        mpause
+        /
+CMOS Save & Restore
+        %cdrom%
+        cd \apps\cmos
+        cmos.com 
+        echo Program executed: cmos.com  Path: \apps\cmos
+        mpause
+        /

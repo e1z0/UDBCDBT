@@ -1,0 +1,29 @@
+
+.t=Drivers
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+DosLFN-LongFilenames
+        %cdrom%
+        cd \
+        doslfn.com 
+        echo Program executed: doslfn.com  Path: \
+        mpause
+        /
+Dos USB Support
+        %cdrom%
+        cd \apps\loadusb
+        loadusb.bat 
+        echo Program executed: loadusb.bat  Path: \apps\loadusb
+        mpause
+        /
+Iomega Guest Driver
+        %cdrom%
+        cd \apps\iomega
+        guest.exe 
+        echo Program executed: guest.exe  Path: \apps\iomega
+        mpause
+        /

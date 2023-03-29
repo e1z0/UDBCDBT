@@ -303,13 +303,50 @@ sub genMenu {
         foreach my $program (@$value) {
             if ( ref($program) eq "HASH" ) {
 
-                #print "type of var: " . ref($program) . "\n";
-                my $dospath = lc( $program->{path} . "/" . $program->{exe} );
+                my $dospath = lc( $program->{path} );
                 $dospath =~ s{/}{\\}g;
-                writeToFile( $menu . "/" . $submenu, $program->{title} . "\n" );
-                writeToFile( $menu . "/" . $submenu,
-                    "        %cdrom%" . $dospath . "\n" );
+                my $params = "";
+                my $pre    = "";
+                my $post   = "";
+                if ( defined( $program->{params} ) && $program->{params} ne "" )
+                {
+                    $params = $program->{params};
+                }
+                if ( defined( $program->{pre} ) && $program->{pre} ne "" ) {
+                    $pre = $program->{pre};
+                }
+                if ( defined( $program->{post} ) && $program->{post} ne "" ) {
+                    $post = $program->{post};
+                }
 
+                writeToFile( $menu . "/" . $submenu, $program->{title} . "\n" );
+
+                # change drive to the %cdrom%
+                writeToFile( $menu . "/" . $submenu, "        %cdrom%\n" );
+
+                # cd to the program directory
+                writeToFile( $menu . "/" . $submenu,
+                    "        cd " . $dospath . "\n" );
+
+                # run pre command
+                writeToFile( $menu . "/" . $submenu, "        " . $pre . "\n" )
+                  if ( $pre ne "" );
+
+                # write commands
+                writeToFile( $menu . "/" . $submenu,
+                    "        " . $program->{exe} . " $params\n" );
+
+                # run post command
+                writeToFile( $menu . "/" . $submenu, "        " . $post . "\n" )
+                  if ( $post ne "" );
+
+                # write what program where executed
+                writeToFile(
+                    $menu . "/" . $submenu,
+                    "        echo Program executed: "
+                      . $program->{exe}
+                      . " $params Path: $dospath\n"
+                );
                 writeToFile( $menu . "/" . $submenu, "        mpause\n" );
                 writeToFile( $menu . "/" . $submenu, "        /\n" );
             }
@@ -323,12 +360,46 @@ sub genMenu {
     while ( my ( $key, $value ) = each(%$main_menu) ) {
         foreach my $program (@$value) {
             if ( ref($program) eq "HASH" ) {
-                my $dospath = lc( $program->{path} . "/" . $program->{exe} );
-                $dospath =~ s{/}{\\}g;
-                writeToFile( $mainmenufile, $program->{title} . "\n" );
-                writeToFile( $mainmenufile,
-                    "        %cdrom%" . $dospath . "\n" );
 
+# FIXME add the same behaviour as in submenus that enters program directory then executes the executable
+                my $dospath = lc( $program->{path} );
+                $dospath =~ s{/}{\\}g;
+                my $params = "";
+                my $pre    = "";
+                my $post   = "";
+                if ( defined( $program->{params} ) && $program->{params} ne "" )
+                {
+                    $params = $program->{params};
+                }
+                if ( defined( $program->{pre} ) && $program->{pre} ne "" ) {
+                    $pre = $program->{pre};
+                }
+                if ( defined( $program->{post} ) && $program->{post} ne "" ) {
+                    $post = $program->{post};
+                }
+                writeToFile( $mainmenufile, $program->{title} . "\n" );
+
+                # change drive to the %cdrom%
+                writeToFile( $mainmenufile, "        %cdrom%\n" );
+
+                # cd to the program directory
+                writeToFile( $mainmenufile, "        cd " . $dospath . "\n" );
+
+                # run pre command
+                writeToFile( $mainmenufile, "        " . $pre . "\n" )
+                  if ( $pre ne "" );
+
+                # write commands
+                writeToFile( $mainmenufile,
+                    "        " . $program->{exe} . " $params\n" );
+
+                # run post command
+                writeToFile( $mainmenufile, "        " . $post . "\n" )
+                  if ( $post ne "" );
+                writeToFile( $mainmenufile,
+                        "        echo Program executed: "
+                      . $program->{exe}
+                      . " $params Path: $dospath\n" );
                 writeToFile( $mainmenufile, "        mpause\n" );
                 writeToFile( $mainmenufile, "        /\n" );
             }
@@ -426,7 +497,11 @@ sub search_all_folder {
             {
                 my $path     = "$folder/$file";
                 my $realpath = $path;
-                my $item     = basename($folder);
+
+# FIXME
+# this will appear in the sections [section] as folder name, this can be changed to the filename without extension for better suitability
+# because there can be a lot of programs in the same folder
+                my $item = basename($folder);
                 $files{$item}->{"origpath"} = $folder;
                 if ( $path =~ /\Q$original_path\E/ ) {
                     $path =~ s/\Q$original_path\E/\/apps/g;

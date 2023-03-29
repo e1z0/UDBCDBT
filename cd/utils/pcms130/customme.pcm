@@ -1,0 +1,22 @@
+
+.t=Custom Menu
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+Drive Image(ImgCntr)
+        %cdrom%
+        cd \apps\pqdi
+        pqdi.exe 
+        echo Program executed: pqdi.exe  Path: \apps\pqdi
+        mpause
+        /
+Mini Windows 98
+        %cdrom%
+        cd \apps\win98
+        winstart.bat 
+        echo Program executed: winstart.bat  Path: \apps\win98
+        mpause
+        /

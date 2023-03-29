@@ -125,6 +125,37 @@ sub grub {
                     "rootnoverify (fd0)\n\n"
                 );
             }
+            elsif ( $cfg->{"general"}->{"type"} eq "iso" ) {
+                if ( $cfg->{"general"}->{"method"} eq "0xff" ) {
+                    udbcd::writeToFile(
+                        $bloaderpath . "/" . $grubfile,
+                        "map --heads=0 --sectors-per-track=0 "
+                          . $cfg->{"general"}->{"file"}
+                          . " (0xff)\n"
+                    );
+                    udbcd::writeToFile( $bloaderpath . "/" . $grubfile,
+                        "map --hook\n" );
+                    udbcd::writeToFile( $bloaderpath . "/" . $grubfile,
+                        "root (0xff)\n" );
+                    udbcd::writeToFile(
+                        $bloaderpath . "/" . $grubfile,
+                        "chainloader (0xff)\n\n"
+                    );
+                }
+                elsif ( $cfg->{"general"}->{"method"} eq "hd32" ) {
+                    udbcd::writeToFile( $bloaderpath . "/" . $grubfile,
+                        "map " . $cfg->{"general"}->{"file"} . " (hd32)\n" );
+                    udbcd::writeToFile( $bloaderpath . "/" . $grubfile,
+                        "map --hook\n" );
+                    udbcd::writeToFile( $bloaderpath . "/" . $grubfile,
+                        "root (hd32)\n" );
+                    udbcd::writeToFile(
+                        $bloaderpath . "/" . $grubfile,
+                        "chainloader (hd32)\n\n"
+                    );
+                }
+
+            }
             elsif ( $cfg->{"general"}->{"type"} eq "command" ) {
                 udbcd::writeToFile(
                     $bloaderpath . "/" . $grubfile,
@@ -235,6 +266,16 @@ sub isolinux {
                     " append initrd="
                       . $cfg->{"general"}->{"file"}
                       . " floppy\n\n"
+                );
+            }
+            elsif ( $cfg->{"general"}->{"type"} eq "iso" ) {
+                udbcd::writeToFile( $bloaderpath . "/" . $isolunuxfile,
+                    " kernel memdisk\n" );
+                udbcd::writeToFile(
+                    $bloaderpath . "/" . $isolunuxfile,
+                    " append initrd="
+                      . $cfg->{"general"}->{"file"}
+                      . " iso\n\n"
                 );
             }
             elsif ( $cfg->{"general"}->{"type"} eq "command" ) {

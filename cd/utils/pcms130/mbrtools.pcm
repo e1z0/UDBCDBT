@@ -1,0 +1,71 @@
+
+.t=MBR Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+XOSL Boot Manager
+        %cdrom%
+        cd \apps\xosl
+        install.exe 
+        echo Program executed: install.exe  Path: \apps\xosl
+        mpause
+        /
+MBR Utility
+        %cdrom%
+        cd \apps\mbrutil
+        mbrd.exe 
+        echo Program executed: mbrd.exe  Path: \apps\mbrutil
+        mpause
+        /
+MBRWizard
+        %cdrom%
+        cd \apps\mbrwizd
+        mbrwizd.exe 
+        echo Program executed: mbrwizd.exe  Path: \apps\mbrwizd
+        mpause
+        /
+MBR Tool
+        %cdrom%
+        cd \apps\mbrtool
+        mbrtool.exe 
+        echo Program executed: mbrtool.exe  Path: \apps\mbrtool
+        mpause
+        /
+MBR Work
+        %cdrom%
+        cd \apps\mbrwork
+        mbrwork.exe 
+        echo Program executed: mbrwork.exe  Path: \apps\mbrwork
+        mpause
+        /
+DISKMAN4
+        %cdrom%
+        cd \apps\diskman4
+        diskman4.exe 
+        echo Program executed: diskman4.exe  Path: \apps\diskman4
+        mpause
+        /
+Boot Partition
+        %cdrom%
+        cd \apps\bootpart
+        bootpart.exe 
+        echo Program executed: bootpart.exe  Path: \apps\bootpart
+        mpause
+        /
+BootFix Utility
+        %cdrom%
+        cd \apps\bootfix
+        bootfix.com 
+        echo Program executed: bootfix.com  Path: \apps\bootfix
+        mpause
+        /
+MBR Save & Restore
+        %cdrom%
+        cd \apps\bootsave
+        bootsave.com 
+        echo Program executed: bootsave.com  Path: \apps\bootsave
+        mpause
+        /

@@ -1,0 +1,36 @@
+
+.t=Backup Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+COPYR.DMA
+        %cdrom%
+        cd \apps\copyr
+        copyr.exe 
+        echo Program executed: copyr.exe  Path: \apps\copyr
+        mpause
+        /
+Image for DOS
+        %cdrom%
+        cd \apps\img4dos
+        image.exe 
+        echo Program executed: image.exe  Path: \apps\img4dos
+        mpause
+        /
+Partition Saver
+        %cdrom%
+        cd \apps\savepart
+        savepart.exe 
+        echo Program executed: savepart.exe  Path: \apps\savepart
+        mpause
+        /
+CopyWipe
+        %cdrom%
+        cd \apps\copywipe
+        copywipe.exe 
+        echo Program executed: copywipe.exe  Path: \apps\copywipe
+        mpause
+        /

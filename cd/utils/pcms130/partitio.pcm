@@ -1,0 +1,50 @@
+
+.t=Partition Managers
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+Partition Magic
+        %cdrom%
+        cd \apps\pqpm
+        pqpm.bat 
+        echo Program executed: pqpm.bat  Path: \apps\pqpm
+        mpause
+        /
+FDisk 2000
+        %cdrom%
+        cd \apps\spfdisk
+        spfdisk.exe 
+        echo Program executed: spfdisk.exe  Path: \apps\spfdisk
+        mpause
+        /
+Super Fdisk
+        %cdrom%
+        cd \apps\sdisk
+        sdisk.exe 
+        echo Program executed: sdisk.exe  Path: \apps\sdisk
+        mpause
+        /
+Partition Table Dr.
+        %cdrom%
+        cd \apps\ptd
+        ptd.exe 
+        echo Program executed: ptd.exe  Path: \apps\ptd
+        mpause
+        /
+eXtended FDisk
+        %cdrom%
+        cd \apps\xfdisk
+        xfdisk.exe 
+        echo Program executed: xfdisk.exe  Path: \apps\xfdisk
+        mpause
+        /
+Smart FDISK
+        %cdrom%
+        cd \apps\sfdisk
+        sfdisk.exe 
+        echo Program executed: sfdisk.exe  Path: \apps\sfdisk
+        mpause
+        /

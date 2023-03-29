@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 
 .t=File Managers
 .e=0
@@ -8,69 +7,51 @@
         <default.pcm
 
 DOS Navigator
-        %cdrom%\apps\dosnav\dn.com
+        %cdrom%
+        cd \apps\dosnav
+        DN.COM 
+        echo Program executed: DN.COM  Path: \apps\dosnav
         mpause
         /
-Volcov commander
-        %cdrom%\apps\vc\vc.com
-        mpause
-        /
-Necromancers Commander
-        %cdrom%\apps\necro\ndn.com
-        mpause
-        /
-Norton Commander
-        %cdrom%\apps\nc\nc.exe
-        mpause
-        /
-||||||| Stash base
-
-.t=File Managers
-.e=0
-.c=47,31
-
-<-- BACK
-        <default.pcm
-
-Necromancers Commander
-        %cdrom%\apps\necro\ndn.com
-        mpause
-        /
-DOS Navigator
-        %cdrom%\apps\dosnav\dn.com
+File Maven
+        %cdrom%
+        cd \apps\filemave
+        fm3.exe 
+        echo Program executed: fm3.exe  Path: \apps\filemave
         mpause
         /
 Norton Commander
-        %cdrom%\apps\nc\nc.exe
+        %cdrom%
+        cd \apps\nc
+        NC.EXE 
+        echo Program executed: NC.EXE  Path: \apps\nc
+        mpause
+        /
+Dos Command Center
+        %cdrom%
+        cd \apps\dcc
+        dc.exe 
+        echo Program executed: dc.exe  Path: \apps\dcc
         mpause
         /
 Volcov commander
-        %cdrom%\apps\vc\vc.com
-        mpause
-        /
-=======
-
-.t=File Managers
-.e=0
-.c=47,31
-
-<-- BACK
-        <default.pcm
-
-DOS Navigator
-        %cdrom%\apps\dosnav\dn.com
-        mpause
-        /
-Norton Commander
-        %cdrom%\apps\nc\nc.exe
-        mpause
-        /
-Volcov commander
-        %cdrom%\apps\vc\vc.com
+        %cdrom%
+        cd \apps\vc
+        VC.COM 
+        echo Program executed: VC.COM  Path: \apps\vc
         mpause
         /
 Necromancers Commander
-        %cdrom%\apps\necro\ndn.com
+        %cdrom%
+        cd \apps\necro
+        NDN.COM 
+        echo Program executed: NDN.COM  Path: \apps\necro
         mpause
         /
->>>>>>> Stashed changes
+File Wizard
+        %cdrom%
+        cd \apps\fwizard
+        fwizard.exe 
+        echo Program executed: fwizard.exe  Path: \apps\fwizard
+        mpause
+        /

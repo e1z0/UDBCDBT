@@ -2,16 +2,16 @@ color = light-blue/blue black/green
 timeout = 15
 default = 1
 
-title Memtest86+
-find --set-root /udbcd
-kernel /images/memtest
-
 title FreeDOS Ultimate DOS Boot
 find --set-root /udbcd
 map /images/freedos.img (fd0)
 map --hook
 chainloader (fd0)+1
 rootnoverify (fd0)
+
+title Memtest86+
+find --set-root /udbcd
+kernel /images/memtest
 
 title MS-DOS 6.22
 find --set-root /udbcd
@@ -50,4 +50,140 @@ title Damn Small Linux 4.4.10 [128MB RAM]
 find --set-root /udbcd
 kernel /images/dsllin24 ramdisk_size=58440 init=/etc/init lang=us apm=power-off vga=789 nomce noapic BOOT_IMAGE=dsl
 initrd /images/dslrt24.gz
+
+title Acronis Disk Director
+find --set-root /udbcd
+map --mem /images/add.ima (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title BootIt Bare Metal Boot Manager, Partition Manager, OS installer
+find --set-root /udbcd
+map /images/bitbm.IMA (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title Offline NT/2000/XP/Vista/7 Password Changer
+find --set-root /udbcd
+kernel /images/chntpw vga=ask
+initrd /images/chntpw.gz
+
+title CloneZilla
+find --set-root /udbcd
+kernel /images/pmagic/bzImage edd=off load_ramdisk=1 prompt_ramdisk=0 rw vga=normal loglevel=9 max_loop=256 vmalloc=256MiB directory=/images clonezilla
+initrd /images/pmagic/initrd.img
+
+title Darik's Boot and Nuke (Hard Disk Eraser)
+find --set-root /udbcd
+map --mem /images/dban.gz (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title PartitionGuru
+find --set-root /udbcd
+map /images/DGDOS.IMG (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title Disk Genius (Professional edition of Partition Guru)
+find --set-root /udbcd
+map /images/DGENIUS.IMA (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title GParted
+find --set-root /udbcd
+kernel /images/pmagic/bzImage edd=off load_ramdisk=1 prompt_ramdisk=0 rw vga=normal loglevel=9 max_loop=256 vmalloc=256MiB directory=/images gparted
+initrd /images/pmagic/initrd.img
+
+title HDAT2 (Test and Diagnostics of ATA/ATAPI/SATA/USB/SSD/SCSI)
+find --set-root /udbcd
+map /images/HDAT2.IMG (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title HDClone 4.1 (Clone, image, migrate hard disks, SSDs, and USB media)
+find --set-root /udbcd
+map /images/hdclone.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title HDT (Quick Hardware Detection Tool)
+find --set-root /udbcd
+map --mem /images/hdt.gz (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title Video Memory Stress Test
+find --set-root /udbcd
+map /images/memstrt.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title PLOP Boot Manager
+find --set-root /udbcd
+kernel /images/plop
+
+title Partition Magic
+find --set-root /udbcd
+kernel /images/pmagic/bzImage edd=off load_ramdisk=1 prompt_ramdisk=0 rw vga=normal loglevel=9 max_loop=256 vmalloc=288MiB directory=/images keymap=us livemedia noeject
+initrd /images/pmagic/initrd.img
+
+title QuickTech Pro (Diagnostic and Stress test hardware)
+find --set-root /udbcd
+map --mem /images/qtpdos.gz (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title R-Drive (Clone, Restore Disks)
+find --set-root /udbcd
+map /images/rdrive.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title Super Grub2 Disk (Boot any Windows or Linux, from SATA, PATA, RAID, ISO, USB)
+find --set-root /udbcd
+map /images/sgrd.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title SliTaz GNU/Linux
+find --set-root /udbcd
+map /images/slitaz.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title Smart Boot Manager
+find --set-root /udbcd
+map --mem /images/smartbm.gz (fd0)
+map --hook
+chainloader (fd0)+1
+rootnoverify (fd0)
+
+title SpinRite (Data Recovery from ATA, SATA, USB)
+find --set-root /udbcd
+map /images/spinrite.iso (hd32)
+map --hook
+root (hd32)
+chainloader (hd32)
+
+title TinyCore GNU/Linux
+find --set-root /udbcd
+map --heads=0 --sectors-per-track=0 /images/tinycore.iso (0xff)
+map --hook
+root (0xff)
+chainloader (0xff)
 

@@ -1,43 +1,52 @@
-<<<<<<< Updated upstream
 
 .t=Ultimate DOS Boot CD
 .c=27,113
 
-File Managers >>
-        <filemana.pcm
+Network >>
+        <network.pcm
 
-Multimedia >>
-        <multimed.pcm
+Drivers >>
+        <drivers.pcm
 
-<-- QUIT
-        exit
-
-||||||| Stash base
-
-.t=Ultimate DOS Boot CD
-.c=27,113
+Recovery Tools >>
+        <recovery.pcm
 
 File Managers >>
         <filemana.pcm
 
+Testing Tools >>
+        <testingt.pcm
+
+Partition Managers >>
+        <partitio.pcm
+
+Password Tools >>
+        <password.pcm
+
+System Info Tools >>
+        <systemin.pcm
+
+MBR Tools >>
+        <mbrtools.pcm
+
+Hard Disk Tools >>
+        <harddisk.pcm
+
 Multimedia >>
         <multimed.pcm
+
+Backup Tools >>
+        <backupto.pcm
+
+Custom Menu >>
+        <customme.pcm
+
+FileSystem Tools >>
+        <filesyst.pcm
+
+BIOS and CMOS Tools >>
+        <biosandc.pcm
 
 <-- QUIT
         exit
 
-=======
-
-.t=Ultimate DOS Boot CD
-.c=27,113
-
-Multimedia >>
-        <multimed.pcm
-
-File Managers >>
-        <filemana.pcm
-
-<-- QUIT
-        exit
-
->>>>>>> Stashed changes

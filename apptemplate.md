@@ -1,10 +1,11 @@
 ```
 [app]
 title = Volcov Commander
-prerun =
+pre = echo run command before main exe
 exe = vc.com
+post = echo run command after main exe
+params = /?
 path = \utils\vc
 info = Commander
-postrun =
 category = File Managers
 ```

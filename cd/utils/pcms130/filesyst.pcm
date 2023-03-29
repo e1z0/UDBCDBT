@@ -1,0 +1,36 @@
+
+.t=FileSystem Tools
+.e=0
+.c=47,31
+
+<-- BACK
+        <default.pcm
+
+NTFS for Dos
+        %cdrom%
+        cd \apps\ntfs4dos
+        ntfsdos.exe 
+        echo Program executed: ntfsdos.exe  Path: \apps\ntfs4dos
+        mpause
+        /
+NTFS Pro
+        %cdrom%
+        cd \apps\ntfspro
+        ntfspro.exe 
+        echo Program executed: ntfspro.exe  Path: \apps\ntfspro
+        mpause
+        /
+Active NTFS Reader
+        %cdrom%
+        cd \apps\readntfs
+        readntfs.exe 
+        echo Program executed: readntfs.exe  Path: \apps\readntfs
+        mpause
+        /
+Edit boot.ini
+        %cdrom%
+        cd \apps\editbini
+        editbini.exe 
+        echo Program executed: editbini.exe  Path: \apps\editbini
+        mpause
+        /
