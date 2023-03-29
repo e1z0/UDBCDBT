@@ -2,18 +2,29 @@
 
 https://user-images.githubusercontent.com/7213361/227746140-6f2ee743-00c1-4323-9a71-4e33247ed8cb.mov
 
-## What is UDBCD (Ultimate DOS Boot CD) ? 
+# First release of UDBCD (alpha 1)
 
-It's wonderful thing you may use on your old vintage systems, maybe newer ones too. The included software is almost up to date
+You can get it [here](https://archive.org/details/ultimate-dosboot-cd-grub-alpha-1-2023.03.29-17-30-43.7z).
 
-# How to craft a new ISO for UDBCD ?
+# What is UDBCD (Ultimate DOS Boot CD) ? 
 
-## System requirements (Linux)
+It's wonderful thing you may use on your old vintage systems, maybe newer ones too. The included software is almost up to date. This cdrom disk image contains all the necessary programs to restore, repair, test very old or newer computers and their components. With this disk, you can easily install MS-DOS versions 6.22 and 7.10, use the most popular file managers, create/clone disk partitions, make backup copies or restore the file system. There are usefull tools for loading external devices/peripherals. Drivers for ISCSI/USB/ZIP are included by default. Network support will come later.
+
+# What is UDBCDBT ?
+
+UDBCDBT stands for **Ultimate Dos Boot CD Build Tools**
+It's a kind of framework or combined package of tools required to build live bootable cdrom image (.ISO). It uses this [format](loader_templates.md) for templates to define the boot loader menu entries which are located in **/cd/images** and this [format](apptemplate.md) to define the application templates which is located in **/cd/apps/apps.ini**. There is possibility to generate menu entries of the applications automatically, but you can't generate boot loader menu entries yet (it can only be defined with hand).
+
+**Files for apps and apps/images/ content are not shared trough this git repository due to copyright infringements**. You can only use prebuild iso or get images/apps manually.
+
+# How to craft a new UDBCD .ISO image ?
+
+## System requirements for host build system (Linux)
 
 * mkisofs (apt-get install genisoimage, pacman -S cdrtools)
 * nasm (apt-get install nasm, pacman -S nasm)
 
-## System requirements (macOS)
+## System requirements for host build system (macOS)
 
 * mkisofs (brew install dvdrtools)
 
@@ -43,7 +54,7 @@ The output .ISO image will be located in OUTPUT/ directory.
 You can use plop boot manager written to the floppy disk or hdd, more information read: https://www.plop.at/en/bootmanager/download.html
 It supports booting from various media like USB, CD/DVD, Network using boot floppy/hdd as bootstrap.
 
-Steps to prepare floppy:
+## Steps to prepare floppy:
 
 * Download https://download.plop.at/files/bootmngr/plpbt-5.0.15.zip
 * Extract zip
@@ -75,4 +86,8 @@ This project is licensed Under BSD license, some parts of the project uses diffe
 * FreeDOS kernel - implements the core MS-DOS/PC-DOS (R) compatible operating system. It is derived from Pat Villani's DOS-C kernel and released under the GPL v2 or later. 
 * DOS-C is (c) Copyright 1995, 1996 by Pasquale J. Villani All Rights Reserved.
 * freedosbootdisks written by Jason Baker (jason@onejasonforsale.com)
-* grub4dos GPLv2
+* Grub4dos GPLv2
+* Isolinux Copyright 1994-2008 H. Peter Anvin - All Rights Reserved
+* MS-DOS (r) Copyright (c) Microsoft Corp.
+
+All other trademarks are the property of their respective owners.
