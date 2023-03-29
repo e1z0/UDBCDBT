@@ -12,10 +12,11 @@ It's wonderful thing you may use on your old vintage systems, maybe newer ones t
 
 # What is UDBCDBT ?
 
-UDBCDBT stands for **Ultimate Dos Boot CD Build Tools**
-It's a kind of framework or combined package of tools required to build live bootable cdrom image (.ISO). It uses this [format](loader_templates.md) for templates to define the boot loader menu entries which are located in **/cd/images** and this [format](apptemplate.md) to define the application templates which is located in **/cd/apps/apps.ini**. There is possibility to generate menu entries of the applications automatically, but you can't generate boot loader menu entries yet (it can only be defined with hand).
+**UDBCDBT** stands for **Ultimate Dos Boot CD Build Tools**.
 
-**Files for apps and apps/images/ content are not shared trough this git repository due to copyright infringements**. You can only use prebuild iso or get images/apps manually.
+It's a kind of framework or combined package of tools required to build live bootable cdrom image (.ISO). It uses this [format](loader_templates.md) for templates to define the boot loader menu entries which are located in **/cd/images** and this [format](apptemplate.md) to define the application templates which is located in **/cd/apps/apps.ini**. There is possibility to generate menu entries of the applications automatically, but you can't generate boot loader menu entries yet (it can only be defined by hand).
+
+**Files in /cd/apps/ and in /cd/images/ are not shared trough this git repository due to copyright infringements**. You can only use prebuild iso or get images/apps manually.
 
 # How to craft a new UDBCD .ISO image ?
 
@@ -42,7 +43,7 @@ make test          # Will test live cd on qemu (without hdd). You must have qemu
 make testhdd       # Will test live cd on qemu (with hdd). You must have qemu already installed on your system
 ```
 
-The output .ISO image will be located in OUTPUT/ directory.
+The output **.ISO** image will be located in **OUTPUT/** directory.
 
 # Target System requirements
 
@@ -57,9 +58,9 @@ It supports booting from various media like USB, CD/DVD, Network using boot flop
 ## Steps to prepare floppy:
 
 * Download https://download.plop.at/files/bootmngr/plpbt-5.0.15.zip
-* Extract zip
-* Run install\plpinst.com (to install to hdd)
-* Or write install\plpbtin.img to a floppy using linux/macos (ex.: `sudo dd if=plpbtin.img of=/dev/fd0 bs=512 conv=sync;sync`)
+* Extract **zip**
+* Run **install\plpinst.com** (to install to hdd)
+* Or write **install\plpbtin.img** to a floppy using linux/macos (ex.: `sudo dd if=plpbtin.img of=/dev/fd0 bs=512 conv=sync;sync`)
 
 # General software information
 
