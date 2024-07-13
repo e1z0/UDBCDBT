@@ -1,0 +1,71 @@
+70
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ascii-0
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ibm-cp437
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ibm-cp850
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ibm-cp852
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-ibm-cp866
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-iso10646-1
+LiberationMono-Regular.ttf -misc-liberation mono-medium-r-normal--0-0-0-0-m-0-iso8859-1
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-ascii-0
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-ibm-cp437
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-ibm-cp850
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-ibm-cp852
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-ibm-cp866
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-iso10646-1
+LiberationMono-Bold.ttf -misc-liberation mono-bold-r-normal--0-0-0-0-m-0-iso8859-1
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-ascii-0
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-ibm-cp437
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-ibm-cp850
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-ibm-cp852
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-ibm-cp866
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-iso10646-1
+LiberationMono-Italic.ttf -misc-liberation mono-medium-i-normal--0-0-0-0-m-0-iso8859-1
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-ascii-0
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-ibm-cp437
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-ibm-cp850
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-ibm-cp852
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-ibm-cp866
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-iso10646-1
+LiberationMono-BoldItalic.ttf -misc-liberation mono-bold-o-normal--0-0-0-0-m-0-iso8859-1
+DejaS.ttf -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-ascii-0
+DejaS.ttf -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso8859-1
+DejaS.ttf -misc-dejavu sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+DejaSB.ttf -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-ascii-0
+DejaSB.ttf -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso8859-1
+DejaSB.ttf -misc-dejavu sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+DejaSO.ttf -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-ascii-0
+DejaSO.ttf -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso8859-1
+DejaSO.ttf -misc-dejavu sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+DejaSBO.ttf -misc-dejavu sans-bold-o-normal--0-0-0-0-p-0-ascii-0
+DejaSBO.ttf -misc-dejavu sans-bold-o-normal--0-0-0-0-p-0-iso8859-1
+DejaSBO.ttf -misc-dejavu sans-bold-i-normal--0-0-0-0-p-0-iso10646-1
+luximb.ttf -b&h-luxi mono-bold-r-normal--0-0-0-0-m-0-ascii-0
+luximb.ttf -b&h-luxi mono-bold-r-normal--0-0-0-0-m-0-iso10646-1
+luximb.ttf -b&h-luxi mono-bold-r-normal--0-0-0-0-m-0-iso8859-1
+luximbi.ttf -b&h-luxi mono-bold-i-normal--0-0-0-0-m-0-ascii-0
+luximbi.ttf -b&h-luxi mono-bold-i-normal--0-0-0-0-m-0-iso10646-1
+luximbi.ttf -b&h-luxi mono-bold-i-normal--0-0-0-0-m-0-iso8859-1
+luximbi.ttf -b&h-luxi mono-bold-o-normal--0-0-0-0-m-0-ascii-0
+luximbi.ttf -b&h-luxi mono-bold-o-normal--0-0-0-0-m-0-iso10646-1
+luximbi.ttf -b&h-luxi mono-bold-o-normal--0-0-0-0-m-0-iso8859-1
+luximr.ttf -b&h-luxi mono-medium-r-normal--0-0-0-0-c-0-ascii-0
+luximr.ttf -b&h-luxi mono-medium-r-normal--0-0-0-0-c-0-iso10646-1
+luximr.ttf -b&h-luxi mono-medium-r-normal--0-0-0-0-c-0-iso8859-1
+luximri.ttf -b&h-luxi mono-medium-i-normal--0-0-0-0-m-0-ascii-0
+luximri.ttf -b&h-luxi mono-medium-i-normal--0-0-0-0-m-0-iso10646-1
+luximri.ttf -b&h-luxi mono-medium-i-normal--0-0-0-0-m-0-iso8859-1
+luximri.ttf -b&h-luxi mono-medium-o-normal--0-0-0-0-m-0-ascii-0
+luximri.ttf -b&h-luxi mono-medium-o-normal--0-0-0-0-m-0-iso10646-1
+luximri.ttf -b&h-luxi mono-medium-o-normal--0-0-0-0-m-0-iso8859-1
+Vera.ttf -bitstream-bitstream vera sans-medium-r-normal--0-0-0-0-p-0-ascii-0
+Vera.ttf -bitstream-bitstream vera sans-medium-r-normal--0-0-0-0-p-0-iso10646-1
+Vera.ttf -bitstream-bitstream vera sans-medium-r-normal--0-0-0-0-p-0-iso8859-1
+VeraBI.ttf -bitstream-bitstream vera sans-bold-o-normal--0-0-0-0-p-0-ascii-0
+VeraBI.ttf -bitstream-bitstream vera sans-bold-o-normal--0-0-0-0-p-0-iso10646-1
+VeraBI.ttf -bitstream-bitstream vera sans-bold-o-normal--0-0-0-0-p-0-iso8859-1
+VeraBd.ttf -bitstream-bitstream vera sans-bold-r-normal--0-0-0-0-p-0-ascii-0
+VeraBd.ttf -bitstream-bitstream vera sans-bold-r-normal--0-0-0-0-p-0-iso10646-1
+VeraBd.ttf -bitstream-bitstream vera sans-bold-r-normal--0-0-0-0-p-0-iso8859-1
+VeraIt.ttf -bitstream-bitstream vera sans-medium-o-normal--0-0-0-0-p-0-ascii-0
+VeraIt.ttf -bitstream-bitstream vera sans-medium-o-normal--0-0-0-0-p-0-iso10646-1
+VeraIt.ttf -bitstream-bitstream vera sans-medium-o-normal--0-0-0-0-p-0-iso8859-1

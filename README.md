@@ -74,7 +74,7 @@ It supports booting from various media like USB, CD/DVD, Network using boot flop
 
 * MS-DOS 6.22
 * MS-DOS 7.10
-* FreDOS 1.3 Lite USB edition (to save some space)
+* FreeDOS 1.3 Lite USB edition (to save some space)
 
 ## Included Software
 

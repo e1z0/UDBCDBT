@@ -1,6 +1,6 @@
 color = light-blue/blue black/green
 timeout = 15
-default = 1
+default = 0
 
 title FreeDOS Ultimate DOS Boot
 find --set-root /udbcd

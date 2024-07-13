@@ -49,6 +49,12 @@ mkiso() {
   if [ -e boot.img ]; then
     mv boot.img $SYS/images/freedos.img
   fi
+  # clean macos specified files before building iso
+  if [ $OS == "darwin" ];then
+    echo "Cleaning macos specified temp files..."
+    dot_clean -mn ${SYS}/
+    find ${SYS}/ -name .DS_Store -exec rm {} \;
+  fi
   echo "Generating iso image..."
   if [ "$BLOADER" == "freedos" ]; then
     # 1.44M floppy emulation (old method) works with 2mb of ram boots directly to freedos

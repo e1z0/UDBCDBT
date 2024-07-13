@@ -60,6 +60,9 @@ goto Done
 :ramdisk
 echo Creating ram drive...
 SRDISK /E 320 > NUL
+mkdir %SRDISK1%:\temp
+set TEMP=%SRDISK1%:\temp
+set TMP=%SRDISK1%:\temp
 mkdir %SRDISK1%:\pcmenu > NUL
 echo Copying files to the ram drive...
 copy %cdrom%\utils\pcms130\*.* %SRDISK1%:\pcmenu > NUL

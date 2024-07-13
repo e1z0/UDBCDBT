@@ -10,7 +10,9 @@ stuff
 /cd/apps/*
 !/cd/apps/apps.ini
 !/cd/apps/network
+!/cd/apps/dillo
 /cd/images/*
 !/cd/images/*.ini
 !/cd/images/freedos.img
 experiment
+/cd/utils/pcms130/*.pcm

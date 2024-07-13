@@ -2,11 +2,14 @@
 set PCIscan=1
 set MenuBeep=1
 set ramd=%srdisk1%
+set WATTCP.CFG=%ramd%:\
 cls
 echo Expanding Ram disk to 8mb...
 SRDISK /E 8096 > NUL
 echo Copying files to the ram disk...
 copy *.* %ramd%:\ > NUL
+if not exist %ramd%:\temp md %ramd%:\temp
+set temp=%ramd%:\temp
 %ramd%:
 cd \
 echo.

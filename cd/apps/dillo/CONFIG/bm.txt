@@ -1,0 +1,13 @@
+:s0: Unclassified
+s0 http://www.dillo.org/ Dillo Web Browser Home Page
+s0 http://www.georgpotthast.de/sioux/packet.htm Packet Drivers for DOS
+s0 http://www.freedos.org/ FreeDOS | The FreeDOS Project
+s0 http://sourceforge.net/mailarchive/forum.php?forum_name=freedos-user SourceForge.net: The FreeDOS Project: freedos-user
+s0 http://rayer.g6.cz/ RayeR's homepage
+s0 ftp://ftp.delorie.com/pub/djgpp/current/ DJGPP-FTP
+s0 http://www.google.de Google
+s0 https://www.openssl.com OpenSSL Software Foundation, Inc.
+s0 https://encrypted.google.com Encrypted Google
+s0 http://www.dosforum.de/ www.dosforum.de • Foren-Übersicht
+s0 http://www.fltk.org Fast Light Toolkit (FLTK)
+s0 http://www.bttr-software.de/forum/forum.php DOS ain't dead
